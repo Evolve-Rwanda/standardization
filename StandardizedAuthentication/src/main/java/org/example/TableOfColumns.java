@@ -1,6 +1,5 @@
 package org.example;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -18,7 +17,6 @@ public class TableOfColumns extends SpecialTable{
     }
 
     public void documentColumns(List<Column> columnList){
-        System.out.println(columnList.size());
         if (sqlDialect.equalsIgnoreCase("POSTGRES")) {
             PostgresDialect postgresDialect = new PostgresDialect(queryExecutor, name, schema);
             postgresDialect.documentColumns(columnList);

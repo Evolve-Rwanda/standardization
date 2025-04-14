@@ -1,4 +1,4 @@
-package com.example.springbootstandardizedauthentication;
+package com.example.springauth;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;

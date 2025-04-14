@@ -1,5 +1,7 @@
 package org.example;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -30,11 +32,24 @@ class PostgresDialect extends SQLDialect {
     private Schema schema;
     private QueryExecutor queryExecutor;
     private String documentingTableName;
+    private List<String> databaseSysSchemaList;
+
+    {
+        databaseSysSchemaList = new ArrayList<>();
+        databaseSysSchemaList.add("information_schema");
+        databaseSysSchemaList.add("pg_catalog");
+        databaseSysSchemaList.add("pg_toast");
+    }
 
 
     public PostgresDialect(Table table){
         super(table);
         this.setTable(table);
+    }
+
+    // Constructor used in the selection of schemas from the database
+    public PostgresDialect(QueryExecutor queryExecutor){
+        this.queryExecutor = queryExecutor;
     }
 
     // Constructor used in the physical creation of schemas in the database, except for the public schema
@@ -58,6 +73,9 @@ class PostgresDialect extends SQLDialect {
         return precisionlessTypeArray;
     }
 
+    public List<String> getDatabaseSysSchemaList() {
+        return databaseSysSchemaList;
+    }
 
     public void createDatabaseSchemas(List<Schema> schemaList){
         if(schemaList == null || schemaList.isEmpty()) {
@@ -182,7 +200,6 @@ class PostgresDialect extends SQLDialect {
                 existingColumnList.add(column);
         }
         for(Column column: columnList) {
-            System.out.println(setPathQuery + this.getTableOfColumnsInsertionQuery(column));
             if(existingColumnList.contains(column))
                 continue;
             insertionQueryList.add(setPathQuery + this.getTableOfColumnsInsertionQuery(column));
@@ -376,4 +393,87 @@ class PostgresDialect extends SQLDialect {
     private String getSchemaPathQuery(){
         return String.format("SET search_path TO %s;", schema.getName());
     }
+
+    public List<String> getDatabaseSchemaNameList(){
+        List<String> schemaNameList = new ArrayList<>();
+        String schemaSelectionQuery = this.getAllSchemasInTheDatabaseQuery();
+        ResultWrapper resultWrapper = queryExecutor.executeQuery(schemaSelectionQuery);
+        ResultSet resultSet = resultWrapper.getResultSet();
+        try {
+            while (resultSet.next()) {
+                String schemaName = resultSet.getString("schema_name");
+                if (!databaseSysSchemaList.contains(schemaName))
+                    schemaNameList.add(schemaName);
+            }
+        }catch (SQLException e){
+            System.out.println("Error retrieving schemas in the database - " + e.getMessage());
+        }
+        return schemaNameList;
+    }
+
+    private String getAllSchemasInTheDatabaseQuery(){
+        return "SELECT schema_name FROM information_schema.schemata";
+    }
+
+    public Map<String, List<String>> getSchemaNameTableNameListMap(List<String> schemaNameList){
+        Map<String, List<String>> schemaNameTableListMap = new HashMap<>();
+        for(String schemaName: schemaNameList) {
+            List<String> tableNameList = this.getSchemaTableNameList(schemaName);
+            schemaNameTableListMap.put(schemaName, tableNameList);
+        }
+        return schemaNameTableListMap;
+    }
+
+    private List<String> getSchemaTableNameList(String schemaName){
+        List<String> tableNameList = new ArrayList<>();
+        String schemaTableQuery = String.format("SELECT * FROM information_schema.tables WHERE table_schema = '%s'", schemaName);
+        ResultWrapper resultWrapper = queryExecutor.executeQuery(schemaTableQuery);
+        ResultSet resultSet = resultWrapper.getResultSet();
+        try {
+            while (resultSet.next()) {
+                String tableName = resultSet.getString("table_name");
+                tableNameList.add(tableName);
+            }
+        }catch (SQLException e){
+            System.out.println("Error retrieving schemas in the database - " + e.getMessage());
+        }
+        return tableNameList;
+    }
+
+    public List<Relationship> getTableRelationships(String searchTable){
+        List<Relationship> relationshipList = new ArrayList<>();
+        String schemaTableQuery = String.format("SELECT * FROM %s;", searchTable);
+        ResultWrapper resultWrapper = queryExecutor.executeQuery(schemaTableQuery);
+        ResultSet resultSet = resultWrapper.getResultSet();
+        try {
+            while (resultSet.next()) {
+                String leftTableName = resultSet.getString("left_table_name");
+                String rightTableName = resultSet.getString("right_table_name");
+                String type = resultSet.getString("type");
+                Table leftTable = null;
+                Table rightTable = null;
+                var relationship = new Relationship(leftTable, rightTable, type);
+                relationshipList.add(relationship);
+            }
+        }catch (SQLException e){
+            System.out.println("Error retrieving schemas in the database - " + e.getMessage());
+        }
+        return relationshipList;
+    }
+
+    public Table getTable(String schemaName, String tableName){
+        Table table = null;
+        return table;
+    }
+
+    public List<Column> getTableColumnList(String schemaName, String tableName){
+        List<Column> columnList = new ArrayList<>();
+        return columnList;
+    }
+
+    public Column getColumn(String tableName, String columnName){
+        Column column = null;
+        return column;
+    }
+
 }

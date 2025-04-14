@@ -24,4 +24,7 @@ public class TableOfRelationships extends SpecialTable{
         }
     }
 
+    public String getName() {
+        return name;
+    }
 }

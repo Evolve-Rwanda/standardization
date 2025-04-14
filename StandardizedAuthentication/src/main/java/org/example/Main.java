@@ -86,6 +86,11 @@ public class Main {
         List<Column> allTablesColumnList = getUniversalTableColumnList(universalTableList);
         TableOfColumns tableOfColumns = new TableOfColumns(queryExecutor, sqlDialect, databaseDocumentationSchema);
         tableOfColumns.documentColumns(allTablesColumnList);
+
+        /* Deliverable - 1/2. Obtain database documentation */
+        DatabaseDocumentation databaseDocumentation = new DatabaseDocumentation(sqlDialect, queryExecutor, databaseDocumentationSchema);
+        databaseDocumentation.setTablesOfRelationships(specialTableOfRelationships.getName());
+        System.out.println(databaseDocumentation.generateDatabaseDocumentation());
     }
 
     private static Map<String, Table> getNameTableMap(ColumnInitializer colInit, Map<String, Schema> categorySchemaMap){
