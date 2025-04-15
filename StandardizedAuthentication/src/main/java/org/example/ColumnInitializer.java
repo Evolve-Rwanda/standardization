@@ -8,13 +8,21 @@ public class ColumnInitializer {
 
 
     static ColumnInitializer instance = null;
+    private Schema databaseDocumentationSchema;
+    private String dbDocSchemaName;
+    private Schema userManagementSchema;
+    private String umSchemaName;
 
-    private ColumnInitializer(){
+    private ColumnInitializer(Schema databaseDocumentationSchema, Schema userManagementSchema){
+        this.databaseDocumentationSchema = databaseDocumentationSchema;
+        this.dbDocSchemaName = databaseDocumentationSchema != null ? databaseDocumentationSchema.getName() : "";
+        this.userManagementSchema = userManagementSchema;
+        this.umSchemaName = userManagementSchema != null ? userManagementSchema.getName() : "";
     }
 
-    public static ColumnInitializer getColumnInitializer(){
+    public static ColumnInitializer getColumnInitializer(Schema databaseDocumentationSchema, Schema userManagementSchema){
         if(instance == null)
-            return new ColumnInitializer();
+            return new ColumnInitializer(databaseDocumentationSchema, userManagementSchema);
         return instance;
     }
 
@@ -30,27 +38,29 @@ public class ColumnInitializer {
     public List<Column> getTableOfSchemasColumnList(){
         List<Column> tosColumnList = new ArrayList<>();
         String tableName = "table_of_schemas";
+        tableName = !dbDocSchemaName.isEmpty() ? (dbDocSchemaName + "." + tableName): tableName;
         String timestamp = DateTime.getTimeStamp();
         tosColumnList.add(new Column(tableName, "id", 1, "SERIAL", 7, 0, null, false, false, false, true, false, false, null, null, null, "", "", timestamp, null));
         tosColumnList.add(new Column(tableName, "schema_name", 2,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         tosColumnList.add(new Column(tableName, "description", 3,"TEXT", 0, 0, null, true, false, false, false, false, false, null, null, null, "", "", timestamp, null));
 
-        tosColumnList.add(new Column(tableName, "created_at", 4,"TIMESTAMP", 7, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
-        tosColumnList.add(new Column(tableName, "deleted_at", 5,"TIMESTAMP", 7, 0, null, true, false, false, false, false, false, null, null, null, "", "", timestamp, null));
+        //tosColumnList.add(new Column(tableName, "created_at", 4,"TIMESTAMP", 7, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
+        //tosColumnList.add(new Column(tableName, "deleted_at", 5,"TIMESTAMP", 7, 0, null, true, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         return tosColumnList;
     }
 
     public List<Column> getTableOfTablesColumnList(){
         List<Column> totColumnList = new ArrayList<>();
         String tableName = "table_of_tables";
+        tableName = !dbDocSchemaName.isEmpty() ? (dbDocSchemaName + "." + tableName): tableName;
         String timestamp = DateTime.getTimeStamp();
         totColumnList.add(new Column(tableName, "id", 1, "SERIAL", 7, 0, null, false, false, false, true, false, false, null, null, null, "", "", timestamp, null));
         totColumnList.add(new Column(tableName, "table_name", 2,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         totColumnList.add(new Column(tableName, "schema_name", 3,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         totColumnList.add(new Column(tableName, "description", 4,"TEXT", 0, 0, null, true, false, false, false, false, false, null, null, null, "", "", timestamp, null));
 
-        totColumnList.add(new Column(tableName, "created_at", 5,"TIMESTAMP", 7, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
-        totColumnList.add(new Column(tableName, "deleted_at", 6,"TIMESTAMP", 7, 0, null, true, false, false, false, false, false, null, null, null, "", "", timestamp, null));
+        //totColumnList.add(new Column(tableName, "created_at", 5,"TIMESTAMP", 7, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
+        //totColumnList.add(new Column(tableName, "deleted_at", 6,"TIMESTAMP", 7, 0, null, true, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         return totColumnList;
     }
 
@@ -58,24 +68,26 @@ public class ColumnInitializer {
     public List<Column> getTableOfRelationshipsColumnList(){
         List<Column> torColumnList = new ArrayList<>();
         String tableName = "table_of_relationships";
+        tableName = !dbDocSchemaName.isEmpty() ? (dbDocSchemaName + "." + tableName): tableName;
         String timestamp = DateTime.getTimeStamp();
         torColumnList.add(new Column(tableName, "id", 1, "SERIAL", 7, 0, null, false, false, false, true, false, false, null, null, null, "", "", timestamp, null));
-        torColumnList.add(new Column(tableName, "left_table_name", 2,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
-        torColumnList.add(new Column(tableName, "right_table_name", 3,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
+        torColumnList.add(new Column(tableName, "left_table_name", 2,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "The fully qualified name (FQN) of the left table in this relationship", timestamp, null));
+        torColumnList.add(new Column(tableName, "right_table_name", 3,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "The fully qualified name (FQN) of the right table in this relationship", timestamp, null));
         torColumnList.add(new Column(tableName, "type", 4,"VARCHAR", 10, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         torColumnList.add(new Column(tableName, "description", 5,"TEXT", 0, 0, null, true, false, false, false, false, false, null, null, null, "", "", timestamp, null));
 
-        torColumnList.add(new Column(tableName, "created_at", 6,"TIMESTAMP", 7, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
-        torColumnList.add(new Column(tableName, "deleted_at", 7,"TIMESTAMP", 7, 0, null, true, false, false, false, false, false, null, null, null, "", "", timestamp, null));
+        //torColumnList.add(new Column(tableName, "created_at", 6,"TIMESTAMP", 7, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
+        //torColumnList.add(new Column(tableName, "deleted_at", 7,"TIMESTAMP", 7, 0, null, true, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         return torColumnList;
     }
 
     public List<Column> getTableOfColumnsColumnList(){
         List<Column> tocColumnList = new ArrayList<>();
         String tableName = "table_of_columns";
+        tableName = !dbDocSchemaName.isEmpty() ? (dbDocSchemaName + "." + tableName): tableName;
         String timestamp = DateTime.getTimeStamp();
         tocColumnList.add(new Column(tableName, "column_id", 1, "SERIAL", 7, 0, null, false, false, false, true, false, false, null, null, null, "", "", timestamp, null));
-        tocColumnList.add(new Column(tableName, "table_name", 2,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
+        tocColumnList.add(new Column(tableName, "table_name", 2,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "The fully qualified name of the table in which the column can be found", timestamp, null));
         tocColumnList.add(new Column(tableName, "column_number", 3,"SMALLINT", 3, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         tocColumnList.add(new Column(tableName, "column_name", 4,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         tocColumnList.add(new Column(tableName, "column_data_type", 5,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
@@ -96,9 +108,6 @@ public class ColumnInitializer {
         tocColumnList.add(new Column(tableName, "is_indexed", 18,"VARCHAR", 7, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         tocColumnList.add(new Column(tableName, "description", 19,"TEXT", 0, 0, null, true, false, false, false, false, false, null, null, null, "", "", timestamp, null));
 
-        tocColumnList.add(new Column(tableName, "created_at", 20,"TIMESTAMP", 7, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
-        tocColumnList.add(new Column(tableName, "deleted_at", 21,"TIMESTAMP", 7, 0, null, true, false, false, false, false, false, null, null, null, "", "", timestamp, null));
-
         return tocColumnList;
     }
 
@@ -107,6 +116,7 @@ public class ColumnInitializer {
         List<Column> userColumnList = new ArrayList<>();
         String timestamp = DateTime.getTimeStamp();
         String tableName = "user";
+        tableName = !umSchemaName.isEmpty() ? (umSchemaName + "." + tableName): tableName;
 
         userColumnList.add(new Column(tableName, "id", 1, "VARCHAR", 50, 0, null, false, false, false, true, false, true, null, null, null, "", "", timestamp, null));
         userColumnList.add(new Column(tableName, "first_name", 2,"VARCHAR", 255, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
@@ -129,6 +139,7 @@ public class ColumnInitializer {
         List<Column> entityColumnList = new ArrayList<>();
         String timestamp = DateTime.getTimeStamp();
         String tableName = "involved_entity";
+        tableName = !umSchemaName.isEmpty() ? (umSchemaName + "." + tableName): tableName;
 
         entityColumnList.add(new Column(tableName, "id", 1, "VARCHAR", 50, 0, null, false, false, false, true, false, true, null, null, null, "", "", timestamp, null));
         entityColumnList.add(new Column(tableName, "name", 2,"VARCHAR", 255, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
@@ -142,6 +153,7 @@ public class ColumnInitializer {
         List<Column> roleColumnList = new ArrayList<>();
         String timestamp = DateTime.getTimeStamp();
         String tableName = "role";
+        tableName = !umSchemaName.isEmpty() ? (umSchemaName + "." + tableName): tableName;
 
         roleColumnList.add(new Column(tableName, "id", 1, "VARCHAR", 50, 0, null, false, false, false, true, false, true, null, null, null, "", "", timestamp, null));
         roleColumnList.add(new Column(tableName, "code", 2,"VARCHAR", 255, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
@@ -158,6 +170,7 @@ public class ColumnInitializer {
         List<Column> privilegeColumnList = new ArrayList<>();
         String timestamp = DateTime.getTimeStamp();
         String tableName = "privilege";
+        tableName = !umSchemaName.isEmpty() ? (umSchemaName + "." + tableName): tableName;
 
         privilegeColumnList.add(new Column(tableName, "id", 1, "VARCHAR", 50, 0, null, false, false, false, true, false, true, null, null, null, "", "", timestamp, null));
         privilegeColumnList.add(new Column(tableName, "code", 2,"VARCHAR", 255, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
@@ -175,6 +188,7 @@ public class ColumnInitializer {
         List<Column> contactColumnList = new ArrayList<>();
         String timestamp = DateTime.getTimeStamp();
         String tableName = "contact";
+        tableName = !umSchemaName.isEmpty() ? (umSchemaName + "." + tableName): tableName;
 
         contactColumnList.add(new Column(tableName, "id", 1, "VARCHAR", 50, 0, null, false, false, false, true, false, true, null, null, null, "", "", timestamp, null));
         contactColumnList.add(new Column(tableName, "value", 2,"VARCHAR", 255, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
@@ -188,6 +202,7 @@ public class ColumnInitializer {
         List<Column> contactColumnList = new ArrayList<>();
         String timestamp = DateTime.getTimeStamp();
         String tableName = "contact_type";
+        tableName = !umSchemaName.isEmpty() ? (umSchemaName + "." + tableName): tableName;
 
         contactColumnList.add(new Column(tableName, "id", 1, "VARCHAR", 50, 0, null, false, false, false, true, false, true, null, null, null, "", "", timestamp, null));
         contactColumnList.add(new Column(tableName, "name", 2,"VARCHAR", 255, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
@@ -201,6 +216,7 @@ public class ColumnInitializer {
         List<Column> addressColumnList = new ArrayList<>();
         String timestamp = DateTime.getTimeStamp();
         String tableName = "address";
+        tableName = !umSchemaName.isEmpty() ? (umSchemaName + "." + tableName): tableName;
 
         addressColumnList.add(new Column(tableName, "id", 1, "VARCHAR", 50, 0, null, false, false, false, true, false, true, null, null, null, "", "", timestamp, null));
         addressColumnList.add(new Column(tableName, "country", 2,"VARCHAR", 255, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
@@ -214,6 +230,7 @@ public class ColumnInitializer {
         List<Column> authHistColumnList = new ArrayList<>();
         String timestamp = DateTime.getTimeStamp();
         String tableName = "authentication_history";
+        tableName = !umSchemaName.isEmpty() ? (umSchemaName + "." + tableName): tableName;
 
         authHistColumnList.add(new Column(tableName, "session_id", 1, "VARCHAR", 50, 0, null, false, false, false, true, false, true, null, null, null, "", "", timestamp, null));
         authHistColumnList.add(new Column(tableName, "started_at", 2,"TIMESTAMP", 25, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
@@ -228,6 +245,7 @@ public class ColumnInitializer {
         List<Column> authHistColumnList = new ArrayList<>();
         String timestamp = DateTime.getTimeStamp();
         String tableName = "authentication_metadata";
+        tableName = !umSchemaName.isEmpty() ? (umSchemaName + "." + tableName): tableName;
 
         authHistColumnList.add(new Column(tableName, "ip_address", 1, "VARCHAR", 50, 0, null, false, false, false, true, false, true, null, null, null, "", "", timestamp, null));
         authHistColumnList.add(new Column(tableName, "mac_address", 2,"VARCHAR", 25, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));

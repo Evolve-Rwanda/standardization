@@ -1,9 +1,6 @@
 package org.example;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class DatabaseDocumentation {
@@ -13,7 +10,7 @@ public class DatabaseDocumentation {
     private final Schema documentationSchema;
     private final QueryExecutor queryExecutor;
     private String tableOfSchemas;
-    private String tablesOfTables;
+    private String tableOfTables;
     private String tablesOfRelationships;
     private String tableOfColumns;
 
@@ -24,7 +21,7 @@ public class DatabaseDocumentation {
         this.documentationSchema = documentationSchema;
     }
 
-    public void setTableOfColumns(String tableOfColmuns) {
+    public void setTableOfColumns(String tableOfColumns) {
         this.tableOfColumns = tableOfColumns;
     }
 
@@ -36,8 +33,8 @@ public class DatabaseDocumentation {
         this.tablesOfRelationships = tablesOfRelationships;
     }
 
-    public void setTablesOfTables(String tablesOfTables) {
-        this.tablesOfTables = tablesOfTables;
+    public void setTableOfTables(String tablesOfTables) {
+        this.tableOfTables = tablesOfTables;
     }
 
     // 1. Tell the developer of database administrator about the different schemas in the database
@@ -79,6 +76,23 @@ public class DatabaseDocumentation {
         }
 
         // select all relationships between the different tables
+        documentationBuilder.append("\n<br />The tables have the following relationships between them");
+        List<Relationship> relationshipList = getTableRelationships(this.tablesOfRelationships);
+        List<String> relationshipStringList = new ArrayList<>();
+        Set<Table> tableSet = new HashSet<>();
+        for (Relationship r: relationshipList) {
+            Table leftTable = r.getLeftTable();
+            Table righTable = r.getRightTable();
+            String relationshipString = leftTable.getName() + " and " + righTable.getName();
+            relationshipStringList.add(relationshipString);
+            tableSet.add(leftTable);
+            tableSet.add(righTable);
+        }
+        List<Table> tableList = getTableList(this.tableOfTables);
+        for(Table table: tableList)
+            System.out.println(table + " - " + table.getUniversalColumnList());
+
+        documentationBuilder.append(this.getHTMLOrderedList(relationshipStringList));
 
         return documentationBuilder.toString();
     }
@@ -127,6 +141,24 @@ public class DatabaseDocumentation {
                 differenceList.add(s);
         }
         return differenceList;
+    }
+
+    private List<Relationship> getTableRelationships(String searchTable){
+        List<Relationship> relationshipList = new ArrayList<>();
+        if (sqlDialect.equalsIgnoreCase("POSTGRES")) {
+            PostgresDialect postgresDialect = new PostgresDialect(queryExecutor, searchTable, documentationSchema);
+            relationshipList = postgresDialect.getTableRelationships(searchTable);
+        }
+        return relationshipList;
+    }
+
+    private List<Table> getTableList(String searchTable){
+        List<Table> tableList = new ArrayList<>();
+        if (sqlDialect.equalsIgnoreCase("POSTGRES")) {
+            PostgresDialect postgresDialect = new PostgresDialect(queryExecutor, searchTable, documentationSchema);
+            tableList = postgresDialect.getTableList(searchTable);
+        }
+        return tableList;
     }
 
 }

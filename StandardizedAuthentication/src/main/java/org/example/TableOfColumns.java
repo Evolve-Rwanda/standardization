@@ -23,4 +23,8 @@ public class TableOfColumns extends SpecialTable{
         }
     }
 
+    public String getName(){
+        return this.name;
+    }
+
 }

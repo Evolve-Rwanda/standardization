@@ -23,5 +23,9 @@ public class TableOfTables  extends SpecialTable{
         }
     }
 
+    public String getName(){
+        return this.name;
+    }
+
 
 }

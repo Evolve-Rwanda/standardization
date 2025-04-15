@@ -2,12 +2,7 @@ package org.example;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-
-
+import java.util.*;
 
 
 class PostgresDialect extends SQLDialect {
@@ -29,6 +24,7 @@ class PostgresDialect extends SQLDialect {
 
     private String[] precisionlessTypeArray = {"date", "timestamp", "text", "time", "serial", "smallint"};
 
+    protected String name = "POSTGRES";
     private Schema schema;
     private QueryExecutor queryExecutor;
     private String documentingTableName;
@@ -164,8 +160,14 @@ class PostgresDialect extends SQLDialect {
         String setPathQuery = getSchemaPathQuery();
         for(Relationship relationship: relationshipList) {
             Map<String, String> fieldNameValueMap = new HashMap<>();
-            fieldNameValueMap.put("left_table_name", "'" + relationship.getLeftTable().getName() + "'");
-            fieldNameValueMap.put("right_table_name", "'" + relationship.getRightTable().getName() + "'");
+            String leftTableName = relationship.getLeftTable().getName();
+            Schema leftTableSchema = relationship.getLeftTable().getSchema();
+            String leftTableFQN = leftTableSchema != null && !leftTableSchema.getName().isEmpty() ? (leftTableSchema.getName() + "." + leftTableName) : leftTableName;
+            String rightTableName = relationship.getRightTable().getName();
+            Schema rightTableSchema = relationship.getRightTable().getSchema();
+            String rightTableFQN = rightTableSchema != null && !rightTableSchema.getName().isEmpty() ? (rightTableSchema.getName() + "." + rightTableName) : rightTableName;
+            fieldNameValueMap.put("left_table_name", "'" + leftTableFQN + "'");
+            fieldNameValueMap.put("right_table_name", "'" + rightTableFQN + "'");
             SpecialTable.EntryChecker relationshipChecker = new SpecialTable.EntryChecker(queryExecutor, documentingTableName, schema, fieldNameValueMap);
             boolean relationshipExists = relationshipChecker.entryExists();
             if (relationshipExists)
@@ -232,10 +234,14 @@ class PostgresDialect extends SQLDialect {
     public String getTableOfRelationshipsInsertionQuery(Relationship relationship){
         String targetColumns = "left_table_name, right_table_name, type, created_at";
         String leftTableName = relationship.getLeftTable().getName();
+        Schema leftTableSchema = relationship.getLeftTable().getSchema();
+        String leftTableFQN = leftTableSchema != null && !leftTableSchema.getName().isEmpty() ? (leftTableSchema.getName() + "." + leftTableName) : leftTableName;
         String rightTableName = relationship.getRightTable().getName();
+        Schema rightTableSchema = relationship.getRightTable().getSchema();
+        String rightTableFQN = rightTableSchema != null && !rightTableSchema.getName().isEmpty() ? (rightTableSchema.getName() + "." + rightTableName) : rightTableName;
         String type = relationship.getType();
         String createdAt = DateTime.getTimeStamp();
-        String columnValues = "'" + leftTableName + "', '" + rightTableName + "', '" + type + "', '" + createdAt + "'";
+        String columnValues = "'" + leftTableFQN + "', '" + rightTableFQN + "', '" + type + "', '" + createdAt + "'";
         return "INSERT INTO \"" + documentingTableName + "\"(" + targetColumns + ") VALUES(" + columnValues + ");";
     }
 
@@ -344,8 +350,8 @@ class PostgresDialect extends SQLDialect {
         int lolSize = listOfLists.size();
         int t = 0;
         for(List<Column> foreignKeyColumnList: listOfLists) {
-            String constraintName = "fk_" + tableSchema.replace(".", "_").toLowerCase() + this.table.getName() + "_" + t;
-            String referenceTableName = tableSchema + foreignKeyColumnList.getFirst().getReferenceTableName();
+            String constraintName = ("fk_" + tableSchema.toLowerCase() + this.table.getName() + "_" + t).replace(".", "_");
+            String referenceTableName = foreignKeyColumnList.getFirst().getReferenceTableName();
             constraintBuilder.append("CONSTRAINT ");
             constraintBuilder.append(constraintName);
             constraintBuilder.append(" FOREIGN KEY(");
@@ -356,9 +362,8 @@ class PostgresDialect extends SQLDialect {
                     constraintBuilder.append(", ");
                 f++;
             }
-            constraintBuilder.append(") REFERENCES \"");
-            constraintBuilder.append(referenceTableName);
-            constraintBuilder.append("\"(");
+            constraintBuilder.append(") REFERENCES ").append(tableSchema + referenceTableName);
+            constraintBuilder.append("(");
             for (Column c : foreignKeyColumnList) {
                 constraintBuilder.append(c.getReferenceColumnName());
                 if ((i + 1) < fkSize)
@@ -436,44 +441,116 @@ class PostgresDialect extends SQLDialect {
             }
         }catch (SQLException e){
             System.out.println("Error retrieving schemas in the database - " + e.getMessage());
+        }finally {
+            queryExecutor.closeResources();
         }
         return tableNameList;
     }
 
     public List<Relationship> getTableRelationships(String searchTable){
         List<Relationship> relationshipList = new ArrayList<>();
-        String schemaTableQuery = String.format("SELECT * FROM %s;", searchTable);
-        ResultWrapper resultWrapper = queryExecutor.executeQuery(schemaTableQuery);
+        String schemaName = schema != null ? schema.getName() : "";
+        String prefix = !schemaName.isEmpty() ? schemaName + "." : schemaName;
+        String relationshipTableQuery = String.format("SELECT * FROM %s;", (prefix + searchTable));
+        ResultWrapper resultWrapper = queryExecutor.executeQuery(relationshipTableQuery);
         ResultSet resultSet = resultWrapper.getResultSet();
         try {
             while (resultSet.next()) {
                 String leftTableName = resultSet.getString("left_table_name");
                 String rightTableName = resultSet.getString("right_table_name");
                 String type = resultSet.getString("type");
-                Table leftTable = null;
-                Table rightTable = null;
+                Table leftTable = this.getTable(schemaName, leftTableName);
+                Table rightTable = this.getTable(schemaName, rightTableName);
                 var relationship = new Relationship(leftTable, rightTable, type);
                 relationshipList.add(relationship);
             }
         }catch (SQLException e){
-            System.out.println("Error retrieving schemas in the database - " + e.getMessage());
+            System.out.println("Error retrieving relationships in the database - " + e.getMessage());
+        }finally {
+            queryExecutor.closeResources();
         }
         return relationshipList;
     }
 
-    public Table getTable(String schemaName, String tableName){
+    public List<Table> getTableList(String searchTable){
+        List<Table> tableList = new ArrayList<>();
+        String schemaName = schema != null ? schema.getName() : "";
+        String prefix = !schemaName.isEmpty() ? schemaName + "." : schemaName;
+        String tableQuery = String.format("SELECT * FROM %s;", (prefix + searchTable));
+        ResultWrapper resultWrapper = queryExecutor.executeQuery(tableQuery);
+        ResultSet resultSet = resultWrapper.getResultSet();
+        Set<String> tableNameSet = new HashSet<>();
+        try {
+            while (resultSet.next()) {
+                String tableName = resultSet.getString("table_name");
+                String tableSchemaName = resultSet.getString("schema_name");
+                String tableFQN = tableSchemaName != null && !tableSchemaName.isEmpty() ? tableSchemaName + "." + tableName : tableName;
+                if(tableNameSet.contains(tableFQN))
+                    continue;
+                tableNameSet.add(tableFQN);
+                Table table = this.getTable(schemaName, tableFQN);
+                tableList.add(table);
+            }
+        }catch (SQLException e){
+            System.out.println("Error retrieving tables in the database - " + e.getMessage());
+        }finally {
+            queryExecutor.closeResources();
+        }
+        return tableList;
+    }
+
+    private Table getTable(String schemaName, String tableName){
         Table table = null;
+        List<Column> columnList = this.getTableColumnList(schemaName, tableName);
+        System.out.println(documentingTableName + " - " + tableName + " - " + columnList.size());
+        table = new Table(tableName, columnList);
+        table.setSqlDialect(this.name);
+        table.setQueryExecutor(this.queryExecutor);
         return table;
     }
 
-    public List<Column> getTableColumnList(String schemaName, String tableName){
+    private List<Column> getTableColumnList(String schemaName, String tableName){
         List<Column> columnList = new ArrayList<>();
-        return columnList;
-    }
+        String searchTable = "table_of_columns";
+        String searchTableSchema = schema!= null ? schema.getName() : "";
+        String searchTableFQN = !searchTableSchema.isEmpty() ? searchTableSchema + "." + searchTable : searchTable;
+        String query = String.format("SELECT * from %s WHERE table_name = '%s';", searchTableFQN, tableName);
 
-    public Column getColumn(String tableName, String columnName){
-        Column column = null;
-        return column;
+        ResultWrapper resultWrapper = queryExecutor.executeQuery(query);
+        ResultSet resultSet = resultWrapper.getResultSet();
+        try {
+            while (resultSet.next()) {
+                int id = resultSet.getInt("column_id");
+                String columnTableName = resultSet.getString("table_name");
+                int number = resultSet.getInt("column_number");
+                String name = resultSet.getString("column_name");
+                String dataType = resultSet.getString("column_data_type");
+                int precision = resultSet.getInt("precision");
+                int scale = resultSet.getInt("scale");
+                String defaultValue = resultSet.getString("default_value");
+                boolean isNullable = resultSet.getString("is_nullable").equalsIgnoreCase("true");
+                boolean isPK = resultSet.getString("is_pk").equalsIgnoreCase("true");
+                boolean isFK = resultSet.getString("is_fk").equalsIgnoreCase("true");
+                String referenceTableName = resultSet.getString("reference_table_name");
+                String referenceColumnName = resultSet.getString("reference_column_name");
+                String onUpdateAction = resultSet.getString("on_update_action");
+                String onDeleteAction = resultSet.getString("on_delete_action");
+                boolean isAFactBasedColumn = resultSet.getString("is_a_fact_based_column").equalsIgnoreCase("true");
+                boolean isEncrypted = resultSet.getString("is_encrypted").equalsIgnoreCase("true");
+                boolean isIndexed = resultSet.getString("is_indexed").equalsIgnoreCase("true");
+                String description = resultSet.getString("description");
+                String createdAt = resultSet.getString("created_at");
+                String deletedAt = resultSet.getString("deleted_at");
+                String lastUpdatedAt = resultSet.getString("last_updated_at");
+                var column = new Column(tableName, name, number, dataType, precision, scale, defaultValue, isNullable, isAFactBasedColumn, isEncrypted, isPK, isFK, isIndexed, referenceTableName, referenceColumnName, onUpdateAction, onDeleteAction, description, createdAt, deletedAt);
+                columnList.add(column);
+            }
+        }catch (SQLException e){
+            System.out.println("Error retrieving table columns from the database table - " + schemaName + "." + tableName + e.getMessage());
+        }finally {
+            queryExecutor.closeResources();
+        }
+        return columnList;
     }
 
 }

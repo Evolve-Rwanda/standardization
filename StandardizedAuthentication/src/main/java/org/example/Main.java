@@ -3,6 +3,8 @@ package org.example;
 import java.util.*;
 
 
+
+
 public class Main {
 
 
@@ -30,7 +32,7 @@ public class Main {
         List<Schema> databaseSchemaList = Schema.getSchemaList();
 
         // Get the initial columns for all modeled entities in the system
-        ColumnInitializer colInit = ColumnInitializer.getColumnInitializer();
+        ColumnInitializer colInit = ColumnInitializer.getColumnInitializer(databaseDocumentationSchema, userManagementSchema);
         List<Column> commonColumnList = colInit.getCommonColumnList();
 
 
@@ -38,7 +40,7 @@ public class Main {
         Map<String, Table> nameTableMap = getNameTableMap(colInit, categorySchemaMap);
 
         // Obtain a list of tables alone from the table name table object mapping
-        List<Table> universalTableList = getuniversalTableList(nameTableMap);
+        List<Table> universalTableList = getUniversalTableList(nameTableMap);
 
         // Obtain a list of relationships from the table name table object mapping
         List<Relationship> relationshipList = getRelationshipList(nameTableMap);
@@ -90,6 +92,8 @@ public class Main {
         /* Deliverable - 1/2. Obtain database documentation */
         DatabaseDocumentation databaseDocumentation = new DatabaseDocumentation(sqlDialect, queryExecutor, databaseDocumentationSchema);
         databaseDocumentation.setTablesOfRelationships(specialTableOfRelationships.getName());
+        databaseDocumentation.setTableOfTables(specialTableOfTables.getName());
+        databaseDocumentation.setTableOfColumns(tableOfColumns.getName());
         System.out.println(databaseDocumentation.generateDatabaseDocumentation());
     }
 
@@ -151,7 +155,7 @@ public class Main {
         return nameTableMap;
     }
 
-    private static List<Table> getuniversalTableList(Map<String, Table> nameTableMap){
+    private static List<Table> getUniversalTableList(Map<String, Table> nameTableMap){
         List<Table> universalTableList = new ArrayList<>();
         for (String tableName: nameTableMap.keySet()){
             Table nonSpecialTable = nameTableMap.get(tableName);
@@ -163,11 +167,17 @@ public class Main {
     private static List<Table> addCommonColumns(List<Table> tableList, List<Column> commonColumnList){
         List<Table> newTableList = new ArrayList<>();
         for(Table table: tableList){
+            Schema schema = table.getSchema() != null ? table.getSchema() : null;
+            String tableFQN = "";
+            if(!table.getName().contains("."))
+                tableFQN = schema != null && !schema.getName().isEmpty() ? (schema.getName() + "." + table.getName()) : table.getName();
+            else
+                tableFQN = table.getName();
             List<Column> newCommonColumnList = new ArrayList<>();
             for (Column column: commonColumnList){
                 try {
                     Column clone = column.clone();
-                    clone.setTableName(table.getName().replace("\"", ""));
+                    clone.setTableName(tableFQN);
                     newCommonColumnList.add(clone);
                 }catch (CloneNotSupportedException e){
                     System.out.println(e.getMessage());
@@ -226,12 +236,19 @@ public class Main {
             Table rightTable = relationship.getRightTable();
             List<Column> rightTablePrimaryKeyList = rightTable.getPrimaryKeyList();
             String type = relationship.getType().trim();
+            String leftTableName = relationship.getLeftTable().getName();
+            Schema leftTableSchema = relationship.getLeftTable().getSchema();
+            String rightTableName = relationship.getRightTable().getName();
+            Schema rightTableSchema = relationship.getRightTable().getSchema();
+            Schema derivedTableSchema = leftTableSchema.equals(rightTableSchema) ? rightTableSchema : null;
+
             if(type.equalsIgnoreCase("*:*")){
                 List<Column> derivedTableColumnList = new ArrayList<>();
                 List<Column> columnList = new ArrayList<>();
                 columnList.addAll(leftTablePrimaryKeyList);
                 columnList.addAll(rightTablePrimaryKeyList);
-                String derivedTableName = (leftTable.getName() + "_" + rightTable.getName() + "_map").replace("\"", "");
+                String derivedTableName = (leftTableName + "_" + rightTableName + "_map").replace("\"", "");
+                String derivedTableNameFQN = derivedTableSchema != null && !derivedTableSchema.getName().isEmpty() ? (derivedTableSchema.getName() + "." + derivedTableName) : derivedTableName;
                 int n = 1;
                 for (Column column: columnList){
                     try {
@@ -239,7 +256,7 @@ public class Main {
                         tableName = tableName.replace("\"", "");
                         String cloneName = (tableName + "_" + column.getName()).replace("\"", "");
                         Column clone = column.clone();
-                        clone.setTableName(derivedTableName);
+                        clone.setTableName(derivedTableNameFQN);
                         clone.setName(cloneName);
                         clone.setIsPK("true");
                         clone.setIsFK("true");
@@ -268,6 +285,12 @@ public class Main {
             List<Column> strongTablePrimaryKeyList = strongTable.getPrimaryKeyList();
             Table weakTable = relationship.getRightTable();
             String type = relationship.getType().trim();
+
+            Schema strongTableSchema = strongTable.getSchema() != null ? strongTable.getSchema() : null;
+            String strongTableFQN = strongTableSchema != null ? strongTableSchema.getName() + "." + strongTable.getName() : strongTable.getName();
+
+            Schema weakTableSchema = weakTable.getSchema() != null ? weakTable.getSchema() : null;
+            String weakTableFQN = weakTableSchema != null ? weakTableSchema.getName() + "." + weakTable.getName() : weakTable.getName();
             if (type.equalsIgnoreCase("1:*")
                  || type.equalsIgnoreCase("1:1")
                ) {
@@ -275,11 +298,11 @@ public class Main {
                     try {
                         Column clone  = column.clone();
                         String parentTableName = strongTable.getName();
-                        clone.setTableName(weakTable.getName());
+                        clone.setTableName(weakTableFQN);
                         String newColumnName = (parentTableName + "_" + clone.getName()).replace("\"", "");
                         clone.setName(newColumnName);
                         clone.setReferenceColumnName(column.getName());
-                        clone.setReferenceTableName(parentTableName);
+                        clone.setReferenceTableName(strongTableFQN);
                         clone.setIsPK("false");
                         clone.setIsFK("true");
                         weakTable.addColumn(clone);
