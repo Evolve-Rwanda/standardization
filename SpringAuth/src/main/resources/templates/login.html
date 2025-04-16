@@ -1,19 +1,81 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
-    <title>Spring Security Example </title>
+    <title>Spring Standardization </title>
+    <style type="text/css">
+        #submit_button{
+            border: none;
+            background: #000000;
+            color: #FFFFFF;
+            padding: 14px 28px;
+            font-size: math;
+        }
+        #submit_button:hover{
+            background: #998833;
+        }
+        #failed_auth_message{
+            color: red;
+            font-size: medium;
+        }
+        #logged_out_message{
+            color: green;
+            font-size: medium;
+        }
+    </style>
 </head>
-<body>
-<div th:if="${param.error}">
-    Invalid username and password.
-</div>
-<div th:if="${param.logout}">
-    You have been logged out.
-</div>
-<form th:action="@{/login}" method="post">
-    <div><label> User Name : <input type="text" name="username"/> </label></div>
-    <div><label> Password: <input type="password" name="password"/> </label></div>
-    <div><input type="submit" value="Sign In"/></div>
-</form>
+
+<body style="margin:0%; padding:0%;">
+
+
+<table style="width: 100%; height: 100vh;" border="0">
+    <tr>
+        <td align="center" valign="middle">
+            <form th:action="@{/login}" method="post">
+                <table style="margin-top: auto; margin-bottom: auto; width: 40%;" border="0">
+                    <tr>
+                        <td valign="middle" align="center">
+                            <label>
+                                <input type="text" name="username" style="width: 80%; height: 40px; font-size: larger; padding: 0px 10px;" placeholder="User name" required />
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td valign="middle" align="center">
+                            <label>
+                                <input type="password" name="password" style="width: 80%; height: 40px; font-size: larger; padding: 0px 10px;" placeholder="Password" required />
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><br /></td>
+                    </tr>
+                    <tr>
+                        <td align="center">
+                            <input type="submit" value="Sign In" id="submit_button"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td align="center">
+                            <div th:if="${param.error}" id="failed_auth_message">
+                                Invalid username and/or password.
+                            </div>
+                            <div th:if="${param.logout}" id="logged_out_message">
+                                You have been successfully logged out.
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </td>
+    </tr>
+
+</table>
+
 </body>
 </html>

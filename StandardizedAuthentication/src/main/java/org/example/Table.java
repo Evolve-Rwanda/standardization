@@ -1,7 +1,5 @@
 package org.example;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -12,6 +10,7 @@ import java.util.Objects;
 public class Table {
 
 
+
     protected Schema schema;
     protected String name;
     protected String description;
@@ -19,6 +18,7 @@ public class Table {
     protected List<Column> columnList;
     protected QueryExecutor queryExecutor;
     protected String sqlDialect;
+
 
     public Table(String name, List<Column> columnList){
         this.name = name;
@@ -68,6 +68,11 @@ public class Table {
             this.columnList.add(column);
             this.reAssignColumnNumbers();
         }
+    }
+
+    public String getFullyQualifiedName(){
+        String schema = this.schema!= null ? this.schema.getName() : "";
+        return !schema.isEmpty() ? (schema + "." + this.name) : this.name;
     }
 
     public Schema getSchema() {
@@ -142,6 +147,7 @@ public class Table {
         return tableDDLQuery;
     }
 
+    // move this to the dialect class
     public static void createTables(List<Table> tableList){
         for (Table table: tableList)
             table.createTable();

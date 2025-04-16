@@ -1,11 +1,239 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
-    <title>Spring Security Example</title>
+    <title>Spring Standardization</title>
 </head>
-<body>
-<h1>Welcome!</h1>
 
-<p>Click <a th:href="@{/hello}">here</a> to see a greeting.</p>
+<style type="text/css">
+    #left_pane{
+        width: 20%;
+        padding: 0%;
+        margin: 0%;
+        background: #9F9F9F;
+    }
+
+    #right_pane{
+        width: 20%;
+        padding: 0%;
+        margin: 0%;
+        background: white;
+    }
+
+    #center_pane{
+        padding: 0%;
+        background: #FFFFFF;
+    }
+
+    .action_selector{
+        width: 70%;
+        padding: 3% 15%;
+        cursor: pointer;
+    }
+    .action_selector:hover{
+        background: #555555;
+        color: white;
+    }
+
+    .action_pane{
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow-y: auto;
+        overflow-x: auto;
+    }
+
+    .add_button{
+        border: none;
+        background: #000000;
+        color: #FFFFFF;
+        padding: 14px 28px;
+        font-size: math;
+    }
+    .add_button:hover{
+        background: #998833;
+    }
+</style>
+
+<script type="application/javascript">
+    function displaySelection(idName, className){
+        var classElementArray = document.getElementsByClassName(className);
+        for(let i=0; i<classElementArray.length; i++){
+            var specificElement = classElementArray[i];
+            if(specificElement.id === idName){
+                specificElement.style.display = "block";
+                continue;
+            }
+            specificElement.style.display = "none";
+        }
+    }
+</script>
+
+<body style="margin: 0%; padding: 0%;">
+
+<table style="width: 100%; height: 100vh;" border="0" cellpadding="0" cellspacing="0">
+    <tr>
+        <td id="left_pane" valign="top" style="padding: 0;">
+            <table style="width: 100%; border: 0; margin: auto;">
+                <tr>
+                    <td><br /></td>
+                </tr>
+                <tr>
+                    <td valign="middle" align="center" style="">
+                        <label style="margin-left: 20px; font-size: larger; font-weight: bold">Action list</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td><br /></td>
+                </tr>
+                <tr>
+                    <td valign="middle">
+                        <div class="action_selector" onclick="displaySelection('db_schema', 'action_pane')">
+                            Schemas
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="middle">
+                        <div class="action_selector" onclick="displaySelection('db_table', 'action_pane')">
+                            Tables
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="middle">
+                        <div class="action_selector" onclick="displaySelection('db_relationship', 'action_pane')">
+                            Relationships
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="middle">
+                        <div class="action_selector" onclick="displaySelection('db_column', 'action_pane')">
+                            Columns
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="middle">
+                        <div class="action_selector" onclick="displaySelection('db_documentation', 'action_pane')">
+                            Documentation
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+        </td>
+
+        <td align="center" valign="top" id="center_pane">
+            <div class="action_pane" id="welcome" style="display: block;">
+                <h2>Welcome!</h2>
+            </div>
+            <div class="action_pane" id="db_schema" style="display: none;">
+                <h2>Database Schemas</h2>
+                <table style="width: 94%;">
+                    <tr>
+                        <td align="center">
+                            <img th:src="@{images/add.png}" alt="Add" class="top_action_icon_image" onclick="displaySelection('add_schema', 'item_action')" />
+                            <img th:src="@{images/view.png}" alt="View" class="top_action_icon_image" onclick="displaySelection('view_schema', 'item_action')" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div style="width:100%; margin:0; padding:0;" class="item_action" id="add_schema">
+                                <form th:action="@{/schema}" method="post">
+                                <table style="margin-top: auto; margin-bottom: auto; width: 100%;" border="0">
+                                    <tr>
+                                        <td valign="middle" align="center">
+                                            <label>
+                                                <input type="text" name="schema_name" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px;" placeholder="Schema name e.g UM" required />
+                                            </label>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                        <td valign="middle" align="center">
+                                            <label>
+                                                <textarea name="description" style="width: 80%; height: 200px; font-size: large; padding: 10px 10px;" placeholder="type here" required></textarea>
+                                            </label>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><br /></td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center">
+                                            <input type="submit" value="Add schema" class="add_button"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center">
+                                            <div th:if="${param.error}" id="failed_auth_message">
+                                                Invalid username and/or password.
+                                            </div>
+                                            <div th:if="${param.logout}" id="logged_out_message">
+                                                You have been successfully logged out.
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                                </form>
+                            </div> <!-- End of add schema form -->
+                            <!-- start of view schemas -->
+                            <div style="margin: 0; padding: 0; display: none" class="item_action" id="view_schema">
+                                List of schemas here
+                            </div>
+                            <!-- End of view schemas -->
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="action_pane" id="db_table" style="display: none;">
+                <h2>Database Tables</h2>
+            </div>
+            <div class="action_pane" id="db_relationship" style="display: none;">
+                <h2>Database Relationships</h2>
+            </div>
+            <div class="action_pane" id="db_column" style="display: none;">
+                <h2>Table Columns</h2>
+            </div>
+            <div class="action_pane" id="db_documentation" style="display: none;">
+                <h2>Database Documentation</h2>
+            </div>
+        </td>
+
+        <td align="center" valign="top" id="right_pane">
+            <table style="width: 100%; border: 0;">
+                <tr>
+                    <td><br /></td>
+                </tr>
+                <tr>
+                    <td valign="middle" align="center">
+                        <p>Hello</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="middle" align="center">
+                        <form th:action="@{/logout}" method="post">
+                            <input type="submit" value="Sign Out" style="border: 0; background: white; cursor: pointer;"/>
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+        </td>
+
+    </tr>
+</table>
+
+
 </body>
 </html>

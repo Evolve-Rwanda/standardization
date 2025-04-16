@@ -3,6 +3,7 @@ package org.example;
 import java.util.*;
 
 
+
 public class DatabaseDocumentation {
 
 
@@ -43,7 +44,7 @@ public class DatabaseDocumentation {
     // 3. List the relationships between all the tables in the database and all information to describe the relationships
     // 4. List all the derived entities as a result of the relationships.
     // 5. List all the information that is used to explain the columns in a particular table.
-    // . For each column, list all the columns in it along with all the relevant information and documentation
+    // 6. For each column, list all the columns in it along with all the relevant information and documentation
     // 7. Aggregate all the above into a single JSON object to be displayed on the front end.
 
     public String generateDatabaseDocumentation(){
