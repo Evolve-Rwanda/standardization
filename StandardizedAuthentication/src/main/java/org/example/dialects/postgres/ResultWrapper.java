@@ -1,4 +1,4 @@
-package org.example;
+package org.example.dialects.postgres;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

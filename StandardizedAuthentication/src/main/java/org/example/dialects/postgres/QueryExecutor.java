@@ -1,9 +1,9 @@
-package org.example;
+package org.example.dialects.postgres;
+
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
 
 
 public class QueryExecutor {

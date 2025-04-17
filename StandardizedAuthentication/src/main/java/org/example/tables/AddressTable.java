@@ -1,9 +1,11 @@
-package org.example;
+package org.example.tables;
 
 
+import org.example.columns.Column;
 import java.util.List;
 
-public class AddressTable extends Table{
+
+public class AddressTable extends Table {
     public AddressTable(String name, List<Column> columnList){
         super(name, columnList);
     }

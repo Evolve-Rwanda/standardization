@@ -1,8 +1,9 @@
-package org.example;
+package org.example.tables;
 
+import org.example.columns.Column;
 import java.util.List;
 
-public class ContactTable extends Table{
+public class ContactTable extends Table {
 
     public ContactTable(String name, List<Column> columnList){
         super(name, columnList);

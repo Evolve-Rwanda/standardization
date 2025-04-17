@@ -1,7 +1,6 @@
-package org.example;
+package org.example.dialects;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.example.tables.Table;
 
 public class SQLDialect {
 

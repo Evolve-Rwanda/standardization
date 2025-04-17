@@ -1,7 +1,6 @@
-package org.example;
+package org.example.columns;
 
 import java.util.Objects;
-
 
 
 public class Column implements Cloneable{

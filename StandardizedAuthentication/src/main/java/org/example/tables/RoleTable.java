@@ -1,9 +1,10 @@
-package org.example;
+package org.example.tables;
+
+import org.example.columns.Column;
 
 import java.util.List;
-import java.util.ArrayList;
 
-public class RoleTable extends Table{
+public class RoleTable extends Table {
 
     public RoleTable(String name, List<Column> columnList){
         super(name, columnList);

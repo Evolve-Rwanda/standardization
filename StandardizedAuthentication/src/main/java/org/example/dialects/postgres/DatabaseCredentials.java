@@ -1,4 +1,4 @@
-package org.example;
+package org.example.dialects.postgres;
 
 
 public record DatabaseCredentials(String url, String username, String password){

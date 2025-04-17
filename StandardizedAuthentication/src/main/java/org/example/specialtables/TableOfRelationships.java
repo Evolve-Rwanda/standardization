@@ -1,20 +1,25 @@
-package org.example;
+package org.example.specialtables;
 
+import org.example.dialects.postgres.QueryExecutor;
+import org.example.schemas.Schema;
+import org.example.dialects.postgres.PostgresDialect;
+import org.example.relationships.Relationship;
 import java.util.List;
 
 
 
-public class TableOfRelationships extends SpecialTable{
+public class TableOfRelationships extends SpecialTable {
 
 
-    private final String name = "table_of_relationships";
+    private final String name = SpecialTableName.getTableOfRelationships();
     private final Schema schema;
 
     public TableOfRelationships(QueryExecutor queryExecutor, String sqlDialect, Schema schema) {
-        super(queryExecutor, sqlDialect);
+        super(queryExecutor, sqlDialect, schema);
         this.queryExecutor = queryExecutor;
         this.sqlDialect = sqlDialect;
         this.schema = schema;
+        this.setName(name);
     }
 
     public void documentRelationships(List<Relationship> relationshipList){

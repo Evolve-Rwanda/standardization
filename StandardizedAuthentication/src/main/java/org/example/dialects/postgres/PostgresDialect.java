@@ -1,11 +1,20 @@
-package org.example;
+package org.example.dialects.postgres;
+
+import org.example.dialects.SQLDialect;
+import org.example.specialtables.SpecialTable;
+import org.example.tables.Table;
+import org.example.schemas.Schema;
+import org.example.relationships.Relationship;
+import org.example.columns.Column;
+import org.example.utilities.DateTime;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
 
-class PostgresDialect extends SQLDialect {
+
+public class PostgresDialect extends SQLDialect {
 
 
     private String[] numericTypeArray = {

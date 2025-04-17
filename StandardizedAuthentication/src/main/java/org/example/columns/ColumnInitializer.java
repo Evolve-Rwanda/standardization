@@ -1,7 +1,10 @@
-package org.example;
+package org.example.columns;
 
-import java.util.List;
+import org.example.utilities.DateTime;
+import org.example.schemas.Schema;
+
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class ColumnInitializer {
@@ -44,8 +47,6 @@ public class ColumnInitializer {
         tosColumnList.add(new Column(tableName, "schema_name", 2,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         tosColumnList.add(new Column(tableName, "description", 3,"TEXT", 0, 0, null, true, false, false, false, false, false, null, null, null, "", "", timestamp, null));
 
-        //tosColumnList.add(new Column(tableName, "created_at", 4,"TIMESTAMP", 7, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
-        //tosColumnList.add(new Column(tableName, "deleted_at", 5,"TIMESTAMP", 7, 0, null, true, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         return tosColumnList;
     }
 
@@ -58,9 +59,6 @@ public class ColumnInitializer {
         totColumnList.add(new Column(tableName, "table_name", 2,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         totColumnList.add(new Column(tableName, "schema_name", 3,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         totColumnList.add(new Column(tableName, "description", 4,"TEXT", 0, 0, null, true, false, false, false, false, false, null, null, null, "", "", timestamp, null));
-
-        //totColumnList.add(new Column(tableName, "created_at", 5,"TIMESTAMP", 7, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
-        //totColumnList.add(new Column(tableName, "deleted_at", 6,"TIMESTAMP", 7, 0, null, true, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         return totColumnList;
     }
 

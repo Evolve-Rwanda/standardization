@@ -1,5 +1,11 @@
 package org.example;
 
+import org.example.columns.Column;
+import org.example.dialects.postgres.PostgresDialect;
+import org.example.dialects.postgres.QueryExecutor;
+import org.example.schemas.Schema;
+import org.example.tables.Table;
+import org.example.relationships.Relationship;
 import java.util.*;
 
 

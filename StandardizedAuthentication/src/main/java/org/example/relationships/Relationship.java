@@ -1,11 +1,13 @@
-package org.example;
+package org.example.relationships;
 
-import java.util.List;
+import org.example.tables.Table;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
-public class Relationship{
+public class Relationship {
 
 
     private final Table leftTable;

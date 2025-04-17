@@ -1,9 +1,9 @@
-package org.example;
+package org.example.tables;
 
-import java.util.ArrayList;
+import org.example.columns.Column;
 import java.util.List;
 
-public class AuthenticationHistoryTable extends Table{
+public class AuthenticationHistoryTable extends Table {
     public AuthenticationHistoryTable(String name, List<Column> columnList){
         super(name, columnList);
     }

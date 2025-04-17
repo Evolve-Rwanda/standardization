@@ -52,6 +52,22 @@
     .add_button:hover{
         background: #998833;
     }
+
+    .top_action_icon_image{
+        width: 25px;
+        height: 25px;
+    }
+
+    .failed_action_message{
+        color: red;
+        font-size: medium;
+    }
+
+    .successful_action_message{
+        color: green;
+        font-size: medium;
+    }
+
 </style>
 
 <script type="application/javascript">
@@ -135,9 +151,12 @@
                 <table style="width: 94%;">
                     <tr>
                         <td align="center">
-                            <img th:src="@{images/add.png}" alt="Add" class="top_action_icon_image" onclick="displaySelection('add_schema', 'item_action')" />
-                            <img th:src="@{images/view.png}" alt="View" class="top_action_icon_image" onclick="displaySelection('view_schema', 'item_action')" />
+                            <img th:src="@{/images/add.png}" alt="Add" class="top_action_icon_image" onclick="displaySelection('add_schema', 'item_action')" />
+                            <img th:src="@{/images/view.png}" alt="View" class="top_action_icon_image" onclick="displaySelection('view_schema', 'item_action')" />
                         </td>
+                    </tr>
+                    <tr>
+                        <td><br /></td>
                     </tr>
                     <tr>
                         <td>
@@ -174,11 +193,11 @@
                                     </tr>
                                     <tr>
                                         <td align="center">
-                                            <div th:if="${param.error}" id="failed_auth_message">
-                                                Invalid username and/or password.
+                                            <div th:if="${param.error}" class="failed_action_message">
+                                                Invalid schema details
                                             </div>
-                                            <div th:if="${param.logout}" id="logged_out_message">
-                                                You have been successfully logged out.
+                                            <div th:if="${param.added_schema}" class="successful_action_message">
+                                                You have successfully added a schema.
                                             </div>
                                         </td>
                                     </tr>
@@ -196,12 +215,425 @@
             </div>
             <div class="action_pane" id="db_table" style="display: none;">
                 <h2>Database Tables</h2>
+                <table style="width: 94%;">
+                    <tr>
+                        <td align="center">
+                            <img th:src="@{/images/add.png}" alt="Add" class="top_action_icon_image" onclick="displaySelection('add_table', 'item_action')" />
+                            <img th:src="@{/images/view.png}" alt="View" class="top_action_icon_image" onclick="displaySelection('view_table', 'item_action')" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><br /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div style="width:100%; margin:0; padding:0;" class="item_action" id="add_table">
+                                <form th:action="@{/database_table}" method="post">
+                                    <table style="margin-top: auto; margin-bottom: auto; width: 100%;" border="0">
+                                        <tr>
+                                            <td valign="middle" align="center">
+                                                <label>
+                                                    <input type="text" name="table_name" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px;" placeholder="Table name e.g Sales" required />
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <select name="schema" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
+                                                    <option disabled selected>Select schema</option>
+                                                    <option>Some schema 1</option>
+                                                    <option>Some schema 2</option>
+                                                    <option>Some schema 3</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td valign="middle" align="center">
+                                                <label>
+                                                    <textarea name="description" style="width: 80%; height: 200px; font-size: large; padding: 10px 10px;" placeholder="type here" required></textarea>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><br /></td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <input type="submit" value="Add Table" class="add_button"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <div th:if="${param.error}" class="failed_action_message">
+                                                    Invalid table details
+                                                </div>
+                                                <div th:if="${param.added_table}" class="successful_action_message">
+                                                    You have successfully added a table.
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
+                            </div> <!-- End of add schema form -->
+                            <!-- start of view schemas -->
+                            <div style="margin: 0; padding: 0; display: none" class="item_action" id="view_table">
+                                List of tables here
+                            </div>
+                            <!-- End of view schemas -->
+                        </td>
+                    </tr>
+                </table>
             </div>
             <div class="action_pane" id="db_relationship" style="display: none;">
                 <h2>Database Relationships</h2>
+                <table style="width: 94%;">
+                    <tr>
+                        <td align="center">
+                            <img th:src="@{/images/add.png}" alt="Add" class="top_action_icon_image" onclick="displaySelection('add_relationship', 'item_action')" />
+                            <img th:src="@{/images/view.png}" alt="View" class="top_action_icon_image" onclick="displaySelection('view_relationship', 'item_action')" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><br /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div style="width:100%; margin:0; padding:0;" class="item_action" id="add_relationship">
+                                <form th:action="@{/database_relationship}" method="post">
+                                    <table style="margin-top: auto; margin-bottom: auto; width: 100%;" border="0">
+                                        <tr>
+                                            <td align="center">
+                                                <select name="left_table" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
+                                                    <option disabled selected>Select left table</option>
+                                                    <option>Some table 1</option>
+                                                    <option>Some table 2</option>
+                                                    <option>Some table 3</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <select name="right_table" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
+                                                    <option disabled selected>Select right table</option>
+                                                    <option>Some table 1</option>
+                                                    <option>Some table 2</option>
+                                                    <option>Some table 3</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <select name="type" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
+                                                    <option disabled selected>Select relationship</option>
+                                                    <option>Many to Many</option>
+                                                    <option>One to Many</option>
+                                                    <option>One to One</option>
+                                                    <option>Recursive Many to Many</option>
+                                                    <option>Recursive One to Many</option>
+                                                    <option>Recursive One to One</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td valign="middle" align="center">
+                                                <label>
+                                                    <textarea name="description" style="width: 80%; height: 200px; font-size: large; padding: 10px 10px;" placeholder="type here" required></textarea>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><br /></td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <input type="submit" value="Add Relationship" class="add_button"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <div th:if="${param.error}" class="failed_action_message">
+                                                    Invalid relationship details
+                                                </div>
+                                                <div th:if="${param.added_relationship}" class="successful_action_message">
+                                                    You have successfully added a relationship.
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
+                            </div> <!-- End of add schema form -->
+                            <!-- start of view schemas -->
+                            <div style="margin: 0; padding: 0; display: none" class="item_action" id="view_relationship">
+                                List of table relationships here
+                            </div>
+                            <!-- End of view schemas -->
+                        </td>
+                    </tr>
+                </table>
             </div>
             <div class="action_pane" id="db_column" style="display: none;">
                 <h2>Table Columns</h2>
+                <table style="width: 94%;">
+                    <tr>
+                        <td align="center">
+                            <img th:src="@{/images/add.png}" alt="Add" class="top_action_icon_image" onclick="displaySelection('add_column', 'item_action')" />
+                            <img th:src="@{/images/view.png}" alt="View" class="top_action_icon_image" onclick="displaySelection('view_column', 'item_action')" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><br /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div style="width:100%; margin:0; padding:0;" class="item_action" id="add_column">
+                                <form th:action="@{/database_column}" method="post">
+                                    <table style="margin-top: auto; margin-bottom: auto; width: 100%;" border="0">
+                                        <tr>
+                                            <td align="center">
+                                                <select name="table_name" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
+                                                    <option disabled selected>Select table</option>
+                                                    <option>Some table 1</option>
+                                                    <option>Some table 2</option>
+                                                    <option>Some table 3</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <input type="number" name="column_number" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="Column number e.g 1 (for ordering)" required>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <input type="text" name="column_name" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="Column name e.g 1 (first name)" required>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <select name="sql_dialect" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
+                                                    <option disabled selected>Select sql dialect</option>
+                                                    <option>PostgreSQL(PL/pgSQL)</option>
+                                                    <option>Oracle(PL/SQL)</option>
+                                                    <option>MySQL</option>
+                                                    <option>MSSQL(Transact-SQL)</option>
+                                                    <option>DB2</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <input type="text" name="column_data_type" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="Column data type e.g 1 (varchar)" required>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <input type="number" name="precision" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="precision">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <input type="number" name="scale" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="scale">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <input type="text" name="default_value" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="default value e.g 1">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label style="margin-left: 25%;">
+                                                   <input type="checkbox" name="is_nullable"> is nullable
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label style="margin-left: 25%;">
+                                                    <input type="checkbox" name="is_pk"> is primary key
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label style="margin-left: 25%;">
+                                                    <input type="checkbox" name="is_fk"> is foreign key
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label style="margin-left: 25%;">
+                                                    <input type="checkbox" name="is_a_fact_based_column"> is a fact based column
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label style="margin-left: 25%;">
+                                                    <input type="checkbox" name="is_encrypted"> is encrypted
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label style="margin-left: 25%;">
+                                                    <input type="checkbox" name="is_indexed"> is indexed
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <select name="reference_table_name" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
+                                                    <option disabled selected>Select reference table</option>
+                                                    <option>Some table 1</option>
+                                                    <option>Some table 2</option>
+                                                    <option>Some table 3</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <select name="reference_column_name" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
+                                                    <option disabled selected>Select reference column name</option>
+                                                    <option>Some column 1</option>
+                                                    <option>Some column 2</option>
+                                                    <option>Some column 3</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <select name="on_delete_action" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
+                                                    <option disabled selected>Select on delete action</option>
+                                                    <option>cascade</option>
+                                                    <option>ignore or do nothing</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <select name="on_update_action" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
+                                                    <option disabled selected>Select on update or conflict action</option>
+                                                    <option>cascade</option>
+                                                    <option>ignore or do nothing</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td valign="middle" align="center">
+                                                <label>
+                                                    <textarea name="description" style="width: 80%; height: 200px; font-size: large; padding: 10px 10px;" placeholder="type here" required></textarea>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><br /></td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <input type="submit" value="Add Column" class="add_button"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center">
+                                                <div th:if="${param.error}" class="failed_action_message">
+                                                    Invalid column details
+                                                </div>
+                                                <div th:if="${param.added_column}" class="successful_action_message">
+                                                    You have successfully added a column.
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
+                            </div> <!-- End of add schema form -->
+                            <!-- start of view schemas -->
+                            <div style="margin: 0; padding: 0; display: none" class="item_action" id="view_columns">
+                                List of table columns here
+                            </div>
+                            <!-- End of view schemas -->
+                        </td>
+                    </tr>
+                </table>
             </div>
             <div class="action_pane" id="db_documentation" style="display: none;">
                 <h2>Database Documentation</h2>

@@ -1,8 +1,9 @@
-package org.example;
+package org.example.tables;
 
+import org.example.columns.Column;
 import java.util.List;
 
-public class InvolvedEntityTable extends Table{
+public class InvolvedEntityTable extends Table {
 
     public InvolvedEntityTable(String name, List<Column> columnList){
         super(name, columnList);

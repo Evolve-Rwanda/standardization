@@ -1,4 +1,8 @@
-package org.example;
+package org.example.specialtables;
+
+import org.example.dialects.postgres.QueryExecutor;
+import org.example.dialects.postgres.ResultWrapper;
+import org.example.schemas.Schema;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,14 +15,31 @@ public class SpecialTable {
 
     protected String sqlDialect;
     protected QueryExecutor queryExecutor;
+    protected Schema schema;
+    protected String name;
 
-    public SpecialTable(QueryExecutor queryExecutor, String sqlDialect) {
+    public SpecialTable(QueryExecutor queryExecutor, String sqlDialect, Schema schema) {
         this.queryExecutor = queryExecutor;
         this.sqlDialect = sqlDialect;
+        this.schema = schema;
     }
 
-    // The SQL used in this table is the same for all SQL dialects needs no special considerations for the dialect used
-    protected static final class EntryChecker{
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName(){
+        return this.name;
+    }
+
+    public String getFullyQualifiedName(){
+        String schema = this.schema!= null ? this.schema.getName() : "";
+        return !schema.isEmpty() ? (schema + "." + this.name) : this.name;
+    }
+
+    /* The SQL used in this table is the same for all SQL dialects and needs no special
+       considerations for the dialect used */
+    public static final class EntryChecker{
 
         private final QueryExecutor queryExecutor;
         private final String tableName;

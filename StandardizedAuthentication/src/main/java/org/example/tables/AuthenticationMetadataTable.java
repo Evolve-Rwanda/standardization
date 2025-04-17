@@ -1,8 +1,9 @@
-package org.example;
+package org.example.tables;
 
+import org.example.columns.Column;
 import java.util.List;
 
-public class AuthenticationMetadataTable extends Table{
+public class AuthenticationMetadataTable extends Table {
 
     public AuthenticationMetadataTable(String name, List<Column> columnList){
         super(name, columnList);

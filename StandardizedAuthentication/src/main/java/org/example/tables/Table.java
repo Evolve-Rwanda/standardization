@@ -1,7 +1,12 @@
-package org.example;
+package org.example.tables;
 
-import java.util.List;
+import org.example.columns.Column;
+import org.example.dialects.postgres.PostgresDialect;
+import org.example.dialects.postgres.QueryExecutor;
+import org.example.schemas.Schema;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
