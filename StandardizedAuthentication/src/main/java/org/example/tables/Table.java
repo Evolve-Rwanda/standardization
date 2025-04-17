@@ -1,10 +1,9 @@
 package org.example.tables;
 
 import org.example.columns.Column;
-import org.example.dialects.postgres.PostgresDialect;
+import org.example.dialects.postgres.PostgresDialectTableCreator;
 import org.example.dialects.postgres.QueryExecutor;
 import org.example.schemas.Schema;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -92,6 +91,14 @@ public class Table {
         return description;
     }
 
+    public String getSqlDialect() {
+        return sqlDialect;
+    }
+
+    public QueryExecutor getQueryExecutor() {
+        return queryExecutor;
+    }
+
     public List<Column> getPrimaryKeyList(){
         List<Column> primaryKeyList = new ArrayList<>();
         for(Column column: this.getUniversalColumnList()){
@@ -143,26 +150,13 @@ public class Table {
         return newUniversalColumnList;
     }
 
-    public String getTableDDLQuery(){
-        String tableDDLQuery = "";
-        if(sqlDialect.equalsIgnoreCase("postgres")) {
-            PostgresDialect postgresDialect = new PostgresDialect(this);
-            tableDDLQuery = postgresDialect.getDialectTableDDLQuery();
-        }
-        return tableDDLQuery;
-    }
-
     // move this to the dialect class
     public static void createTables(List<Table> tableList){
-        for (Table table: tableList)
-            table.createTable();
-    }
-
-    public void createTable(){
-        String tableDDL = this.getTableDDLQuery();
-        if(tableDDL != null) {
-            queryExecutor.executeQuery(tableDDL);
-            queryExecutor.closeResources();
+        for (Table table: tableList) {
+            if (table.getSqlDialect().equalsIgnoreCase("postgres")) {
+                var postgresTableCreator = new PostgresDialectTableCreator(table, table.getQueryExecutor());
+                postgresTableCreator.createTable();
+            }
         }
     }
 

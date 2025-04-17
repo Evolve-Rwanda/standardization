@@ -4,44 +4,27 @@ import org.example.columns.Column;
 import org.example.dialects.postgres.PostgresDialect;
 import org.example.dialects.postgres.QueryExecutor;
 import org.example.schemas.Schema;
+import org.example.specialtables.SpecialTableNameGiver;
 import org.example.tables.Table;
 import org.example.relationships.Relationship;
 import java.util.*;
 
 
 
+
 public class DatabaseDocumentation {
+
 
 
     private final String sqlDialect;
     private final Schema documentationSchema;
     private final QueryExecutor queryExecutor;
-    private String tableOfSchemas;
-    private String tableOfTables;
-    private String tablesOfRelationships;
-    private String tableOfColumns;
 
 
     public DatabaseDocumentation(String sqlDialect, QueryExecutor queryExecutor, Schema documentationSchema){
         this.sqlDialect = sqlDialect;
         this.queryExecutor = queryExecutor;
         this.documentationSchema = documentationSchema;
-    }
-
-    public void setTableOfColumns(String tableOfColumns) {
-        this.tableOfColumns = tableOfColumns;
-    }
-
-    public void setTableOfSchemas(String tableOfSchemas) {
-        this.tableOfSchemas = tableOfSchemas;
-    }
-
-    public void setTablesOfRelationships(String tablesOfRelationships) {
-        this.tablesOfRelationships = tablesOfRelationships;
-    }
-
-    public void setTableOfTables(String tablesOfTables) {
-        this.tableOfTables = tablesOfTables;
     }
 
     // 1. Tell the developer of database administrator about the different schemas in the database
@@ -82,24 +65,108 @@ public class DatabaseDocumentation {
             documentationBuilder.append(this.getHTMLOrderedList(schemaTableListMap.get(s)));
         }
 
+        // select all tables in the database
+        documentationBuilder.append("\n\n<br /><p>The database will have the following pre modelled tables in an attempt to standardize software modules common many software development projects.</p>");
+        documentationBuilder.append("<h3>Table details</h3>");
+        String tableOfTables = SpecialTableNameGiver.getTableOfTablesName();
+        List<Table> tableList = getTableList(tableOfTables);
+        List<List<String>> tableDetailsListOfList = new ArrayList<>();
+        List<String> tableDetailsHeaderList = new ArrayList<>();
+        tableDetailsHeaderList.add("Table name");
+        tableDetailsHeaderList.add("Table Fully Qualified Name (FQN)");
+        tableDetailsHeaderList.add("Description");
+        for(Table table: tableList) {
+            List<String> detailsList = new ArrayList<>();
+            detailsList.add(table.getName());
+            detailsList.add(table.getFullyQualifiedName());
+            detailsList.add(table.getDescription());
+            tableDetailsListOfList.add(detailsList);
+        }
+        String tablesMarkup = getHTMLTableMarkup(tableDetailsHeaderList, tableDetailsListOfList);
+        documentationBuilder.append(tablesMarkup);
+
+        // select all tables' columns in the database
+        documentationBuilder.append("\n<br /><p>Each of the tables above have the following columns used to maintain data about their corresponding entities</p>");
+        List<String> columnDetailsHeaderList = new ArrayList<>();
+        columnDetailsHeaderList.add("Table name");
+        columnDetailsHeaderList.add("Column number");
+        columnDetailsHeaderList.add("Column name");
+        columnDetailsHeaderList.add("Column data type");
+        columnDetailsHeaderList.add("Precision");
+        columnDetailsHeaderList.add("Scale");
+        columnDetailsHeaderList.add("Default value");
+        columnDetailsHeaderList.add("Is nullable");
+        columnDetailsHeaderList.add("Is PK");
+        columnDetailsHeaderList.add("Is Fk");
+        columnDetailsHeaderList.add("Reference table Name (FQN)");
+        columnDetailsHeaderList.add("Reference column Name");
+        columnDetailsHeaderList.add("On update action");
+        columnDetailsHeaderList.add("On delete action");
+        columnDetailsHeaderList.add("Is a fact based column");
+        columnDetailsHeaderList.add("Is encrypted");
+        columnDetailsHeaderList.add("Is indexed");
+        columnDetailsHeaderList.add("Description");
+        for(Table table: tableList) {
+            documentationBuilder.append("<h3>").append(table.getFullyQualifiedName()).append("</h3>");
+            List<Column> tableCOlumnList = table.getUniversalColumnList();
+            List<List<String>> columnDetailsRowList = new ArrayList<>();
+            for(Column c: tableCOlumnList) {
+                List<String> columnDetailsRow = new ArrayList<>();
+                columnDetailsRow.add(c.getTableName());
+                columnDetailsRow.add(c.getNumber() + "");
+                columnDetailsRow.add(c.getName());
+                columnDetailsRow.add(c.getDataType());
+                columnDetailsRow.add(c.getPrecision() + "");
+                columnDetailsRow.add(c.getScale() + "");
+                columnDetailsRow.add(c.getDefaultValue());
+                columnDetailsRow.add(c.getIsNullable());
+                columnDetailsRow.add(c.getIsPK());
+                columnDetailsRow.add(c.getIsFK());
+                columnDetailsRow.add(c.getReferenceTableName());
+                columnDetailsRow.add(c.getReferenceColumnName());
+                columnDetailsRow.add(c.getOnUpdateAction());
+                columnDetailsRow.add(c.getOnDeleteAction());
+                columnDetailsRow.add(c.getIsAFactBasedColumn());
+                columnDetailsRow.add(c.getIsEncrypted());
+                columnDetailsRow.add(c.getIsIndexed());
+                columnDetailsRow.add(c.getDescription());
+                columnDetailsRowList.add(columnDetailsRow);
+            }
+            String tableColumnsMarkup = getHTMLTableMarkup(columnDetailsHeaderList, columnDetailsRowList);
+            documentationBuilder.append(tableColumnsMarkup);
+        }
+
         // select all relationships between the different tables
-        documentationBuilder.append("\n<br />The tables have the following relationships between them");
-        List<Relationship> relationshipList = getTableRelationships(this.tablesOfRelationships);
-        List<String> relationshipStringList = new ArrayList<>();
+        documentationBuilder.append("\n<br /><br /><p>The tables have the following relationships between them</p>");
+        documentationBuilder.append("<h3>Relationship details</h3>");
+        List<String> relationshipDetailsHeaderList = new ArrayList<>();
+        relationshipDetailsHeaderList.add("Left table name FQN");
+        relationshipDetailsHeaderList.add("Right table name FQN");
+        relationshipDetailsHeaderList.add("Type");
+        relationshipDetailsHeaderList.add("Description");
+        List<List<String>> relationshipListOfList = new ArrayList<>();
+        String tablesOfRelationships = SpecialTableNameGiver.getTableOfRelationshipsName();
+        List<Relationship> relationshipList = getTableRelationships(tablesOfRelationships);
+
         Set<Table> tableSet = new HashSet<>();
+
         for (Relationship r: relationshipList) {
             Table leftTable = r.getLeftTable();
             Table righTable = r.getRightTable();
-            String relationshipString = leftTable.getName() + " and " + righTable.getName();
-            relationshipStringList.add(relationshipString);
+            String type = r.getType();
+            String description = r.getDescription();
+            List<String> relationshipRowList = new ArrayList<>();
+            relationshipRowList.add(leftTable.getFullyQualifiedName());
+            relationshipRowList.add(righTable.getFullyQualifiedName());
+            relationshipRowList.add(type);
+            relationshipRowList.add(description);
+            relationshipListOfList.add(relationshipRowList);
             tableSet.add(leftTable);
             tableSet.add(righTable);
         }
-        List<Table> tableList = getTableList(this.tableOfTables);
-        for(Table table: tableList)
-            System.out.println(table + " - " + table.getUniversalColumnList());
+        String relationshipMarkup = getHTMLTableMarkup(relationshipDetailsHeaderList, relationshipListOfList);
+        documentationBuilder.append(relationshipMarkup);
 
-        documentationBuilder.append(this.getHTMLOrderedList(relationshipStringList));
 
         return documentationBuilder.toString();
     }
@@ -112,6 +179,35 @@ public class DatabaseDocumentation {
             orderedListBuilder.append("<li>").append(item).append("</li>");
         orderedListBuilder.append("</ol>");
         return orderedListBuilder.toString();
+    }
+
+    private String getHTMLTableMarkup(List<String> headingsList, List<List<String>> valueListofList){
+        StringBuilder tableMarkupBuilder = new StringBuilder();
+        tableMarkupBuilder.append("<table>");
+        tableMarkupBuilder.append("<tr>");
+        tableMarkupBuilder.append("<td>&nbsp;</td>");
+        for(String heading: headingsList){
+            tableMarkupBuilder.append("<td>");
+            tableMarkupBuilder.append(heading);
+            tableMarkupBuilder.append("</td>");
+        }
+        tableMarkupBuilder.append("</tr>");
+        int count = 1;
+        for(List<String> valueList: valueListofList) {
+            tableMarkupBuilder.append("<tr>");
+            tableMarkupBuilder.append("<td>");
+            tableMarkupBuilder.append(count);
+            tableMarkupBuilder.append("</td>");
+            for(String value: valueList){
+                tableMarkupBuilder.append("<td>");
+                tableMarkupBuilder.append(value);
+                tableMarkupBuilder.append("</td>");
+            }
+            tableMarkupBuilder.append("</tr>");
+            count++;
+        }
+        tableMarkupBuilder.append("</table>");
+        return tableMarkupBuilder.toString();
     }
 
     private List<String> getDatabaseSchemaNameList(){

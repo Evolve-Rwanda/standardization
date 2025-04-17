@@ -13,6 +13,7 @@ public class Relationship {
     private final Table leftTable;
     private final Table rightTable;
     private final String type;
+    private String description;
     private static final List<Relationship> relationshipList;
 
     static {
@@ -23,6 +24,14 @@ public class Relationship {
         this.leftTable = leftTable;
         this.rightTable = rightTable;
         this.type = type;
+        relationshipList.add(this);
+    }
+
+    public Relationship(Table leftTable, Table rightTable, String type, String description){
+        this.leftTable = leftTable;
+        this.rightTable = rightTable;
+        this.type = type;
+        this.description = description;
         relationshipList.add(this);
     }
 
@@ -52,6 +61,10 @@ public class Relationship {
 
     public String getType() {
         return type;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public static List<Relationship> getRelationshipList() {

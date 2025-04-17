@@ -11,7 +11,7 @@ import java.util.List;
 public class TableOfRelationships extends SpecialTable {
 
 
-    private final String name = SpecialTableName.getTableOfRelationships();
+    private final String name = SpecialTableNameGiver.getTableOfRelationshipsName();
     private final Schema schema;
 
     public TableOfRelationships(QueryExecutor queryExecutor, String sqlDialect, Schema schema) {

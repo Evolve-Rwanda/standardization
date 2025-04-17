@@ -10,7 +10,7 @@ import java.util.List;
 public class TableOfTables  extends SpecialTable {
 
 
-    private final String name = SpecialTableName.getTableOfTables();
+    private final String name = SpecialTableNameGiver.getTableOfTablesName();
     private final Schema schema;
 
     public TableOfTables(QueryExecutor queryExecutor, String sqlDialect, Schema schema) {

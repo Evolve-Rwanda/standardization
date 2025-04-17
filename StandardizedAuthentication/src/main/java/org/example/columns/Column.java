@@ -203,6 +203,8 @@ public class Column implements Cloneable{
         return tableName;
     }
 
+
+
     public String getName() {
         return name;
     }

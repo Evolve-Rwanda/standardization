@@ -12,7 +12,7 @@ import java.util.List;
 public class TableOfColumns extends SpecialTable {
 
 
-    private final String name = SpecialTableName.getTableOfColumns();
+    private final String name = SpecialTableNameGiver.getTableOfColumnsName();
     private final Schema schema;
 
     public TableOfColumns(QueryExecutor queryExecutor, String sqlDialect, Schema schema) {

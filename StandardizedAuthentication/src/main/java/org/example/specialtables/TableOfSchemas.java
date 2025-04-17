@@ -10,7 +10,7 @@ import java.util.List;
 public class TableOfSchemas extends SpecialTable {
 
 
-    private final String name = SpecialTableName.getTableOfSchemas();
+    private final String name = SpecialTableNameGiver.getTableOfSchemasName();
     private final Schema schema;
 
 

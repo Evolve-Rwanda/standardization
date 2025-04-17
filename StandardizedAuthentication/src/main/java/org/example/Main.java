@@ -100,9 +100,6 @@ public class Main {
 
         /* Deliverable - 1/2. Obtain database documentation */
         DatabaseDocumentation databaseDocumentation = new DatabaseDocumentation(sqlDialect, queryExecutor, databaseDocumentationSchema);
-        databaseDocumentation.setTablesOfRelationships(specialTableOfRelationships.getName());
-        databaseDocumentation.setTableOfTables(specialTableOfTables.getName());
-        databaseDocumentation.setTableOfColumns(tableOfColumns.getName());
         System.out.println(databaseDocumentation.generateDatabaseDocumentation());
     }
 
