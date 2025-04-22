@@ -1,12 +1,12 @@
-package org.example;
+package com.example.springauth.documentation;
 
-import org.example.columns.Column;
-import org.example.dialects.postgres.PostgresDialect;
-import org.example.dialects.postgres.QueryExecutor;
-import org.example.schemas.Schema;
-import org.example.specialtables.SpecialTableNameGiver;
-import org.example.tables.Table;
-import org.example.relationships.Relationship;
+import com.example.springauth.columns.Column;
+import com.example.springauth.dialects.postgres.PostgresDialect;
+import com.example.springauth.dialects.postgres.QueryExecutor;
+import com.example.springauth.schemas.Schema;
+import com.example.springauth.specialtables.SpecialTableNameGiver;
+import com.example.springauth.tables.Table;
+import com.example.springauth.relationships.Relationship;
 import java.util.*;
 
 
@@ -19,12 +19,51 @@ public class DatabaseDocumentation {
     private final String sqlDialect;
     private final Schema documentationSchema;
     private final QueryExecutor queryExecutor;
+    private List<Schema> schemaList;
+    private List<String> schemaNameList;
+    private List<Table> tableList;
+    private Map<Schema, List<Table>> schemaTableMap;
+    private Map<String, List<String>> schemaNameTableNameMap;
+    private List<Column> columnList;
+    private List<Relationship> relationshipList;
 
 
     public DatabaseDocumentation(String sqlDialect, QueryExecutor queryExecutor, Schema documentationSchema){
         this.sqlDialect = sqlDialect;
         this.queryExecutor = queryExecutor;
         this.documentationSchema = documentationSchema;
+    }
+
+    public Schema getDocumentationSchema() {
+        return documentationSchema;
+    }
+
+    public List<Schema> getSchemaList() {
+        return schemaList;
+    }
+
+    public List<String> getSchemaNameList() {
+        return schemaNameList;
+    }
+
+    public List<Table> getTableList() {
+        return tableList;
+    }
+
+    public Map<String, List<String>> getSchemaNameTableNameMap() {
+        return schemaNameTableNameMap;
+    }
+
+    public Map<Schema, List<Table>> getSchemaTableMap() {
+        return schemaTableMap;
+    }
+
+    public List<Column> getColumnList() {
+        return columnList;
+    }
+
+    public List<Relationship> getRelationshipList() {
+        return relationshipList;
     }
 
     // 1. Tell the developer of database administrator about the different schemas in the database
@@ -37,6 +76,9 @@ public class DatabaseDocumentation {
     // 7. Aggregate all the above into a single JSON object to be displayed on the front end.
 
     public String generateDatabaseDocumentation(){
+        List<Schema> schemaList = this.getDatabaseSchemaList();
+        this.schemaList = schemaList;
+        this.schemaNameList = this.getDatabaseSchemaNameList();
         StringBuilder documentationBuilder = new StringBuilder();
         documentationBuilder.append("<p>The database documentation information for this application can be found in the \"");
         documentationBuilder.append(documentationSchema.getName());
@@ -58,6 +100,7 @@ public class DatabaseDocumentation {
 
         // select tables in all the relevant schemas
         Map<String, List<String>> schemaTableListMap = getSchemaNameTableNameListMap(focusSchemaNameList);
+        this.schemaNameTableNameMap = schemaTableListMap;
         for (String s: schemaTableListMap.keySet()){
             documentationBuilder.append(
                     String.format("The <i>%s</i> schema manages the following list of tables", s)
@@ -70,6 +113,7 @@ public class DatabaseDocumentation {
         documentationBuilder.append("<h3>Table details</h3>");
         String tableOfTables = SpecialTableNameGiver.getTableOfTablesName();
         List<Table> tableList = getTableList(tableOfTables);
+        this.tableList = tableList;
         List<List<String>> tableDetailsListOfList = new ArrayList<>();
         List<String> tableDetailsHeaderList = new ArrayList<>();
         tableDetailsHeaderList.add("Table name");
@@ -166,8 +210,6 @@ public class DatabaseDocumentation {
         }
         String relationshipMarkup = getHTMLTableMarkup(relationshipDetailsHeaderList, relationshipListOfList);
         documentationBuilder.append(relationshipMarkup);
-
-
         return documentationBuilder.toString();
     }
 
@@ -208,6 +250,15 @@ public class DatabaseDocumentation {
         }
         tableMarkupBuilder.append("</table>");
         return tableMarkupBuilder.toString();
+    }
+
+    private List<Schema> getDatabaseSchemaList(){
+        List<Schema> schemaList = new ArrayList<>();
+        if (sqlDialect.equalsIgnoreCase("POSTGRES")) {
+            PostgresDialect postgresDialect = new PostgresDialect(queryExecutor);
+            schemaList = postgresDialect.getDatabaseSchemaList();
+        }
+        return schemaList;
     }
 
     private List<String> getDatabaseSchemaNameList(){

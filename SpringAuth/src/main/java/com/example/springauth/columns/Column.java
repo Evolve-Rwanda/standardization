@@ -1,4 +1,4 @@
-package org.example.columns;
+package com.example.springauth.columns;
 
 import java.util.Objects;
 

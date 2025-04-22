@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+
 <head>
     <title>Spring Standardization</title>
 </head>
 
 <style type="text/css">
+
     #left_pane{
         width: 20%;
         padding: 0%;
@@ -38,8 +40,9 @@
         margin: 0;
         padding: 0;
         height: 100vh;
-        overflow-y: auto;
-        overflow-x: auto;
+        width: 100%;
+        overflow-y: scroll;
+        overflow-x: scroll;
     }
 
     .add_button{
@@ -142,11 +145,11 @@
             </table>
         </td>
 
-        <td align="center" valign="top" id="center_pane">
-            <div class="action_pane" id="welcome" style="display: block;">
+        <td align="center" valign="top" id="center_pane" style="overflow: scroll;" width="60%">
+            <div class="action_pane" id="welcome" style="display: block; overflow: auto;">
                 <h2>Welcome!</h2>
             </div>
-            <div class="action_pane" id="db_schema" style="display: none;">
+            <div class="action_pane" id="db_schema" style="display: none; overflow: auto;">
                 <h2>Database Schemas</h2>
                 <table style="width: 94%;">
                     <tr>
@@ -213,7 +216,7 @@
                     </tr>
                 </table>
             </div>
-            <div class="action_pane" id="db_table" style="display: none;">
+            <div class="action_pane" id="db_table" style="display: none; overflow: auto;">
                 <h2>Database Tables</h2>
                 <table style="width: 94%;">
                     <tr>
@@ -635,8 +638,93 @@
                     </tr>
                 </table>
             </div>
-            <div class="action_pane" id="db_documentation" style="display: none;">
+            <div class="action_pane" id="db_documentation" style="display: none; width: 100%; padding: 0; margin: 0; overflow-x: scroll;">
                 <h2>Database Documentation</h2>
+                <div style="width: 100%; overflow-x: auto;">
+                    <p>The database documentation information for this application can be found in the &quot;<span th:text="${documentation_schema}"></span>&quot; schema from whence it can be generated in a preferable way.</p>
+                    <p>This documentation contains information about the different different schemas, tables, relationships between the different tables, and the columns that belong to each and every table.</p>
+                    <p>The different schemas in the database include - </p>
+                    <ul>
+                        <li th:each="schema:${app_schema_list}">
+                           <span th:text="${schema.name}"></span>
+                        </li>
+                    </ul>
+                    <p>However, the following schemas are not of interest or relevance to documenting important objects relevant to the modelled application objects of the system</p>
+                    <ul>
+                        <li th:each="schema:${other_schema_list}">
+                            <span th:text="${schema}"></span>
+                        </li>
+                    </ul>
+                    <p>The different schemas manage the following list of tables</p>
+                    <div th:each="schema_name:${schema_name_table_list_map.keySet()}">
+                        <span th:text="${schema_name}"></span>
+                        <ol>
+                            <li th:each="table_name: ${schema_name_table_list_map.get(schema_name)}">
+                                <span th:text="${table_name}"></span>
+                            </li>
+                        </ol>
+                    </div>
+                    <p>The database will have the following pre modelled tables in an attempt to standardize software modules common many software development projects.</p>
+                    <div style="width: 100%; height: auto; overflow: scroll; overflow-x: auto;">
+                        <table border="1" cellpadding="2" cellspacing="0" align="center" style="width: auto;">
+                            <tr style="background: #777777; color: white; font-size: medium;">
+                                <td>Name</td>
+                                <td>Fully Qualified Name (FQN)</td>
+                                <td>Description</td>
+                            </tr>
+                            <tr th:each="table_obj:${table_list}" style="font-size: small">
+                                <td th:text="${table_obj.getName()}"></td>
+                                <td th:text="${table_obj.getFullyQualifiedName()}"></td>
+                                <td th:text="${table_obj.getDescription()}"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <p>Each of the tables above have the following columns used to maintain data about their corresponding entities</p>
+
+                    <div th:each="table_obj: ${table_list}" style="width: 100%; height: auto; overflow: scroll; overflow-x: auto;">
+                        <h3 th:text="${table_obj.getName()}"></h3>
+                        <table border="1" cellpadding="2" cellspacing="0" align="center" style="width: auto;">
+                            <tr style="background: #777777; color: white; font-size: medium;">
+                                <td>Column number</td>
+                                <td>Name</td>
+                                <td>Data type</td>
+                                <td>Precision</td>
+                                <td>Scale</td>
+                                <td>Default value</td>
+                                <td>Nullable</td>
+                                <td>PK</td>
+                                <td>FK</td>
+                                <td>Reference table name (FQN)</td>
+                                <td>Reference column name</td>
+                                <td>On update action</td>
+                                <td>On delete action</td>
+                                <td>Is a fact based column</td>
+                                <td>Encrypted</td>
+                                <td>Indexed</td>
+                                <td>Description</td>
+                            </tr>
+                            <tr th:each="col:${table_obj.getUniversalColumnList()}" style="font-size: small">
+                                <td th:text="${col.getNumber()}"></td>
+                                <td th:text="${col.getName()}"></td>
+                                <td th:text="${col.getDataType()}"></td>
+                                <td th:text="${col.getPrecision()}"></td>
+                                <td th:text="${col.getScale()}"></td>
+                                <td th:text="${col.getDefaultValue()}"></td>
+                                <td th:text="${col.getIsNullable()}"></td>
+                                <td th:text="${col.getIsPK()}"></td>
+                                <td th:text="${col.getIsFK()}"></td>
+                                <td th:text="${col.getReferenceTableName()}"></td>
+                                <td th:text="${col.getReferenceColumnName()}"></td>
+                                <td th:text="${col.getOnUpdateAction()}"></td>
+                                <td th:text="${col.getOnDeleteAction()}"></td>
+                                <td th:text="${col.getIsAFactBasedColumn()}"></td>
+                                <td th:text="${col.getIsEncrypted()}"></td>
+                                <td th:text="${col.getIsIndexed()}"></td>
+                                <td th:text="${col.getDescription()}"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
             </div>
         </td>
 
