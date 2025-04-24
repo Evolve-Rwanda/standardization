@@ -61,6 +61,10 @@
         height: 25px;
     }
 
+    .top_action_icon_image:hover{
+        cursor: pointer;
+    }
+
     .failed_action_message{
         color: red;
         font-size: medium;
@@ -145,17 +149,17 @@
             </table>
         </td>
 
-        <td align="center" valign="top" id="center_pane" style="overflow: scroll;" width="60%">
+        <td valign="top" id="center_pane" style="overflow-y: auto; overflow-x: auto; position: fixed; padding: 0 10px 0 10px;" width="60%">
             <div class="action_pane" id="welcome" style="display: block; overflow: auto;">
-                <h2>Welcome!</h2>
+                <h2 style="text-align: center;">Welcome!</h2>
             </div>
             <div class="action_pane" id="db_schema" style="display: none; overflow: auto;">
-                <h2>Database Schemas</h2>
+                <h2 style="text-align: center;">Database Schemas</h2>
                 <table style="width: 94%;">
                     <tr>
                         <td align="center">
-                            <img th:src="@{/images/add.png}" alt="Add" class="top_action_icon_image" onclick="displaySelection('add_schema', 'item_action')" />
-                            <img th:src="@{/images/view.png}" alt="View" class="top_action_icon_image" onclick="displaySelection('view_schema', 'item_action')" />
+                            <img th:src="@{/images/add.png}" alt="Add" title="Add" class="top_action_icon_image" onclick="displaySelection('add_schema', 'item_action')" />
+                            <img th:src="@{/images/view.png}" alt="View" title="View" class="top_action_icon_image" onclick="displaySelection('view_schema', 'item_action')" />
                         </td>
                     </tr>
                     <tr>
@@ -163,13 +167,14 @@
                     </tr>
                     <tr>
                         <td>
+                            <!-- Start of add schema form -->
                             <div style="width:100%; margin:0; padding:0;" class="item_action" id="add_schema">
-                                <form th:action="@{/schema}" method="post">
+                                <form th:action="@{/add_schema}" th:object="${schemaForm}" method="post">
                                 <table style="margin-top: auto; margin-bottom: auto; width: 100%;" border="0">
                                     <tr>
                                         <td valign="middle" align="center">
                                             <label>
-                                                <input type="text" name="schema_name" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px;" placeholder="Schema name e.g UM" required />
+                                                <input type="text" th:field="*{name}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px;" placeholder="Schema name e.g UM" required />
                                             </label>
                                         </td>
                                     </tr>
@@ -179,7 +184,7 @@
                                     <tr>
                                         <td valign="middle" align="center">
                                             <label>
-                                                <textarea name="description" style="width: 80%; height: 200px; font-size: large; padding: 10px 10px;" placeholder="type here" required></textarea>
+                                                <textarea th:field="*{description}" style="width: 80%; height: 200px; font-size: large; padding: 10px 10px;" placeholder="type here" required></textarea>
                                             </label>
                                         </td>
                                     </tr>
@@ -196,20 +201,34 @@
                                     </tr>
                                     <tr>
                                         <td align="center">
-                                            <div th:if="${param.error}" class="failed_action_message">
+                                            <div th:text="${schemaNotAddedMessage}" class="failed_action_message">
                                                 Invalid schema details
                                             </div>
-                                            <div th:if="${param.added_schema}" class="successful_action_message">
-                                                You have successfully added a schema.
-                                            </div>
+                                            <div th:text="${schemaAddedMessage}" class="successful_action_message"></div>
                                         </td>
                                     </tr>
                                 </table>
                                 </form>
-                            </div> <!-- End of add schema form -->
+                            </div>
+                            <!-- End of add schema form -->
                             <!-- start of view schemas -->
                             <div style="margin: 0; padding: 0; display: none" class="item_action" id="view_schema">
-                                List of schemas here
+                                <table border="1" cellpadding="2" cellspacing="0" align="center" style="width: 90%;">
+                                    <tr style="font-size: 14px; background: #777777; color: white;">
+                                        <td></td>
+                                        <td>Schema name</td>
+                                        <td>Description</td>
+                                        <td>Created at</td>
+                                        <td>Deleted at</td>
+                                    </tr>
+                                    <tr th:each="schema:${app_schema_list}" style="font-size: 12px;">
+                                        <td th:text="${app_schema_list.indexOf(schema) + 1}"></td>
+                                        <td th:text="${schema.getName()}"></td>
+                                        <td th:text="${schema.getDescription()}">Description</td>
+                                        <td th:text="${schema.getCreatedAt()}"></td>
+                                        <td th:text="${schema.getDeletedAt()}"></td>
+                                    </tr>
+                                </table>
                             </div>
                             <!-- End of view schemas -->
                         </td>
@@ -217,12 +236,12 @@
                 </table>
             </div>
             <div class="action_pane" id="db_table" style="display: none; overflow: auto;">
-                <h2>Database Tables</h2>
+                <h2 style="text-align: center;">Database Tables</h2>
                 <table style="width: 94%;">
                     <tr>
                         <td align="center">
-                            <img th:src="@{/images/add.png}" alt="Add" class="top_action_icon_image" onclick="displaySelection('add_table', 'item_action')" />
-                            <img th:src="@{/images/view.png}" alt="View" class="top_action_icon_image" onclick="displaySelection('view_table', 'item_action')" />
+                            <img th:src="@{/images/add.png}" alt="Add" title="Add" class="top_action_icon_image" onclick="displaySelection('add_table', 'item_action')" />
+                            <img th:src="@{/images/view.png}" alt="View" title="View" class="top_action_icon_image" onclick="displaySelection('view_table', 'item_action')" />
                         </td>
                     </tr>
                     <tr>
@@ -230,13 +249,14 @@
                     </tr>
                     <tr>
                         <td>
+                            <!-- Start of add table form div -->
                             <div style="width:100%; margin:0; padding:0;" class="item_action" id="add_table">
-                                <form th:action="@{/database_table}" method="post">
+                                <form th:action="@{/add_table}" th:object="${tableForm}" method="post">
                                     <table style="margin-top: auto; margin-bottom: auto; width: 100%;" border="0">
                                         <tr>
                                             <td valign="middle" align="center">
                                                 <label>
-                                                    <input type="text" name="table_name" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px;" placeholder="Table name e.g Sales" required />
+                                                    <input type="text" th:field="*{name}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px;" placeholder="Table name e.g Sales" required />
                                                 </label>
                                             </td>
                                         </tr>
@@ -244,13 +264,20 @@
                                             <td>&nbsp;</td>
                                         </tr>
                                         <tr>
+                                            <td>
+                                                <label style="margin-left: 10%; height: 30px; font-size: medium; padding: 0px 10px; border: none; background: white;">
+                                                    Schema
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td align="center">
-                                                <select name="schema" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
-                                                    <option disabled selected>Select schema</option>
-                                                    <option>Some schema 1</option>
-                                                    <option>Some schema 2</option>
-                                                    <option>Some schema 3</option>
-                                                </select>
+                                                <label>
+                                                    <select th:field="*{schema}" style="width: 80%; height: 30px; font-size: small; padding: 0px 10px; border: none; background: white;">
+                                                        <option th:selected="selected" th:disabled="disabled" th:value="${'Select a schema'}">Select a schema</option>
+                                                        <option th:each="schema:${app_schema_list}" th:text="${schema.getName()}" th:title="${schema.getDescription()}" th:value="${schema.getName()}"></option>
+                                                    </select>
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -259,7 +286,7 @@
                                         <tr>
                                             <td valign="middle" align="center">
                                                 <label>
-                                                    <textarea name="description" style="width: 80%; height: 200px; font-size: large; padding: 10px 10px;" placeholder="type here" required></textarea>
+                                                    <textarea th:field="*{description}" style="width: 80%; height: 200px; font-size: large; padding: 10px 10px;" placeholder="type here" required></textarea>
                                                 </label>
                                             </td>
                                         </tr>
@@ -279,25 +306,40 @@
                                                 <div th:if="${param.error}" class="failed_action_message">
                                                     Invalid table details
                                                 </div>
-                                                <div th:if="${param.added_table}" class="successful_action_message">
-                                                    You have successfully added a table.
+                                                <div th:text="${tableAddedMessage}" class="successful_action_message">
                                                 </div>
                                             </td>
                                         </tr>
                                     </table>
                                 </form>
-                            </div> <!-- End of add schema form -->
-                            <!-- start of view schemas -->
-                            <div style="margin: 0; padding: 0; display: none" class="item_action" id="view_table">
-                                List of tables here
                             </div>
-                            <!-- End of view schemas -->
+                            <!-- End of add table form div -->
+                            <!-- start of view tables -->
+                            <div style="margin: 0; padding: 0; display: none" class="item_action" id="view_table">
+                                <div style="width: 100%; height: auto; overflow: scroll; overflow-x: auto;">
+                                    <table border="1" cellpadding="2" cellspacing="0" align="center" style="width: auto;">
+                                        <tr style="background: #777777; color: white; font-size: small;">
+                                            <td></td>
+                                            <td>Name</td>
+                                            <td>Fully Qualified Name (FQN)</td>
+                                            <td>Description</td>
+                                        </tr>
+                                        <tr th:each="table_obj:${table_list}" style="font-size: small">
+                                            <td th:text="${table_list.indexOf(table_obj) + 1}"></td>
+                                            <td th:text="${table_obj.getName()}"></td>
+                                            <td th:text="${table_obj.getFullyQualifiedName()}"></td>
+                                            <td th:text="${table_obj.getDescription()}"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- End of view tables -->
                         </td>
                     </tr>
                 </table>
             </div>
             <div class="action_pane" id="db_relationship" style="display: none;">
-                <h2>Database Relationships</h2>
+                <h2 style="text-align: center;">Database Relationships</h2>
                 <table style="width: 94%;">
                     <tr>
                         <td align="center">
@@ -310,17 +352,18 @@
                     </tr>
                     <tr>
                         <td>
+                            <!-- Start of add relationships form div -->
                             <div style="width:100%; margin:0; padding:0;" class="item_action" id="add_relationship">
-                                <form th:action="@{/database_relationship}" method="post">
+                                <form th:action="@{/add_relationship}" th:object="${relationshipForm}" method="post">
                                     <table style="margin-top: auto; margin-bottom: auto; width: 100%;" border="0">
                                         <tr>
                                             <td align="center">
-                                                <select name="left_table" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
-                                                    <option disabled selected>Select left table</option>
-                                                    <option>Some table 1</option>
-                                                    <option>Some table 2</option>
-                                                    <option>Some table 3</option>
-                                                </select>
+                                                <label>
+                                                    <select th:field="*{leftTableName}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
+                                                        <option disabled selected value="">Select left table</option>
+                                                        <option th:each="table_obj:${table_list}" th:text="${table_obj.getFullyQualifiedName()}" th:value="${table_obj.getFullyQualifiedName()}" th:title="${table_obj.getDescription()}"></option>
+                                                    </select>
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -328,12 +371,12 @@
                                         </tr>
                                         <tr>
                                             <td align="center">
-                                                <select name="right_table" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
-                                                    <option disabled selected>Select right table</option>
-                                                    <option>Some table 1</option>
-                                                    <option>Some table 2</option>
-                                                    <option>Some table 3</option>
-                                                </select>
+                                                <label>
+                                                    <select th:field="*{rightTableName}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
+                                                        <option disabled selected value="">Select right table</option>
+                                                        <option th:each="table_obj:${table_list}" th:text="${table_obj.getFullyQualifiedName()}" th:value="${table_obj.getFullyQualifiedName()}" th:title="${table_obj.getDescription()}"></option>
+                                                    </select>
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -341,15 +384,14 @@
                                         </tr>
                                         <tr>
                                             <td align="center">
-                                                <select name="type" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
-                                                    <option disabled selected>Select relationship</option>
-                                                    <option>Many to Many</option>
-                                                    <option>One to Many</option>
-                                                    <option>One to One</option>
-                                                    <option>Recursive Many to Many</option>
-                                                    <option>Recursive One to Many</option>
-                                                    <option>Recursive One to One</option>
-                                                </select>
+                                                <label>
+                                                    <select name="type" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
+                                                        <option disabled selected>Select relationship</option>
+                                                        <option value="*:*">Many to Many</option>
+                                                        <option value="1:*">One to Many</option>
+                                                        <option value="*:*">One to One</option>
+                                                    </select>
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -358,7 +400,7 @@
                                         <tr>
                                             <td valign="middle" align="center">
                                                 <label>
-                                                    <textarea name="description" style="width: 80%; height: 200px; font-size: large; padding: 10px 10px;" placeholder="type here" required></textarea>
+                                                    <textarea th:field="*{description}" style="width: 80%; height: 200px; font-size: large; padding: 10px 10px;" placeholder="type here" required></textarea>
                                                 </label>
                                             </td>
                                         </tr>
@@ -378,25 +420,40 @@
                                                 <div th:if="${param.error}" class="failed_action_message">
                                                     Invalid relationship details
                                                 </div>
-                                                <div th:if="${param.added_relationship}" class="successful_action_message">
-                                                    You have successfully added a relationship.
+                                                <div th:text="${relationshipAddedMessage}" class="successful_action_message">
                                                 </div>
                                             </td>
                                         </tr>
                                     </table>
                                 </form>
-                            </div> <!-- End of add schema form -->
-                            <!-- start of view schemas -->
+                            </div> <!-- End of add relationship form -->
+                            <!-- End of add relationships form div -->
+                            <!-- start of view relationships -->
                             <div style="margin: 0; padding: 0; display: none" class="item_action" id="view_relationship">
-                                List of table relationships here
+                                <table cellspacing="0" cellpadding="2" border="1" style="width: 85%;">
+                                    <tr style="background: #777777; color: white; font-size: 14px;">
+                                        <td></td>
+                                        <td>Left table name (FQN)</td>
+                                        <td>Right table name (FQN)</td>
+                                        <td>type</td>
+                                        <td>Description</td>
+                                    </tr>
+                                    <tr th:each="relationship:${relationship_list}" style="font-size: 12px;">
+                                        <td th:text="${relationship_list.indexOf(relationship) + 1}"></td>
+                                        <td th:text="${relationship.getLeftTable().getFullyQualifiedName()}"></td>
+                                        <td th:text="${relationship.getRightTable().getFullyQualifiedName()}"></td>
+                                        <td align="center" th:text="${relationship.getType()}"></td>
+                                        <td th:text="${relationship.getDescription()}"></td>
+                                    </tr>
+                                </table>
                             </div>
-                            <!-- End of view schemas -->
+                            <!-- End of view relationships -->
                         </td>
                     </tr>
                 </table>
             </div>
             <div class="action_pane" id="db_column" style="display: none;">
-                <h2>Table Columns</h2>
+                <h2 style="text-align: center;">Table Columns</h2>
                 <table style="width: 94%;">
                     <tr>
                         <td align="center">
@@ -410,16 +467,16 @@
                     <tr>
                         <td>
                             <div style="width:100%; margin:0; padding:0;" class="item_action" id="add_column">
-                                <form th:action="@{/database_column}" method="post">
+                                <form th:action="@{/add_column}" th:object="${columnForm}" method="post">
                                     <table style="margin-top: auto; margin-bottom: auto; width: 100%;" border="0">
                                         <tr>
                                             <td align="center">
-                                                <select name="table_name" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
-                                                    <option disabled selected>Select table</option>
-                                                    <option>Some table 1</option>
-                                                    <option>Some table 2</option>
-                                                    <option>Some table 3</option>
-                                                </select>
+                                                <label>
+                                                    <select th:field="*{tableName}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
+                                                        <option disabled selected value="0">Select table</option>
+                                                        <option th:each="table_obj:${table_list}" th:text="${table_obj.getFullyQualifiedName()}" th:value="${table_obj.getFullyQualifiedName()}" th:title="${table_obj.getDescription()}"></option>
+                                                    </select>
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -427,7 +484,9 @@
                                         </tr>
                                         <tr>
                                             <td align="center">
-                                                <input type="number" name="column_number" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="Column number e.g 1 (for ordering)" required>
+                                                <label>
+                                                    <input type="number" th:field="*{number}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="Column number e.g 1 (for ordering)" required>
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -435,7 +494,7 @@
                                         </tr>
                                         <tr>
                                             <td align="center">
-                                                <input type="text" name="column_name" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="Column name e.g 1 (first name)" required>
+                                                <input type="text" th:field="*{name}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="Column name e.g 1 (first name)" required>
                                             </td>
                                         </tr>
                                         <tr>
@@ -443,14 +502,18 @@
                                         </tr>
                                         <tr>
                                             <td align="center">
-                                                <select name="sql_dialect" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
-                                                    <option disabled selected>Select sql dialect</option>
-                                                    <option>PostgreSQL(PL/pgSQL)</option>
-                                                    <option>Oracle(PL/SQL)</option>
-                                                    <option>MySQL</option>
-                                                    <option>MSSQL(Transact-SQL)</option>
-                                                    <option>DB2</option>
-                                                </select>
+                                                <!--
+                                                <label>
+                                                    <select th:field="*{}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
+                                                        <option disabled selected>Select sql dialect</option>
+                                                        <option value="PostgreSQL">PostgreSQL(PL/pgSQL)</option>
+                                                        <option value="Oracle">Oracle(PL/SQL)</option>
+                                                        <option value="MySQL">MySQL</option>
+                                                        <option value="MSSQL">MSSQL(Transact-SQL)</option>
+                                                        <option value="DB2">DB2</option>
+                                                    </select>
+                                                </label>
+                                                -->
                                             </td>
                                         </tr>
                                         <tr>
@@ -458,7 +521,9 @@
                                         </tr>
                                         <tr>
                                             <td align="center">
-                                                <input type="text" name="column_data_type" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="Column data type e.g 1 (varchar)" required>
+                                                <label>
+                                                    <input type="text" th:field="*{dataType}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="Column data type e.g 1 (varchar)" required>
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -466,7 +531,9 @@
                                         </tr>
                                         <tr>
                                             <td align="center">
-                                                <input type="number" name="precision" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="precision">
+                                                <label>
+                                                    <input type="number" th:field="*{precision}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="precision">
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -474,7 +541,9 @@
                                         </tr>
                                         <tr>
                                             <td align="center">
-                                                <input type="number" name="scale" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="scale">
+                                                <label>
+                                                    <input type="number" th:field="*{scale}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="scale">
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -482,16 +551,8 @@
                                         </tr>
                                         <tr>
                                             <td align="center">
-                                                <input type="text" name="default_value" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="default value e.g 1">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label style="margin-left: 25%;">
-                                                   <input type="checkbox" name="is_nullable"> is nullable
+                                                <label>
+                                                    <input type="text" th:field="*{defaultValue}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="default value e.g 1">
                                                 </label>
                                             </td>
                                         </tr>
@@ -501,7 +562,7 @@
                                         <tr>
                                             <td>
                                                 <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="is_pk"> is primary key
+                                                   <input type="checkbox" th:checked="${false}" name="is_nullable"> is nullable
                                                 </label>
                                             </td>
                                         </tr>
@@ -511,7 +572,7 @@
                                         <tr>
                                             <td>
                                                 <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="is_fk"> is foreign key
+                                                    <input type="checkbox" th:checked="${false}" name="is_pk"> is primary key
                                                 </label>
                                             </td>
                                         </tr>
@@ -521,7 +582,7 @@
                                         <tr>
                                             <td>
                                                 <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="is_a_fact_based_column"> is a fact based column
+                                                    <input type="checkbox" th:checked="${false}" name="is_fk"> is foreign key
                                                 </label>
                                             </td>
                                         </tr>
@@ -531,7 +592,7 @@
                                         <tr>
                                             <td>
                                                 <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="is_encrypted"> is encrypted
+                                                    <input type="checkbox" th:checked="${false}" name="is_a_fact_based_column"> is a fact based column
                                                 </label>
                                             </td>
                                         </tr>
@@ -541,7 +602,17 @@
                                         <tr>
                                             <td>
                                                 <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="is_indexed"> is indexed
+                                                    <input type="checkbox" th:checked="${false}" name="is_encrypted"> is encrypted
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label style="margin-left: 25%;">
+                                                    <input type="checkbox" th:checked="${false}" name="is_indexed"> is indexed
                                                 </label>
                                             </td>
                                         </tr>
@@ -550,12 +621,17 @@
                                         </tr>
                                         <tr>
                                             <td align="center">
-                                                <select name="reference_table_name" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
-                                                    <option disabled selected>Select reference table</option>
-                                                    <option>Some table 1</option>
-                                                    <option>Some table 2</option>
-                                                    <option>Some table 3</option>
-                                                </select>
+                                                <label>
+                                                    <select th:field="*{referenceTableName}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
+                                                        <optgroup label="Has no reference">
+                                                            <option value="None">None</option>
+                                                        </optgroup>
+                                                        <optgroup label="Has a reference">
+                                                            <option disabled selected value="">Select reference table</option>
+                                                            <option th:each="table_obj:${table_list}" th:text="${table_obj.getFullyQualifiedName()}" th:value="${table_obj.getFullyQualifiedName()}" th:title="${table_obj.getDescription()}"></option>
+                                                        </optgroup>
+                                                    </select>
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -563,12 +639,17 @@
                                         </tr>
                                         <tr>
                                             <td align="center">
-                                                <select name="reference_column_name" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
-                                                    <option disabled selected>Select reference column name</option>
-                                                    <option>Some column 1</option>
-                                                    <option>Some column 2</option>
-                                                    <option>Some column 3</option>
-                                                </select>
+                                                <label>
+                                                    <select th:field="*{referenceColumnName}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
+                                                        <option disabled selected value="0">Select reference column name</option>
+                                                        <optgroup label="Has no reference">
+                                                            <option value="None">None</option>
+                                                        </optgroup>
+                                                        <optgroup th:each="table_obj:${table_list}" th:label="${table_obj.getFullyQualifiedName()}" th:value="${table_obj.getFullyQualifiedName()}" th:title="${table_obj.getDescription()}">
+                                                            <option th:each="col:${table_obj.getUniversalColumnList()}" th:text="${col.getName()}" th:value="${col.getName()}" th:title="${col.getName()}"></option>
+                                                        </optgroup>
+                                                    </select>
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -576,11 +657,13 @@
                                         </tr>
                                         <tr>
                                             <td align="center">
-                                                <select name="on_delete_action" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
-                                                    <option disabled selected>Select on delete action</option>
-                                                    <option>cascade</option>
-                                                    <option>ignore or do nothing</option>
-                                                </select>
+                                                <label>
+                                                    <select th:field="*{onDeleteAction}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
+                                                        <option disabled selected value="0">Select on delete action</option>
+                                                        <option value="cascade">cascade</option>
+                                                        <option value="ignore or do nothing">ignore or do nothing</option>
+                                                    </select>
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -588,11 +671,13 @@
                                         </tr>
                                         <tr>
                                             <td align="center">
-                                                <select name="on_update_action" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
-                                                    <option disabled selected>Select on update or conflict action</option>
-                                                    <option>cascade</option>
-                                                    <option>ignore or do nothing</option>
-                                                </select>
+                                                <label>
+                                                    <select th:field="*{onUpdateAction}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
+                                                        <option disabled selected value="0">Select on update or conflict action</option>
+                                                        <option value="cascade">cascade</option>
+                                                        <option value="ignore or do nothing">ignore or do nothing</option>
+                                                    </select>
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -601,7 +686,7 @@
                                         <tr>
                                             <td valign="middle" align="center">
                                                 <label>
-                                                    <textarea name="description" style="width: 80%; height: 200px; font-size: large; padding: 10px 10px;" placeholder="type here" required></textarea>
+                                                    <textarea th:field="*{description}" style="width: 80%; height: 200px; font-size: large; padding: 10px 10px;" placeholder="type column description here" required></textarea>
                                                 </label>
                                             </td>
                                         </tr>
@@ -621,40 +706,96 @@
                                                 <div th:if="${param.error}" class="failed_action_message">
                                                     Invalid column details
                                                 </div>
-                                                <div th:if="${param.added_column}" class="successful_action_message">
-                                                    You have successfully added a column.
+                                                <div th:text="${columnAddedMessage}" class="successful_action_message">
                                                 </div>
                                             </td>
                                         </tr>
                                     </table>
                                 </form>
                             </div> <!-- End of add schema form -->
-                            <!-- start of view schemas -->
-                            <div style="margin: 0; padding: 0; display: none" class="item_action" id="view_columns">
-                                List of table columns here
+                            <!-- start of view columns -->
+                            <div style="margin: 0; padding: 0; display: none; overflow-x: auto;" class="item_action" id="view_column">
+                                <div th:each="table_obj: ${table_list}" style="width: 100%; height: auto; overflow: scroll; overflow-x: auto;">
+                                    <h4 th:text="${table_obj.getName()}" style="text-align: center;"></h4>
+                                    <table border="1" cellpadding="2" cellspacing="0" align="center" style="width: auto;">
+                                        <tr style="background: #777777; color: white; font-size: small;">
+                                            <td></td>
+                                            <td>Column number</td>
+                                            <td>Name</td>
+                                            <td>Data type</td>
+                                            <td>Precision</td>
+                                            <td>Scale</td>
+                                            <td>Default value</td>
+                                            <td>Nullable</td>
+                                            <td>PK</td>
+                                            <td>FK</td>
+                                            <td>Reference table name (FQN)</td>
+                                            <td>Reference column name</td>
+                                            <td>On update action</td>
+                                            <td>On delete action</td>
+                                            <td>Is a fact based column</td>
+                                            <td>Encrypted</td>
+                                            <td>Indexed</td>
+                                            <td>Description</td>
+                                        </tr>
+                                        <tr th:each="col:${table_obj.getUniversalColumnList()}" style="font-size: small">
+                                            <td th:text="${table_list.indexOf(table_obj) + 1}" style="text-align: center;"></td>
+                                            <td th:text="${col.getNumber()}"></td>
+                                            <td th:text="${col.getName()}"></td>
+                                            <td th:text="${col.getDataType()}"></td>
+                                            <td th:text="${col.getPrecision()}"></td>
+                                            <td th:text="${col.getScale()}"></td>
+                                            <td th:text="${col.getDefaultValue()}"></td>
+                                            <td th:text="${col.getIsNullable()}"></td>
+                                            <td th:text="${col.getIsPK()}"></td>
+                                            <td th:text="${col.getIsFK()}"></td>
+                                            <td th:text="${col.getReferenceTableName()}"></td>
+                                            <td th:text="${col.getReferenceColumnName()}"></td>
+                                            <td th:text="${col.getOnUpdateAction()}"></td>
+                                            <td th:text="${col.getOnDeleteAction()}"></td>
+                                            <td th:text="${col.getIsAFactBasedColumn()}"></td>
+                                            <td th:text="${col.getIsEncrypted()}"></td>
+                                            <td th:text="${col.getIsIndexed()}"></td>
+                                            <td th:text="${col.getDescription()}"></td>
+                                        </tr>
+                                    </table>
+                                </div>
                             </div>
-                            <!-- End of view schemas -->
+                            <!-- End of view columns -->
                         </td>
                     </tr>
                 </table>
             </div>
             <div class="action_pane" id="db_documentation" style="display: none; width: 100%; padding: 0; margin: 0; overflow-x: scroll;">
-                <h2>Database Documentation</h2>
-                <div style="width: 100%; overflow-x: auto;">
-                    <p>The database documentation information for this application can be found in the &quot;<span th:text="${documentation_schema}"></span>&quot; schema from whence it can be generated in a preferable way.</p>
+                <h2 style="text-align: center;">Database Documentation</h2>
+                <div style="width: 100%; overflow-x: auto; font-size: medium;">
+                    <p>The database documentation information for this application can be found in the <i><span th:text="${documentation_schema}"></span></i> schema from whence it can be generated in a preferable way.</p>
                     <p>This documentation contains information about the different different schemas, tables, relationships between the different tables, and the columns that belong to each and every table.</p>
                     <p>The different schemas in the database include - </p>
                     <ul>
-                        <li th:each="schema:${app_schema_list}">
-                           <span th:text="${schema.name}"></span>
-                        </li>
-                    </ul>
-                    <p>However, the following schemas are not of interest or relevance to documenting important objects relevant to the modelled application objects of the system</p>
-                    <ul>
-                        <li th:each="schema:${other_schema_list}">
+                        <li th:each="schema:${all_schema_list}">
                             <span th:text="${schema}"></span>
                         </li>
                     </ul>
+                    <p>However, the following are the only schemas of interest or relevance in the database. They are used to document the database and group tables of the modelled application objects in the system</p>
+                    <div style="width: 100%; height: auto; overflow: scroll; overflow-x: auto;">
+                        <table border="1" cellpadding="2" cellspacing="0" align="center" style="width: auto;">
+                            <tr style="font-size: small; background: #777777; color: white;">
+                                <td></td>
+                                <td>Schema name</td>
+                                <td>Description</td>
+                                <td>Created at</td>
+                                <td>Deleted at</td>
+                            </tr>
+                            <tr th:each="schema:${app_schema_list}" style="font-size: small;">
+                                <td th:text="${app_schema_list.indexOf(schema) + 1}"></td>
+                                <td th:text="${schema.getName()}"></td>
+                                <td th:text="${schema.getDescription()}">Description</td>
+                                <td th:text="${schema.getCreatedAt()}"></td>
+                                <td th:text="${schema.getDeletedAt()}"></td>
+                            </tr>
+                        </table>
+                    </div>
                     <p>The different schemas manage the following list of tables</p>
                     <div th:each="schema_name:${schema_name_table_list_map.keySet()}">
                         <span th:text="${schema_name}"></span>
@@ -664,27 +805,29 @@
                             </li>
                         </ol>
                     </div>
-                    <p>The database will have the following pre modelled tables in an attempt to standardize software modules common many software development projects.</p>
+                    <p>The database will have the following pre-modelled tables in an attempt to standardize software modules common to many software development projects.</p>
                     <div style="width: 100%; height: auto; overflow: scroll; overflow-x: auto;">
                         <table border="1" cellpadding="2" cellspacing="0" align="center" style="width: auto;">
-                            <tr style="background: #777777; color: white; font-size: medium;">
+                            <tr style="background: #777777; color: white; font-size: small;">
+                                <td></td>
                                 <td>Name</td>
                                 <td>Fully Qualified Name (FQN)</td>
                                 <td>Description</td>
                             </tr>
                             <tr th:each="table_obj:${table_list}" style="font-size: small">
+                                <td th:text="${table_list.indexOf(table_obj) + 1}"></td>
                                 <td th:text="${table_obj.getName()}"></td>
                                 <td th:text="${table_obj.getFullyQualifiedName()}"></td>
                                 <td th:text="${table_obj.getDescription()}"></td>
                             </tr>
                         </table>
                     </div>
-                    <p>Each of the tables above have the following columns used to maintain data about their corresponding entities</p>
-
+                    <p>Each of the tables above have the following columns used to maintain data about the corresponding modelled entities</p>
                     <div th:each="table_obj: ${table_list}" style="width: 100%; height: auto; overflow: scroll; overflow-x: auto;">
-                        <h3 th:text="${table_obj.getName()}"></h3>
+                        <h4 th:text="${table_obj.getName()}" style="text-align: center;"></h4>
                         <table border="1" cellpadding="2" cellspacing="0" align="center" style="width: auto;">
-                            <tr style="background: #777777; color: white; font-size: medium;">
+                            <tr style="background: #777777; color: white; font-size: small;">
+                                <td></td>
                                 <td>Column number</td>
                                 <td>Name</td>
                                 <td>Data type</td>
@@ -704,6 +847,7 @@
                                 <td>Description</td>
                             </tr>
                             <tr th:each="col:${table_obj.getUniversalColumnList()}" style="font-size: small">
+                                <td th:text="${table_list.indexOf(table_obj) + 1}" style="text-align: center;"></td>
                                 <td th:text="${col.getNumber()}"></td>
                                 <td th:text="${col.getName()}"></td>
                                 <td th:text="${col.getDataType()}"></td>
@@ -724,6 +868,25 @@
                             </tr>
                         </table>
                     </div>
+
+                    <p>The tables in the database have the following relationships between them</p>
+                    <table cellspacing="0" cellpadding="2" border="1">
+                        <tr style="background: #777777; color: white; font-size: small;">
+                            <td></td>
+                            <td>Left table name (FQN)</td>
+                            <td>Right table name (FQN)</td>
+                            <td>type</td>
+                            <td>Description</td>
+                        </tr>
+                        <tr th:each="relationship:${relationship_list}" style="font-size: small;">
+                            <td th:text="${relationship_list.indexOf(relationship) + 1}"></td>
+                            <td th:text="${relationship.getLeftTable().getFullyQualifiedName()}"></td>
+                            <td th:text="${relationship.getRightTable().getFullyQualifiedName()}"></td>
+                            <td align="center" th:text="${relationship.getType()}"></td>
+                            <td th:text="${relationship.getDescription()}"></td>
+                        </tr>
+                    </table>
+
                 </div>
             </div>
         </td>

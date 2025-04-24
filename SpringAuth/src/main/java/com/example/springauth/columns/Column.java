@@ -6,7 +6,6 @@ import java.util.Objects;
 public class Column implements Cloneable{
 
 
-
     private String tableName;
     private String name;
     private int number;

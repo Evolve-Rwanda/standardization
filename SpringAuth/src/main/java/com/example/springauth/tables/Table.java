@@ -23,6 +23,9 @@ public class Table {
     protected QueryExecutor queryExecutor;
     protected String sqlDialect;
 
+    public Table(){
+
+    }
 
     public Table(String name, List<Column> columnList){
         this.name = name;
