@@ -14,12 +14,12 @@ public class ColumnModel {
     private String specifiesLength;
     private String specifiesNothing;
     private String defaultValue;
-    private String isNullable;
-    private String isAFactBasedColumn;
-    private String isEncrypted;
-    private String isPK;
-    private String isFK;
-    private String isIndexed;
+    private boolean isNullable;
+    private boolean isAFactBasedColumn;
+    private boolean isEncrypted;
+    private boolean isPK;
+    private boolean isFK;
+    private boolean isIndexed;
     private String referenceTableName;
     private String referenceColumnName;
     private String onUpdateAction;
@@ -127,51 +127,51 @@ public class ColumnModel {
         this.defaultValue = defaultValue;
     }
 
-    public String getIsNullable() {
+    public boolean getIsNullable() {
         return isNullable;
     }
 
-    public void setIsNullable(String isNullable) {
+    public void setIsNullable(boolean isNullable) {
         this.isNullable = isNullable;
     }
 
-    public String getIsAFactBasedColumn() {
+    public boolean getIsAFactBasedColumn() {
         return isAFactBasedColumn;
     }
 
-    public void setIsAFactBasedColumn(String isAFactBasedColumn) {
+    public void setIsAFactBasedColumn(boolean isAFactBasedColumn) {
         this.isAFactBasedColumn = isAFactBasedColumn;
     }
 
-    public String getIsEncrypted() {
+    public boolean getIsEncrypted() {
         return isEncrypted;
     }
 
-    public void setIsEncrypted(String isEncrypted) {
+    public void setIsEncrypted(boolean isEncrypted) {
         this.isEncrypted = isEncrypted;
     }
 
-    public String getIsPK() {
+    public boolean getIsPK() {
         return isPK;
     }
 
-    public void setIsPK(String isPK) {
+    public void setIsPK(boolean isPK) {
         this.isPK = isPK;
     }
 
-    public String getIsFK() {
+    public boolean getIsFK() {
         return isFK;
     }
 
-    public void setIsFK(String isFK) {
+    public void setIsFK(boolean isFK) {
         this.isFK = isFK;
     }
 
-    public String getIsIndexed() {
+    public boolean getIsIndexed() {
         return isIndexed;
     }
 
-    public void setIsIndexed(String isIndexed) {
+    public void setIsIndexed(boolean isIndexed) {
         this.isIndexed = isIndexed;
     }
 

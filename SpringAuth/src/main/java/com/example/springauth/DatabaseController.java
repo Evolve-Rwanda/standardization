@@ -30,8 +30,10 @@ import java.util.List;
 import java.util.Map;
 
 
+
 @Controller
 public class DatabaseController {
+
 
     String databaseName = "standardization";
     String jdbcUrl = "jdbc:postgresql://localhost:5432/" + databaseName;
@@ -122,18 +124,18 @@ public class DatabaseController {
         long precision = columnModel.getPrecision();
         long scale = columnModel.getScale();
         String defaultValue = columnModel.getDefaultValue();
-        boolean isNullable = columnModel.getIsNullable().equals("true");
-        boolean isAFactBasedModel = columnModel.getIsAFactBasedColumn().equals("true");
-        boolean isEncrypted = columnModel.getIsEncrypted().equals("true");
-        boolean isPK = columnModel.getIsPK().equals("true");
-        boolean isFK = columnModel.getIsFK().equals("true");
-        boolean isIndexed = columnModel.getIsIndexed().equals("true");
+        boolean isNullable = columnModel.getIsNullable();
+        boolean isAFactBasedModel = columnModel.getIsAFactBasedColumn();
+        boolean isEncrypted = columnModel.getIsEncrypted();
+        boolean isPK = columnModel.getIsPK();
+        boolean isFK = columnModel.getIsFK();
+        boolean isIndexed = columnModel.getIsIndexed();
         String referenceTableName = columnModel.getReferenceTableName();
         String referenceColumnName = columnModel.getReferenceColumnName();
         String onUpdateAction = columnModel.getOnUpdateAction();
         String onDeleteAction = columnModel.getOnDeleteAction();
         String description = columnModel.getDescription();
-        String createdAt = columnModel.getCreatedAt();
+        String createdAt = DateTime.getTimeStamp();
         String deletedAt = columnModel.getDeletedAt();
         Column column = new Column(
                 tableName,

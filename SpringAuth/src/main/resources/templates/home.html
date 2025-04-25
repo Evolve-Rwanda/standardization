@@ -9,15 +9,16 @@
 
     #left_pane{
         width: 20%;
-        padding: 0%;
-        margin: 0%;
-        background: #9F9F9F;
+        padding: 0;
+        margin: 0;
+        background-color: #444444;
+        color: #FFFFFF;
     }
 
     #right_pane{
         width: 20%;
-        padding: 0%;
-        margin: 0%;
+        padding: 0;
+        margin: 0;
         background: white;
     }
 
@@ -51,12 +52,14 @@
         color: #FFFFFF;
         padding: 14px 28px;
         font-size: math;
+        border-radius: 8px;
     }
     .add_button:hover{
         background: #998833;
+        cursor: pointer;
     }
 
-    .top_action_icon_image{
+    .top_action_icon_image, .sidebar_icon_image{
         width: 25px;
         height: 25px;
     }
@@ -75,6 +78,40 @@
         font-size: medium;
     }
 
+    input[type="text"], input[type="number"]{
+        width: 80%;
+        height: 30px;
+        font-size: medium;
+        padding: 0 10px;
+    }
+
+    select{
+        width: 80%;
+        height: 30px;
+        font-size: medium;
+        padding: 0 10px;
+        border: none;
+        background: white;
+    }
+
+    textarea{
+        width: 80%;
+        height: 200px;
+        font-size: medium;
+        font-family: sans-serif;
+        padding: 10px 10px;
+        border-radius: 7px;
+    }
+
+    .field_label{
+        margin-left: 7%;
+        height: 30px;
+        font-size: medium;
+        padding: 0 10px;
+        border: none;
+        background: white;
+    }
+
 </style>
 
 <script type="application/javascript">
@@ -89,6 +126,12 @@
             specificElement.style.display = "none";
         }
     }
+
+    function narrowSelectionOptions(callingElement, calledClass){
+        alert(calledClass);
+        var selection = callingElement.value;
+    }
+
 </script>
 
 <body style="margin: 0%; padding: 0%;">
@@ -98,11 +141,11 @@
         <td id="left_pane" valign="top" style="padding: 0;">
             <table style="width: 100%; border: 0; margin: auto;">
                 <tr>
-                    <td><br /></td>
+                    <td><br /><br /></td>
                 </tr>
                 <tr>
-                    <td valign="middle" align="center" style="">
-                        <label style="margin-left: 20px; font-size: larger; font-weight: bold">Action list</label>
+                    <td valign="middle" align="center" style=" background: #998833; height: 90px;">
+                        <label style="font-size: larger; font-weight: bold">Action list</label>
                     </td>
                 </tr>
                 <tr>
@@ -150,6 +193,7 @@
         </td>
 
         <td valign="top" id="center_pane" style="overflow-y: auto; overflow-x: auto; position: fixed; padding: 0 10px 0 10px;" width="60%">
+
             <div class="action_pane" id="welcome" style="display: block; overflow: auto;">
                 <h2 style="text-align: center;">Welcome!</h2>
             </div>
@@ -172,9 +216,16 @@
                                 <form th:action="@{/add_schema}" th:object="${schemaForm}" method="post">
                                 <table style="margin-top: auto; margin-bottom: auto; width: 100%;" border="0">
                                     <tr>
+                                        <td>
+                                            <label class="field_label">
+                                                Schema name
+                                            </label>
+                                        </td>
+                                    </tr>
+                                    <tr>
                                         <td valign="middle" align="center">
                                             <label>
-                                                <input type="text" th:field="*{name}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px;" placeholder="Schema name e.g UM" required />
+                                                <input type="text" th:field="*{name}" placeholder="e.g UM" required />
                                             </label>
                                         </td>
                                     </tr>
@@ -182,9 +233,16 @@
                                         <td>&nbsp;</td>
                                     </tr>
                                     <tr>
+                                        <td>
+                                            <label class="field_label">
+                                                Description
+                                            </label>
+                                        </td>
+                                    </tr>
+                                    <tr>
                                         <td valign="middle" align="center">
                                             <label>
-                                                <textarea th:field="*{description}" style="width: 80%; height: 200px; font-size: large; padding: 10px 10px;" placeholder="type here" required></textarea>
+                                                <textarea th:field="*{description}" placeholder="e.g - This schema is associated with all user management tables ..." required></textarea>
                                             </label>
                                         </td>
                                     </tr>
@@ -254,9 +312,16 @@
                                 <form th:action="@{/add_table}" th:object="${tableForm}" method="post">
                                     <table style="margin-top: auto; margin-bottom: auto; width: 100%;" border="0">
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    Table name
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td valign="middle" align="center">
                                                 <label>
-                                                    <input type="text" th:field="*{name}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px;" placeholder="Table name e.g Sales" required />
+                                                    <input type="text" th:field="*{name}" placeholder="e.g Sales" required />
                                                 </label>
                                             </td>
                                         </tr>
@@ -265,7 +330,7 @@
                                         </tr>
                                         <tr>
                                             <td>
-                                                <label style="margin-left: 10%; height: 30px; font-size: medium; padding: 0px 10px; border: none; background: white;">
+                                                <label class="field_label">
                                                     Schema
                                                 </label>
                                             </td>
@@ -273,7 +338,7 @@
                                         <tr>
                                             <td align="center">
                                                 <label>
-                                                    <select th:field="*{schema}" style="width: 80%; height: 30px; font-size: small; padding: 0px 10px; border: none; background: white;">
+                                                    <select th:field="*{schema}">
                                                         <option th:selected="selected" th:disabled="disabled" th:value="${'Select a schema'}">Select a schema</option>
                                                         <option th:each="schema:${app_schema_list}" th:text="${schema.getName()}" th:title="${schema.getDescription()}" th:value="${schema.getName()}"></option>
                                                     </select>
@@ -284,9 +349,16 @@
                                             <td>&nbsp;</td>
                                         </tr>
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    Description
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td valign="middle" align="center">
                                                 <label>
-                                                    <textarea th:field="*{description}" style="width: 80%; height: 200px; font-size: large; padding: 10px 10px;" placeholder="type here" required></textarea>
+                                                    <textarea th:field="*{description}" placeholder="e.g - This table records all the sales ..." required></textarea>
                                                 </label>
                                             </td>
                                         </tr>
@@ -357,9 +429,16 @@
                                 <form th:action="@{/add_relationship}" th:object="${relationshipForm}" method="post">
                                     <table style="margin-top: auto; margin-bottom: auto; width: 100%;" border="0">
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    First table
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td align="center">
                                                 <label>
-                                                    <select th:field="*{leftTableName}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
+                                                    <select th:field="*{leftTableName}" required>
                                                         <option disabled selected value="">Select left table</option>
                                                         <option th:each="table_obj:${table_list}" th:text="${table_obj.getFullyQualifiedName()}" th:value="${table_obj.getFullyQualifiedName()}" th:title="${table_obj.getDescription()}"></option>
                                                     </select>
@@ -368,6 +447,13 @@
                                         </tr>
                                         <tr>
                                             <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    Second table
+                                                </label>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td align="center">
@@ -383,9 +469,16 @@
                                             <td>&nbsp;</td>
                                         </tr>
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    Relationship type
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td align="center">
                                                 <label>
-                                                    <select name="type" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
+                                                    <select name="type" required>
                                                         <option disabled selected>Select relationship</option>
                                                         <option value="*:*">Many to Many</option>
                                                         <option value="1:*">One to Many</option>
@@ -398,9 +491,16 @@
                                             <td>&nbsp;</td>
                                         </tr>
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    Description
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td valign="middle" align="center">
                                                 <label>
-                                                    <textarea th:field="*{description}" style="width: 80%; height: 200px; font-size: large; padding: 10px 10px;" placeholder="type here" required></textarea>
+                                                    <textarea th:field="*{description}" placeholder="e.g - One user has one and only one role ..." required></textarea>
                                                 </label>
                                             </td>
                                         </tr>
@@ -470,9 +570,16 @@
                                 <form th:action="@{/add_column}" th:object="${columnForm}" method="post">
                                     <table style="margin-top: auto; margin-bottom: auto; width: 100%;" border="0">
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    Table
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td align="center">
                                                 <label>
-                                                    <select th:field="*{tableName}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
+                                                    <select th:field="*{tableName}" th:required="required">
                                                         <option disabled selected value="0">Select table</option>
                                                         <option th:each="table_obj:${table_list}" th:text="${table_obj.getFullyQualifiedName()}" th:value="${table_obj.getFullyQualifiedName()}" th:title="${table_obj.getDescription()}"></option>
                                                     </select>
@@ -483,9 +590,16 @@
                                             <td>&nbsp;</td>
                                         </tr>
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    Column number
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td align="center">
                                                 <label>
-                                                    <input type="number" th:field="*{number}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="Column number e.g 1 (for ordering)" required>
+                                                    <input type="number" th:min="1" th:field="*{number}" placeholder="e.g 1 (for ordering)" th:required="required">
                                                 </label>
                                             </td>
                                         </tr>
@@ -493,8 +607,17 @@
                                             <td>&nbsp;</td>
                                         </tr>
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    Column name
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td align="center">
-                                                <input type="text" th:field="*{name}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="Column name e.g 1 (first name)" required>
+                                                <label>
+                                                    <input type="text" th:field="*{name}" placeholder="e.g first name" th:required="required">
+                                                </label>
                                             </td>
                                         </tr>
                                         <tr>
@@ -520,9 +643,16 @@
                                             <td>&nbsp;</td>
                                         </tr>
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    Data type
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td align="center">
                                                 <label>
-                                                    <input type="text" th:field="*{dataType}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="Column data type e.g 1 (varchar)" required>
+                                                    <input type="text" th:field="*{dataType}" placeholder="e.g varchar" th:required="required">
                                                 </label>
                                             </td>
                                         </tr>
@@ -530,9 +660,16 @@
                                             <td>&nbsp;</td>
                                         </tr>
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    Precision or length (for varchar and others)
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td align="center">
                                                 <label>
-                                                    <input type="number" th:field="*{precision}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="precision">
+                                                    <input type="number" th:min="1" th:field="*{precision}" placeholder="precision">
                                                 </label>
                                             </td>
                                         </tr>
@@ -540,9 +677,16 @@
                                             <td>&nbsp;</td>
                                         </tr>
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    Scale (for floating point numbers)
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td align="center">
                                                 <label>
-                                                    <input type="number" th:field="*{scale}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="scale">
+                                                    <input type="number" th:start="1" th:min="1" th:field="*{scale}" placeholder="scale">
                                                 </label>
                                             </td>
                                         </tr>
@@ -550,14 +694,28 @@
                                             <td>&nbsp;</td>
                                         </tr>
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    Default value
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td align="center">
                                                 <label>
-                                                    <input type="text" th:field="*{defaultValue}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" placeholder="default value e.g 1">
+                                                    <input type="text" th:field="*{defaultValue}" placeholder="default value e.g 1">
                                                 </label>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    Check all applicable properties
+                                                </label>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td>
@@ -620,9 +778,16 @@
                                             <td>&nbsp;</td>
                                         </tr>
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    Reference table name
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td align="center">
                                                 <label>
-                                                    <select th:field="*{referenceTableName}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
+                                                    <select th:field="*{referenceTableName}" th:id="refTable" onchange="narrowSelectionOptions(this, 'refColumns')">
                                                         <optgroup label="Has no reference">
                                                             <option value="None">None</option>
                                                         </optgroup>
@@ -638,14 +803,21 @@
                                             <td>&nbsp;</td>
                                         </tr>
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    Reference column name
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td align="center">
                                                 <label>
-                                                    <select th:field="*{referenceColumnName}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
+                                                    <select th:field="*{referenceColumnName}">
                                                         <option disabled selected value="0">Select reference column name</option>
                                                         <optgroup label="Has no reference">
                                                             <option value="None">None</option>
                                                         </optgroup>
-                                                        <optgroup th:each="table_obj:${table_list}" th:label="${table_obj.getFullyQualifiedName()}" th:value="${table_obj.getFullyQualifiedName()}" th:title="${table_obj.getDescription()}">
+                                                        <optgroup th:each="table_obj:${table_list}" th:label="${table_obj.getFullyQualifiedName()}" th:value="${table_obj.getFullyQualifiedName()}" th:title="${table_obj.getDescription()}" class="refColumns" th:classappend="${table_obj.getFullyQualifiedName()}">
                                                             <option th:each="col:${table_obj.getUniversalColumnList()}" th:text="${col.getName()}" th:value="${col.getName()}" th:title="${col.getName()}"></option>
                                                         </optgroup>
                                                     </select>
@@ -656,9 +828,16 @@
                                             <td>&nbsp;</td>
                                         </tr>
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    On delete action (applicable to foreign key columns)
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td align="center">
                                                 <label>
-                                                    <select th:field="*{onDeleteAction}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
+                                                    <select th:field="*{onDeleteAction}">
                                                         <option disabled selected value="0">Select on delete action</option>
                                                         <option value="cascade">cascade</option>
                                                         <option value="ignore or do nothing">ignore or do nothing</option>
@@ -670,9 +849,16 @@
                                             <td>&nbsp;</td>
                                         </tr>
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    On update action (applicable to foreign key columns)
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td align="center">
                                                 <label>
-                                                    <select th:field="*{onUpdateAction}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;">
+                                                    <select th:field="*{onUpdateAction}">
                                                         <option disabled selected value="0">Select on update or conflict action</option>
                                                         <option value="cascade">cascade</option>
                                                         <option value="ignore or do nothing">ignore or do nothing</option>
@@ -684,9 +870,17 @@
                                             <td>&nbsp;</td>
                                         </tr>
                                         <tr>
+                                            <td>
+                                                <label class="field_label">
+                                                    Description
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td valign="middle" align="center">
                                                 <label>
-                                                    <textarea th:field="*{description}" style="width: 80%; height: 200px; font-size: large; padding: 10px 10px;" placeholder="type column description here" required></textarea>
+                                                    <textarea th:field="*{description}" placeholder="e.g - This column is the primary key for the ..." required>
+                                                    </textarea>
                                                 </label>
                                             </td>
                                         </tr>
