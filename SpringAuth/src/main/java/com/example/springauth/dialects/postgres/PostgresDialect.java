@@ -367,20 +367,51 @@ public class PostgresDialect extends SQLDialect {
     }
 
     public List<Relationship> getTableRelationships(String searchTable){
+        List<Schema> schemaList =  this.getDatabaseSchemaList();
         List<Relationship> relationshipList = new ArrayList<>();
         String schemaName = schema != null ? schema.getName() : "";
         String prefix = !schemaName.isEmpty() ? schemaName + "." : schemaName;
         String relationshipTableQuery = String.format("SELECT * FROM %s;", (prefix + searchTable));
         ResultWrapper resultWrapper = queryExecutor.executeQuery(relationshipTableQuery);
         ResultSet resultSet = resultWrapper.getResultSet();
+
         try {
+
             while (resultSet.next()) {
                 String leftTableName = resultSet.getString("left_table_name");
+                String[] leftTableNamePartsArray = leftTableName.split("\\.");
+                String leftTableSchemaName = (leftTableNamePartsArray.length > 1) ? leftTableNamePartsArray[0] : "";
+                leftTableName = (leftTableNamePartsArray.length > 1) ? leftTableNamePartsArray[1] : leftTableName;
+                String leftTableFQN = generateTableFQN(leftTableSchemaName, leftTableName);
+
                 String rightTableName = resultSet.getString("right_table_name");
+                String[] rightTableNamePartsArray = rightTableName.split("\\.");
+                String rightTableSchemaName = (rightTableNamePartsArray.length > 1) ? rightTableNamePartsArray[0] : "";
+                rightTableName = (rightTableNamePartsArray.length > 1) ? rightTableNamePartsArray[1] : rightTableName;
+                String rightTableFQN = generateTableFQN(rightTableSchemaName, rightTableName);
+
                 String type = resultSet.getString("type");
                 String description = resultSet.getString("description");
-                Table leftTable = this.getTable(schemaName, leftTableName);
-                Table rightTable = this.getTable(schemaName, rightTableName);
+
+                Table leftTable = this.getTable(schemaName, leftTableFQN);
+                leftTable.setName(leftTableName);
+                boolean isAValidLeftSchema = leftTableSchemaName != null && !leftTableSchemaName.isEmpty() && !leftTableSchemaName.equals("null");
+                for(Schema schema: schemaList) {
+                    if(isAValidLeftSchema && leftTableSchemaName.equals(schema.getName())) {
+                        leftTable.setSchema(schema);
+                        break;
+                    }
+                }
+
+                Table rightTable = this.getTable(schemaName, rightTableFQN);
+                rightTable.setName(rightTableName);
+                boolean isAValidRightSchema = rightTableSchemaName != null && !rightTableSchemaName.isEmpty() && !rightTableSchemaName.equals("null");
+                for(Schema schema: schemaList) {
+                    if(isAValidRightSchema && rightTableSchemaName.equals(schema.getName())) {
+                        rightTable.setSchema(schema);
+                        break;
+                    }
+                }
                 var relationship = new Relationship(leftTable, rightTable, type, description);
                 relationshipList.add(relationship);
             }
@@ -392,7 +423,12 @@ public class PostgresDialect extends SQLDialect {
         return relationshipList;
     }
 
+    private String generateTableFQN(String schemaName, String tableName){
+        return schemaName != null && !schemaName.isEmpty() ? (schemaName + "." + tableName) : tableName;
+    }
+
     public List<Table> getTableList(String searchTable){
+        List<Schema> schemaList =  this.getDatabaseSchemaList();
         List<Table> tableList = new ArrayList<>();
         String schemaName = schema != null ? schema.getName() : "";
         String prefix = !schemaName.isEmpty() ? schemaName + "." : schemaName;
@@ -410,7 +446,15 @@ public class PostgresDialect extends SQLDialect {
                     continue;
                 tableNameSet.add(tableFQN);
                 Table table = this.getTable(schemaName, tableFQN);
+                table.setName(tableName);
                 table.setDescription(description);
+                for(Schema schema: schemaList) {
+                    boolean isAValidSchema = tableSchemaName != null && !tableSchemaName.isEmpty() && !tableSchemaName.equals("null");
+                    if(isAValidSchema && tableSchemaName.equals(schema.getName())) {
+                        table.setSchema(schema);
+                        break;
+                    }
+                }
                 tableList.add(table);
             }
         }catch (SQLException e){
@@ -421,21 +465,21 @@ public class PostgresDialect extends SQLDialect {
         return tableList;
     }
 
-    private Table getTable(String schemaName, String tableName){
+    private Table getTable(String schemaName, String tableFQN){
         Table table = null;
-        List<Column> columnList = this.getTableColumnList(schemaName, tableName);
-        table = new Table(tableName, columnList);
+        List<Column> columnList = this.getTableColumnList(schemaName, tableFQN);
+        table = new Table(tableFQN, columnList);
         table.setSqlDialect(this.name);
         table.setQueryExecutor(this.queryExecutor);
         return table;
     }
 
-    private List<Column> getTableColumnList(String schemaName, String tableName){
+    private List<Column> getTableColumnList(String schemaName, String tableFQN){
         List<Column> columnList = new ArrayList<>();
         String searchTable = "table_of_columns";
         String searchTableSchema = schema!= null ? schema.getName() : "";
         String searchTableFQN = !searchTableSchema.isEmpty() ? searchTableSchema + "." + searchTable : searchTable;
-        String query = String.format("SELECT * from %s WHERE table_name = '%s';", searchTableFQN, tableName);
+        String query = String.format("SELECT * from %s WHERE table_name = '%s';", searchTableFQN, tableFQN);
 
         ResultWrapper resultWrapper = queryExecutor.executeQuery(query);
         ResultSet resultSet = resultWrapper.getResultSet();
@@ -463,11 +507,11 @@ public class PostgresDialect extends SQLDialect {
                 String createdAt = resultSet.getString("created_at");
                 String deletedAt = resultSet.getString("deleted_at");
                 String lastUpdatedAt = resultSet.getString("last_updated_at");
-                var column = new Column(tableName, name, number, dataType, precision, scale, defaultValue, isNullable, isAFactBasedColumn, isEncrypted, isPK, isFK, isIndexed, referenceTableName, referenceColumnName, onUpdateAction, onDeleteAction, description, createdAt, deletedAt);
+                var column = new Column(tableFQN, name, number, dataType, precision, scale, defaultValue, isNullable, isAFactBasedColumn, isEncrypted, isPK, isFK, isIndexed, referenceTableName, referenceColumnName, onUpdateAction, onDeleteAction, description, createdAt, deletedAt);
                 columnList.add(column);
             }
         }catch (SQLException e){
-            System.out.println("Error retrieving table columns from the database table - " + schemaName + "." + tableName + e.getMessage());
+            System.out.println("Error retrieving table columns from the database table - " + schemaName + "." + tableFQN + e.getMessage());
         }finally {
             queryExecutor.closeResources();
         }

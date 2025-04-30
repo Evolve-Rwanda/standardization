@@ -27,6 +27,7 @@ public class PostgresDialectTableCreator {
 
     public void createTable(Table table){
         String tableDDL = this.getTableDDLQuery(table);
+        System.out.println(tableDDL);
         if(tableDDL != null) {
             queryExecutor.executeQuery(tableDDL);
             queryExecutor.closeResources();
@@ -34,15 +35,15 @@ public class PostgresDialectTableCreator {
     }
 
     public String getTableDDLQuery(Table table){
-        String tableSchema = table.getSchema() != null ? table.getSchema().getName() : "";
-        String ddlQuery = "";
-        if(!tableSchema.isEmpty())
-            ddlQuery = String.format("SET search_path TO %s, public;", tableSchema);
-        ddlQuery = ddlQuery + "CREATE TABLE IF NOT EXISTS \"" + table.getName() + "\"(";
-        ddlQuery = ddlQuery + constructDDLColumnDeclaration(table);
+        String setPathQuery = "";
+        if(table.getSchema() != null)
+            setPathQuery = String.format("SET search_path TO %s, public;", table.getSchema().getName());
+        String ddlQuery = setPathQuery + "CREATE TABLE IF NOT EXISTS \"" + table.getName() + "\"(";
+        ddlQuery = ddlQuery + this.constructDDLColumnDeclaration(table);
         ddlQuery = ddlQuery + this.constructPrimaryKeyConstraint(table);
-        if (!table.getForeignKeyList().isEmpty())
+        if (!table.getForeignKeyList().isEmpty()) {
             ddlQuery = ddlQuery + ", " + this.constructForeignKeyConstraint(table);
+        }
         ddlQuery = ddlQuery + ");";
         return ddlQuery;
     }
@@ -55,11 +56,13 @@ public class PostgresDialectTableCreator {
             long scale = c.getScale();
             long precision = c.getPrecision();
             String isNull = c.getIsNullable();
+            String isFK = c.getIsFK();
             String defaultValue = c.getDefaultValue();
             boolean hasPrecisionAndScale = PostgresType.hasPrecisionAndScale(type);
             boolean hasNoPrecision = PostgresType.hasNoPrecision(type);
-            boolean isNullable = isNull != null && isNull.equalsIgnoreCase("true");
-            boolean hasDefaultValue = defaultValue != null && !defaultValue.trim().isEmpty();
+            boolean isNullable = isNull.equalsIgnoreCase("true");
+            boolean isFKey = isFK.equalsIgnoreCase("true");
+            boolean hasDefaultValue = defaultValue != null && !defaultValue.trim().isEmpty() && !defaultValue.equals("null");
             String columnDeclaration = "";
 
             if(hasPrecisionAndScale) {
@@ -70,9 +73,10 @@ public class PostgresDialectTableCreator {
                 columnDeclaration = columnName + " " + type;
                 columnDeclaration = (precision > 0) ? columnDeclaration + "(" + precision + ")" : columnDeclaration;
             }
-            columnDeclaration = (isNullable) ? columnDeclaration : columnDeclaration + " NOT NULL";
-            if(hasDefaultValue)
-                columnDeclaration = columnDeclaration + "DEFAULT " + defaultValue;
+            columnDeclaration = (isNullable && !isFKey) ? columnDeclaration : columnDeclaration + " NOT NULL";
+            if(isNullable && hasDefaultValue) {
+                columnDeclaration = columnDeclaration + " DEFAULT " + defaultValue;
+            }
             queryBuilder.append(columnDeclaration);
             queryBuilder.append(", ");
         }
@@ -114,7 +118,7 @@ public class PostgresDialectTableCreator {
                     constraintBuilder.append(", ");
                 f++;
             }
-            constraintBuilder.append(") REFERENCES ").append(tableSchema + referenceTableName);
+            constraintBuilder.append(") REFERENCES ").append(referenceTableName);
             constraintBuilder.append("(");
             for (Column c : foreignKeyColumnList) {
                 constraintBuilder.append(c.getReferenceColumnName());

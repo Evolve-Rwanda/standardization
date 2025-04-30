@@ -89,19 +89,8 @@ public class DatabaseDocumentation {
 
         // select all tables in the database
         String tableOfTables = SpecialTableNameGiver.getTableOfTablesName();
-        List<Table> tableList = getTableList(tableOfTables);
-        this.tableList = tableList;
+        this.tableList = getTableList(tableOfTables);
         this.relationshipList = this.getTableRelationships(SpecialTableNameGiver.getTableOfRelationshipsName());
-    }
-
-
-    private String getHTMLOrderedList(List<String> stringList){
-        StringBuilder orderedListBuilder = new StringBuilder();
-        orderedListBuilder.append("<ol type=\"number\">");
-        for(String item: stringList)
-            orderedListBuilder.append("<li>").append(item).append("</li>");
-        orderedListBuilder.append("</ol>");
-        return orderedListBuilder.toString();
     }
 
     private List<Schema> getDatabaseSchemaList(){

@@ -10,10 +10,7 @@ import com.example.springauth.relationships.RelationshipResolver;
 import com.example.springauth.schemas.Schema;
 import com.example.springauth.schemas.SchemaGenerator;
 import com.example.springauth.schemas.SchemaNameGiver;
-import com.example.springauth.specialtables.TableOfColumns;
-import com.example.springauth.specialtables.TableOfRelationships;
-import com.example.springauth.specialtables.TableOfSchemas;
-import com.example.springauth.specialtables.TableOfTables;
+import com.example.springauth.specialtables.*;
 import com.example.springauth.tables.Table;
 import com.example.springauth.tables.TableGenerator;
 
@@ -25,9 +22,17 @@ import java.util.Map;
 
 public class StandardizationManager {
 
-    private static StandardizationManager standardizationManager = null;
 
-    private StandardizationManager(){
+
+
+    private static StandardizationManager standardizationManager = null;
+    private List<Table> specialTableList;
+    private List<Table> universalTableList;
+
+
+    public StandardizationManager(){
+        this.specialTableList = new ArrayList<>();
+        this.universalTableList = new ArrayList<>();
     }
 
     public static StandardizationManager getStandardizationManager(){
@@ -48,7 +53,6 @@ public class StandardizationManager {
         DatabaseCredentials databaseCredentials = new DatabaseCredentials(jdbcUrl, username, password);
         QueryExecutor queryExecutor = new QueryExecutor(databaseCredentials);
 
-
         // Get a name schema object mapping.
         SchemaGenerator schemaGenerator = new SchemaGenerator();
         Map<String, Schema> nameSchemaMap = schemaGenerator.getNameSchemaMap();
@@ -62,23 +66,22 @@ public class StandardizationManager {
         ColumnInitializer colInit = ColumnInitializer.getColumnInitializer(databaseDocumentationSchema, userManagementSchema);
         List<Column> commonColumnList = colInit.getCommonColumnList();
 
-
         // Get all tables in a table name table mapping
-        Map<String, Table> nameTableMap = getNameTableMap(colInit, nameSchemaMap);
+        Map<String, Table> nameTableMap = this.getNameTableMap(colInit, nameSchemaMap);
 
         // Obtain a list of tables alone from the table name table object mapping
         List<Table> universalTableList = TableGenerator.getUniversalTableList(nameTableMap);
 
         // Obtain a list of relationships from the table name table object mapping
-        List<Relationship> relationshipList = getRelationshipList(nameTableMap);
+        List<Relationship> relationshipList = this.getRelationshipList(nameTableMap);
 
         // Ensure entity integrity and referential integrity for one-to-one and one-to-many relationships
-        List<Table> enhancedTableList = ensureEntityAndReferentialIntegrity(relationshipList);
+        List<Table> enhancedTableList = this.ensureEntityAndReferentialIntegrity(relationshipList);
 
         // New universal table list, always assert that the enhanced table list size is equal to the original table size
-        universalTableList = replaceWithEnhancedTables(universalTableList, enhancedTableList);
-        universalTableList = addCommonColumns(universalTableList, commonColumnList);
-        universalTableList = addCommonProperties(universalTableList, sqlDialect, queryExecutor);
+        universalTableList = this.replaceWithEnhancedTables(universalTableList, enhancedTableList);
+        universalTableList = this.addCommonColumns(universalTableList, commonColumnList);
+        universalTableList = this.addCommonProperties(universalTableList, sqlDialect, queryExecutor);
 
         // Get derived tables from many to many (*:*) relationships
         List<Table> derivedTableList = getDerivedTables(relationshipList);
@@ -96,7 +99,10 @@ public class StandardizationManager {
 
         // Create all physical tables in the database.
         // Special tables constitute the tables of schemas, tables of tables, table of relationships and the table of columns
-        Table.createTables(universalTableList);
+        this.specialTableList = getSpecialTableList(universalTableList);
+        this.universalTableList = universalTableList;
+        //Table.createTables(universalTableList); //to be prompted by the user through the UI or explicit action
+        Table.createTables(specialTableList);
 
         /* Documenting all database objects after the respective tables have been created */
 
@@ -115,29 +121,33 @@ public class StandardizationManager {
         List<Column> allTablesColumnList = getUniversalTableColumnList(universalTableList);
         TableOfColumns tableOfColumns = new TableOfColumns(queryExecutor, sqlDialect, databaseDocumentationSchema);
         tableOfColumns.documentColumns(allTablesColumnList);
-
-        /* Deliverable - 1/2. Obtain database documentation */
-        //DatabaseDocumentation databaseDocumentation = new DatabaseDocumentation(sqlDialect, queryExecutor, databaseDocumentationSchema);
-        //System.out.println(databaseDocumentation.generateDatabaseDocumentation());
     }
 
-    private static Map<String, Table> getNameTableMap(ColumnInitializer colInit, Map<String, Schema> categorySchemaMap){
+    private Map<String, Table> getNameTableMap(ColumnInitializer colInit, Map<String, Schema> categorySchemaMap){
         TableGenerator tableGenerator = new TableGenerator(colInit, categorySchemaMap);
         return tableGenerator.getNameTableMap();
     }
 
-    private static List<Table> addCommonColumns(List<Table> tableList, List<Column> commonColumnList){
+    private List<Table> getSpecialTableList(List<Table> tableList){
+        List<Table> specialTableList = new ArrayList<>();
+        for (Table table : tableList) {
+            if(SpecialTableNameGiver.getSpecialTableNameList().contains(table.getName())){
+                specialTableList.add(table);
+            }
+        }
+        return specialTableList;
+    }
+
+    private List<Table> addCommonColumns(List<Table> tableList, List<Column> commonColumnList){
         List<Table> newTableList = new ArrayList<>();
         for(Table table: tableList){
-            Schema schema = table.getSchema() != null ? table.getSchema() : null;
-            String tableFQN = "";
-            if(!table.getName().contains("."))
-                tableFQN = schema != null && !schema.getName().isEmpty() ? (schema.getName() + "." + table.getName()) : table.getName();
-            else
-                tableFQN = table.getName();
+            String tableFQN = table.getFullyQualifiedName();
+            List<Column> currentColumnList = table.getUniversalColumnList();
             List<Column> newCommonColumnList = new ArrayList<>();
             for (Column column: commonColumnList){
                 try {
+                    if(currentColumnList.contains(column))
+                        continue;
                     Column clone = column.clone();
                     clone.setTableName(tableFQN);
                     newCommonColumnList.add(clone);
@@ -151,7 +161,7 @@ public class StandardizationManager {
         return newTableList;
     }
 
-    private static List<Table> addCommonProperties(List<Table> tableList, String sqlDialect, QueryExecutor queryExecutor){
+    private List<Table> addCommonProperties(List<Table> tableList, String sqlDialect, QueryExecutor queryExecutor){
         List<Table> newTableList = new ArrayList<>();
         for(Table table: tableList){
             table.setSqlDialect(sqlDialect);
@@ -161,29 +171,29 @@ public class StandardizationManager {
         return newTableList;
     }
 
-    private static List<Column> getUniversalTableColumnList(List<Table> tableList){
+    private List<Column> getUniversalTableColumnList(List<Table> tableList){
         List<Column> allTablesColumnList = new ArrayList<>();
         for(Table table: tableList)
             allTablesColumnList.addAll(table.getUniversalColumnList());
         return allTablesColumnList;
     }
 
-    private static List<Relationship> getRelationshipList(Map<String, Table> nameTableMap){
+    private List<Relationship> getRelationshipList(Map<String, Table> nameTableMap){
         BaseRelationshipGenerator baseRelationshipGenerator = new BaseRelationshipGenerator(nameTableMap);
         return baseRelationshipGenerator.getRelationshipList();
     }
 
-    private static List<Table> getDerivedTables(List<Relationship> relationshipList){
-        RelationshipResolver relationshipResolver = new RelationshipResolver();
-        return relationshipResolver.resolveManyToManyRelationships(relationshipList);
+    private List<Table> getDerivedTables(List<Relationship> relationshipList){
+        RelationshipResolver relationshipResolver = new RelationshipResolver(relationshipList);
+        return relationshipResolver.resolveManyToManyRelationships();
     }
 
-    private static List<Table> ensureEntityAndReferentialIntegrity(List<Relationship> relationshipList){
-        RelationshipResolver relationshipResolver = new RelationshipResolver();
-        return relationshipResolver.ensureEntityAndReferentialIntegrity(relationshipList);
+    private List<Table> ensureEntityAndReferentialIntegrity(List<Relationship> relationshipList){
+        RelationshipResolver relationshipResolver = new RelationshipResolver(relationshipList);
+        return relationshipResolver.ensureEntityAndReferentialIntegrity();
     }
 
-    private static List<Table> replaceWithEnhancedTables(List<Table> tableList, List<Table> enhancedTableList){
+    private List<Table> replaceWithEnhancedTables(List<Table> tableList, List<Table> enhancedTableList){
         List<Table> newTableList = new ArrayList<>(enhancedTableList);
         for (Table table: tableList)
             if (!newTableList.contains(table))

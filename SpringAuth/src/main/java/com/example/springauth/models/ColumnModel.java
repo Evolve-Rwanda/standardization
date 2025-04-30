@@ -36,6 +36,27 @@ public class ColumnModel {
                 "tableName='" + tableName + '\'' +
                 ", name='" + name + '\'' +
                 ", number=" + number +
+                ", dataType='" + dataType + '\'' +
+                ", specifiesPrecision='" + specifiesPrecision + '\'' +
+                ", precision=" + precision +
+                ", specifiesScale='" + specifiesScale + '\'' +
+                ", scale=" + scale +
+                ", specifiesLength='" + specifiesLength + '\'' +
+                ", specifiesNothing='" + specifiesNothing + '\'' +
+                ", defaultValue='" + defaultValue + '\'' +
+                ", isNullable=" + isNullable +
+                ", isAFactBasedColumn=" + isAFactBasedColumn +
+                ", isEncrypted=" + isEncrypted +
+                ", isPK=" + isPK +
+                ", isFK=" + isFK +
+                ", isIndexed=" + isIndexed +
+                ", referenceTableName='" + referenceTableName + '\'' +
+                ", referenceColumnName='" + referenceColumnName + '\'' +
+                ", onUpdateAction='" + onUpdateAction + '\'' +
+                ", onDeleteAction='" + onDeleteAction + '\'' +
+                ", description='" + description + '\'' +
+                ", createdAt='" + createdAt + '\'' +
+                ", deletedAt='" + deletedAt + '\'' +
                 '}';
     }
 

@@ -8,6 +8,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SpringAuthApplication {
 
     public static void main(String[] args) {
+        StandardizationManager standardizationManager = new StandardizationManager();
+        standardizationManager.initializeStandardAuthModule();
         SpringApplication.run(SpringAuthApplication.class, args);
     }
 

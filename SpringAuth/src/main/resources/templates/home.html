@@ -59,6 +59,23 @@
         cursor: pointer;
     }
 
+    .init_button{
+        text-align: center;
+        vertical-align: center;
+        font-size: medium;
+        border: none;
+        height: 200px;
+        width: 90%;
+        border-radius: 0;
+        background: #444444;
+        color: white;
+    }
+
+    .init_button:hover{
+        background: #998833;
+        cursor: pointer;
+    }
+
     .top_action_icon_image, .sidebar_icon_image{
         width: 25px;
         height: 25px;
@@ -115,6 +132,7 @@
 </style>
 
 <script type="application/javascript">
+
     function displaySelection(idName, className){
         var classElementArray = document.getElementsByClassName(className);
         for(let i=0; i<classElementArray.length; i++){
@@ -127,14 +145,36 @@
         }
     }
 
+    function displaySelectionAction(displayId, hideId){
+        var displayElement = document.getElementById(displayId);
+        var hideElement = document.getElementById(hideId);
+        displayElement.style.display = "block";
+        hideElement.style.display = "none";
+    }
+
+    function markSection(callingElement, className){
+        var classElementArray = document.getElementsByClassName(className);
+        for(let i=0; i<classElementArray.length; i++){
+            classElementArray[i].style.backgroundColor = "#444444";
+        }
+        callingElement.style.backgroundColor = "#555555";
+    }
+
     function narrowSelectionOptions(callingElement, calledClass){
-        alert(calledClass);
+        var calledElementArray = document.getElementsByClassName(calledClass);
         var selection = callingElement.value;
+        var chosenElementArray = document.getElementsByClassName(selection);
+        for(let i=0; i<calledElementArray.length; i++){
+            calledElementArray[i].style.display = "none";
+        }
+        for(let i=0; i<chosenElementArray.length; i++){
+            chosenElementArray[i].style.display = "table-row";
+        }
     }
 
 </script>
 
-<body style="margin: 0%; padding: 0%;">
+<body style="margin: 0; padding: 0;">
 
 <table style="width: 100%; height: 100vh;" border="0" cellpadding="0" cellspacing="0">
     <tr>
@@ -153,36 +193,43 @@
                 </tr>
                 <tr>
                     <td valign="middle">
-                        <div class="action_selector" onclick="displaySelection('db_schema', 'action_pane')">
+                        <div class="action_selector" id="action_1" onclick="displaySelection('db_schema', 'action_pane'); markSection(this, 'action_selector');">
                             Schemas
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <td valign="middle">
-                        <div class="action_selector" onclick="displaySelection('db_table', 'action_pane')">
+                        <div class="action_selector" id="action_2" onclick="displaySelection('db_table', 'action_pane'); markSection(this, 'action_selector');">
                             Tables
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <td valign="middle">
-                        <div class="action_selector" onclick="displaySelection('db_relationship', 'action_pane')">
+                        <div class="action_selector" id="action_3" onclick="displaySelection('db_relationship', 'action_pane'); markSection(this, 'action_selector');">
                             Relationships
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <td valign="middle">
-                        <div class="action_selector" onclick="displaySelection('db_column', 'action_pane')">
+                        <div class="action_selector" id="action_4" onclick="displaySelection('db_column', 'action_pane'); markSection(this, 'action_selector');">
                             Columns
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <td valign="middle">
-                        <div class="action_selector" onclick="displaySelection('db_documentation', 'action_pane')">
+                        <div class="action_selector" id="action_5" onclick="displaySelection('db_documentation', 'action_pane'); markSection(this, 'action_selector');">
                             Documentation
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="middle">
+                        <div class="action_selector" id="action_6" onclick="displaySelection('app_initialization', 'action_pane'); markSection(this, 'action_selector');">
+                            Initialization
                         </div>
                     </td>
                 </tr>
@@ -192,7 +239,7 @@
             </table>
         </td>
 
-        <td valign="top" id="center_pane" style="overflow-y: auto; overflow-x: auto; position: fixed; padding: 0 10px 0 10px;" width="60%">
+        <td valign="top" id="center_pane" style="overflow-y: auto; position: fixed; padding: 0 10px 0 10px;" width="60%">
 
             <div class="action_pane" id="welcome" style="display: block; overflow: auto;">
                 <h2 style="text-align: center;">Welcome!</h2>
@@ -202,8 +249,8 @@
                 <table style="width: 94%;">
                     <tr>
                         <td align="center">
-                            <img th:src="@{/images/add.png}" alt="Add" title="Add" class="top_action_icon_image" onclick="displaySelection('add_schema', 'item_action')" />
-                            <img th:src="@{/images/view.png}" alt="View" title="View" class="top_action_icon_image" onclick="displaySelection('view_schema', 'item_action')" />
+                            <img th:src="@{/images/add.png}" style="margin: 0px;" alt="Add" title="Add" class="top_action_icon_image" onclick="displaySelectionAction('add_schema', 'view_schema')" />
+                            <img th:src="@{/images/view.png}" alt="View" title="View" class="top_action_icon_image" onclick="displaySelectionAction('view_schema', 'add_schema')" />
                         </td>
                     </tr>
                     <tr>
@@ -262,15 +309,21 @@
                                             <div th:text="${schemaNotAddedMessage}" class="failed_action_message">
                                                 Invalid schema details
                                             </div>
-                                            <div th:text="${schemaAddedMessage}" class="successful_action_message"></div>
+                                            <div th:text="${schemaAddedMessage}" class="successful_action_message">
+                                                <script type="application/javascript">
+                                                    displaySelection('db_schema', 'action_pane');
+                                                    var actionElement = document.getElementById("action_1");
+                                                    markSection(actionElement, 'action_selector');
+                                                </script>
+                                            </div>
                                         </td>
                                     </tr>
                                 </table>
                                 </form>
                             </div>
                             <!-- End of add schema form -->
-                            <!-- start of view schemas -->
-                            <div style="margin: 0; padding: 0; display: none" class="item_action" id="view_schema">
+                            <!-- Start of view schemas -->
+                            <div style="margin: 0; padding: 0; display: none;" class="item_action" id="view_schema">
                                 <table border="1" cellpadding="2" cellspacing="0" align="center" style="width: 90%;">
                                     <tr style="font-size: 14px; background: #777777; color: white;">
                                         <td></td>
@@ -298,8 +351,8 @@
                 <table style="width: 94%;">
                     <tr>
                         <td align="center">
-                            <img th:src="@{/images/add.png}" alt="Add" title="Add" class="top_action_icon_image" onclick="displaySelection('add_table', 'item_action')" />
-                            <img th:src="@{/images/view.png}" alt="View" title="View" class="top_action_icon_image" onclick="displaySelection('view_table', 'item_action')" />
+                            <img th:src="@{/images/add.png}" alt="Add" title="Add" class="top_action_icon_image" onclick="displaySelectionAction('add_table', 'view_table')" />
+                            <img th:src="@{/images/view.png}" alt="View" title="View" class="top_action_icon_image" onclick="displaySelectionAction('view_table', 'add_table')" />
                         </td>
                     </tr>
                     <tr>
@@ -386,7 +439,7 @@
                                 </form>
                             </div>
                             <!-- End of add table form div -->
-                            <!-- start of view tables -->
+                            <!-- Start of view tables -->
                             <div style="margin: 0; padding: 0; display: none" class="item_action" id="view_table">
                                 <div style="width: 100%; height: auto; overflow: scroll; overflow-x: auto;">
                                     <table border="1" cellpadding="2" cellspacing="0" align="center" style="width: auto;">
@@ -415,8 +468,8 @@
                 <table style="width: 94%;">
                     <tr>
                         <td align="center">
-                            <img th:src="@{/images/add.png}" alt="Add" class="top_action_icon_image" onclick="displaySelection('add_relationship', 'item_action')" />
-                            <img th:src="@{/images/view.png}" alt="View" class="top_action_icon_image" onclick="displaySelection('view_relationship', 'item_action')" />
+                            <img th:src="@{/images/add.png}" alt="Add" class="top_action_icon_image" onclick="displaySelectionAction('add_relationship', 'view_relationship')" />
+                            <img th:src="@{/images/view.png}" alt="View" class="top_action_icon_image" onclick="displaySelectionAction('view_relationship', 'add_relationship')" />
                         </td>
                     </tr>
                     <tr>
@@ -554,18 +607,17 @@
             </div>
             <div class="action_pane" id="db_column" style="display: none;">
                 <h2 style="text-align: center;">Table Columns</h2>
+                <div style="text-align: center;">
+                    <img th:src="@{/images/add.png}" alt="Add" class="top_action_icon_image" onclick="displaySelectionAction('add_column', 'view_column')" />
+                    <img th:src="@{/images/view.png}" alt="View" class="top_action_icon_image" onclick="displaySelectionAction('view_column', 'add_column')" />
+                </div>
                 <table style="width: 94%;">
-                    <tr>
-                        <td align="center">
-                            <img th:src="@{/images/add.png}" alt="Add" class="top_action_icon_image" onclick="displaySelection('add_column', 'item_action')" />
-                            <img th:src="@{/images/view.png}" alt="View" class="top_action_icon_image" onclick="displaySelection('view_column', 'item_action')" />
-                        </td>
-                    </tr>
                     <tr>
                         <td><br /></td>
                     </tr>
                     <tr>
-                        <td>
+                        <td style="padding: 0; overflow: auto;">
+                            <!-- Start of add column form -->
                             <div style="width:100%; margin:0; padding:0;" class="item_action" id="add_column">
                                 <form th:action="@{/add_column}" th:object="${columnForm}" method="post">
                                     <table style="margin-top: auto; margin-bottom: auto; width: 100%;" border="0">
@@ -669,7 +721,7 @@
                                         <tr>
                                             <td align="center">
                                                 <label>
-                                                    <input type="number" th:min="1" th:field="*{precision}" placeholder="precision">
+                                                    <input type="number" th:field="*{precision}" placeholder="precision">
                                                 </label>
                                             </td>
                                         </tr>
@@ -686,7 +738,7 @@
                                         <tr>
                                             <td align="center">
                                                 <label>
-                                                    <input type="number" th:start="1" th:min="1" th:field="*{scale}" placeholder="scale">
+                                                    <input type="number" th:field="*{scale}" placeholder="scale">
                                                 </label>
                                             </td>
                                         </tr>
@@ -720,7 +772,7 @@
                                         <tr>
                                             <td>
                                                 <label style="margin-left: 25%;">
-                                                   <input type="checkbox" th:checked="${false}" name="is_nullable"> is nullable
+                                                   <input type="checkbox" name="isNullable"> can be null
                                                 </label>
                                             </td>
                                         </tr>
@@ -730,7 +782,7 @@
                                         <tr>
                                             <td>
                                                 <label style="margin-left: 25%;">
-                                                    <input type="checkbox" th:checked="${false}" name="is_pk"> is primary key
+                                                    <input type="checkbox" name="isPK"> is a primary key
                                                 </label>
                                             </td>
                                         </tr>
@@ -740,7 +792,7 @@
                                         <tr>
                                             <td>
                                                 <label style="margin-left: 25%;">
-                                                    <input type="checkbox" th:checked="${false}" name="is_fk"> is foreign key
+                                                    <input type="checkbox" name="isFK"> is a foreign key
                                                 </label>
                                             </td>
                                         </tr>
@@ -750,7 +802,7 @@
                                         <tr>
                                             <td>
                                                 <label style="margin-left: 25%;">
-                                                    <input type="checkbox" th:checked="${false}" name="is_a_fact_based_column"> is a fact based column
+                                                    <input type="checkbox" name="isAFactBasedColumn"> is a fact based column
                                                 </label>
                                             </td>
                                         </tr>
@@ -760,7 +812,7 @@
                                         <tr>
                                             <td>
                                                 <label style="margin-left: 25%;">
-                                                    <input type="checkbox" th:checked="${false}" name="is_encrypted"> is encrypted
+                                                    <input type="checkbox" name="isEncrypted"> is encrypted
                                                 </label>
                                             </td>
                                         </tr>
@@ -770,7 +822,7 @@
                                         <tr>
                                             <td>
                                                 <label style="margin-left: 25%;">
-                                                    <input type="checkbox" th:checked="${false}" name="is_indexed"> is indexed
+                                                    <input type="checkbox" name="isIndexed"> is indexed
                                                 </label>
                                             </td>
                                         </tr>
@@ -906,10 +958,11 @@
                                         </tr>
                                     </table>
                                 </form>
-                            </div> <!-- End of add schema form -->
-                            <!-- start of view columns -->
-                            <div style="margin: 0; padding: 0; display: none; overflow-x: auto;" class="item_action" id="view_column">
-                                <div th:each="table_obj: ${table_list}" style="width: 100%; height: auto; overflow: scroll; overflow-x: auto;">
+                            </div>
+                            <!-- End of add column form -->
+                            <!-- Start of view columns -->
+                            <div style="margin: 0; padding: 0; display: none;" class="item_action" id="view_column">
+                                <div th:each="table_obj: ${table_list}" style="margin: 0;">
                                     <h4 th:text="${table_obj.getName()}" style="text-align: center;"></h4>
                                     <table border="1" cellpadding="2" cellspacing="0" align="center" style="width: auto;">
                                         <tr style="background: #777777; color: white; font-size: small;">
@@ -960,9 +1013,9 @@
                     </tr>
                 </table>
             </div>
-            <div class="action_pane" id="db_documentation" style="display: none; width: 100%; padding: 0; margin: 0; overflow-x: scroll;">
+            <div class="action_pane" id="db_documentation" style="display: none; width: 100%; padding: 0; margin: 0;">
                 <h2 style="text-align: center;">Database Documentation</h2>
-                <div style="width: 100%; overflow-x: auto; font-size: medium;">
+                <div style="width: 100%; overflow-x: auto; font-size: small;">
                     <p>The database documentation information for this application can be found in the <i><span th:text="${documentation_schema}"></span></i> schema from whence it can be generated in a preferable way.</p>
                     <p>This documentation contains information about the different different schemas, tables, relationships between the different tables, and the columns that belong to each and every table.</p>
                     <p>The different schemas in the database include - </p>
@@ -1081,6 +1134,35 @@
                         </tr>
                     </table>
 
+                </div>
+            </div>
+            <div class="action_pane" id="app_initialization" style="display: none; width: 100%; padding: 0; margin: 0;">
+                <h2 style="text-align: center;">Application Initialization</h2>
+                <div style="width: 100%; overflow-x: auto; font-size: small;">
+                    <table align="center" style="width: 55%; height: auto; border: 0; margin-top: 20px;">
+                        <tr>
+                            <td align="center" style="width: 50%;">
+                                <a href="/initialize_authentication">
+                                    <input type="button" value="Authentication" class="init_button">
+                                </a>
+                            </td>
+                            <td align="center" style="width: 50%;">
+                                <a href="/initialize_logging">
+                                    <input type="button" value="Logging" class="init_button">
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div th:text="${authInitializationMessage}" style="color: green; margin-right: auto; margin-left: auto; text-align: center;">
+                                </div>
+                            </td>
+                            <td>
+                                <div th:text="${loggingInitializationMessage}" style="color: green; margin-right: auto; margin-left: auto; text-align: center;">
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </td>

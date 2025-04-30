@@ -37,7 +37,7 @@ public class Table {
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Table table)) return false;
-        return Objects.equals(name, table.name);
+        return Objects.equals(this.getFullyQualifiedName(), table.getFullyQualifiedName());
     }
 
     @Override
@@ -48,6 +48,10 @@ public class Table {
     @Override
     public String toString() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setSchema(Schema schema) {
@@ -87,7 +91,7 @@ public class Table {
     }
 
     public String getName(){
-        return this.name;
+        return this.name.toLowerCase();
     }
 
     public String getDescription() {

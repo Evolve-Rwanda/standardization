@@ -1,20 +1,21 @@
 package com.example.springauth;
 
 import com.example.springauth.columns.Column;
+import com.example.springauth.columns.ColumnInitializer;
+import com.example.springauth.dialects.postgres.PostgresDialect;
 import com.example.springauth.documentation.DatabaseDocumentation;
 import com.example.springauth.dialects.postgres.DatabaseCredentials;
 import com.example.springauth.dialects.postgres.QueryExecutor;
 import com.example.springauth.models.ColumnModel;
 import com.example.springauth.models.RelationshipModel;
+import com.example.springauth.models.SchemaModel;
 import com.example.springauth.relationships.Relationship;
+import com.example.springauth.relationships.RelationshipResolver;
 import com.example.springauth.schemas.Schema;
 import com.example.springauth.schemas.SchemaGenerator;
 
 import com.example.springauth.schemas.SchemaNameGiver;
-import com.example.springauth.specialtables.TableOfColumns;
-import com.example.springauth.specialtables.TableOfRelationships;
-import com.example.springauth.specialtables.TableOfSchemas;
-import com.example.springauth.specialtables.TableOfTables;
+import com.example.springauth.specialtables.*;
 import com.example.springauth.tables.Table;
 import com.example.springauth.models.TableModel;
 import com.example.springauth.utilities.DateTime;
@@ -31,8 +32,10 @@ import java.util.Map;
 
 
 
+
 @Controller
 public class DatabaseController {
+
 
 
     String databaseName = "standardization";
@@ -48,7 +51,7 @@ public class DatabaseController {
     SchemaGenerator schemaGenerator = new SchemaGenerator();
     Map<String, Schema> nameSchemaMap = schemaGenerator.getNameSchemaMap();
     Schema databaseDocumentationSchema = nameSchemaMap.get(SchemaNameGiver.getDocumentationSchemaName());
-
+    Schema userManagementSchema = nameSchemaMap.get(SchemaNameGiver.getUserManagementSchemaName());
 
     @GetMapping("/")
     public String home(Model model) {
@@ -57,7 +60,12 @@ public class DatabaseController {
     }
 
     @PostMapping("/add_schema")
-    public String addSchema(@ModelAttribute("schemaForm") Schema schema, Model model) {
+    public String addSchema(@ModelAttribute("schemaForm") SchemaModel schemaModel, Model model) {
+        schemaModel.setCreatedAt(DateTime.getTimeStamp());
+        schemaModel.setDeletedAt("");
+        Schema schema = new Schema();
+        schema.setName(schemaModel.getName());
+        schema.setDescription(schemaModel.getDescription());
         schema.setCreatedAt(DateTime.getTimeStamp());
         schema.setDeletedAt("");
         List<Schema> schemaList = new ArrayList<>();
@@ -94,8 +102,8 @@ public class DatabaseController {
         String rightTableName = relationshipModel.getRightTableName();
         String type = relationshipModel.getType();
         String description = relationshipModel.getDescription();
-        String[] left = leftTableName.split(".");
-        String[] right = rightTableName.split(".");
+        String[] left = leftTableName.split("\\.");
+        String[] right = rightTableName.split("\\.");
         String leftTableSchemaName = left.length > 0 ? left[0] : "";
         String rightTableSchemaName = right.length > 0 ? right[0] : "";
         Schema leftSchema = new Schema(leftTableSchemaName, "", "", "");
@@ -174,6 +182,39 @@ public class DatabaseController {
         return "home";
     }
 
+    @GetMapping("/initialize_authentication")
+    public String initializeAuthentication(Model model) {
+        attributeSetup(model);
+        List<Schema> schemaList = this.getDatabaseSchemaList();
+        // Creating physical schemas in the database. These are especially those registered or tailored to the project
+        TableOfSchemas schemaTable = new TableOfSchemas(queryExecutor, sqlDialect, databaseDocumentationSchema);
+        schemaTable.createDatabaseSchemas(schemaList);
+        String tableOfTables = SpecialTableNameGiver.getTableOfTablesName();
+        List<Table> tableList = getTableList(tableOfTables);
+        tableList = removeSpecialTables(tableList);
+        List<Relationship> relationshipList = this.getTableRelationships(SpecialTableNameGiver.getTableOfRelationshipsName());
+
+        List<Table> enhancedTableList = this.ensureEntityAndReferentialIntegrity(relationshipList);
+        tableList = this.replaceWithEnhancedTables(tableList, enhancedTableList);
+        // add common column list
+        ColumnInitializer colInit = ColumnInitializer.getColumnInitializer(databaseDocumentationSchema, userManagementSchema);
+        List<Column> commonColumnList = colInit.getCommonColumnList();
+        tableList = this.addCommonColumns(tableList, commonColumnList);
+        Table.createTables(tableList);
+        List<Table> derivedTableList = getDerivedTables(relationshipList);
+        derivedTableList = this.addCommonColumns(derivedTableList, commonColumnList);
+        Table.createTables(derivedTableList);
+        model.addAttribute("authInitializationMessage", "You have successfully initialized authentication.");
+        return "home";
+    }
+
+    @GetMapping("/initialize_logging")
+    public String initializeLogging(Model model) {
+        model.addAttribute("loggingInitializationMessage", "You have successfully initialized logging.");
+        attributeSetup(model);
+        return "home";
+    }
+
     private void attributeSetup(Model model) {
         /* Deliverable - 1/2. Obtain database documentation */
         DatabaseDocumentation databaseDocumentation = new DatabaseDocumentation(sqlDialect, queryExecutor, databaseDocumentationSchema);
@@ -190,10 +231,95 @@ public class DatabaseController {
         model.addAttribute("schema_name_table_list_map", schemaNameTableNameListMap);
         model.addAttribute("table_list", tableList);
         model.addAttribute("relationship_list", relationshipList);
-        model.addAttribute("schemaForm", new Schema());
+        model.addAttribute("schemaForm", new SchemaModel());
         model.addAttribute("tableForm", new TableModel());
         model.addAttribute("relationshipForm", new RelationshipModel());
         model.addAttribute("columnForm", new ColumnModel());
+    }
+
+    private List<Schema> getDatabaseSchemaList(){
+        List<Schema> schemaList = new ArrayList<>();
+        if (sqlDialect.equalsIgnoreCase("POSTGRES")) {
+            PostgresDialect postgresDialect = new PostgresDialect(queryExecutor);
+            schemaList = postgresDialect.getDatabaseSchemaList();
+        }
+        return schemaList;
+    }
+
+    private List<Table> getTableList(String searchTable){
+        List<Table> tableList = new ArrayList<>();
+        if (sqlDialect.equalsIgnoreCase("POSTGRES")) {
+            PostgresDialect postgresDialect = new PostgresDialect(queryExecutor, searchTable, databaseDocumentationSchema);
+            tableList = postgresDialect.getTableList(searchTable);
+        }
+        return tableList;
+    }
+
+    private List<Table> removeSpecialTables(List<Table> tableList){
+        List<String> specialTableNameList = SpecialTableNameGiver.getSpecialTableNameList();
+        List<Table> nonSpecialTableList = new ArrayList<>();
+        for (Table table : tableList) {
+            if (!specialTableNameList.contains(table.getName())) {
+                nonSpecialTableList.add(table);
+            }
+        }
+        return nonSpecialTableList;
+    }
+
+    private List<Relationship> getTableRelationships(String searchTable){
+        List<Relationship> relationshipList = new ArrayList<>();
+        if (sqlDialect.equalsIgnoreCase("POSTGRES")) {
+            PostgresDialect postgresDialect = new PostgresDialect(queryExecutor, searchTable, databaseDocumentationSchema);
+            relationshipList = postgresDialect.getTableRelationships(searchTable);
+        }
+        return relationshipList;
+    }
+
+    private List<Table> getDerivedTables(List<Relationship> relationshipList){
+        RelationshipResolver relationshipResolver = new RelationshipResolver(relationshipList);
+        List<Table> derivedTableList = relationshipResolver.resolveManyToManyRelationships();
+        for(Table table : derivedTableList){
+            table.setSqlDialect(sqlDialect);
+            table.setQueryExecutor(queryExecutor);
+        }
+        return derivedTableList;
+    }
+
+    private List<Table> ensureEntityAndReferentialIntegrity(List<Relationship> relationshipList){
+        RelationshipResolver relationshipResolver = new RelationshipResolver(relationshipList);
+        return relationshipResolver.ensureEntityAndReferentialIntegrity();
+    }
+
+    private List<Table> replaceWithEnhancedTables(List<Table> tableList, List<Table> enhancedTableList){
+        List<Table> newTableList = new ArrayList<>(enhancedTableList);
+        for (Table table: tableList)
+            if (!newTableList.contains(table))
+                newTableList.add(table);
+        return newTableList;
+    }
+
+
+    private List<Table> addCommonColumns(List<Table> tableList, List<Column> commonColumnList){
+        List<Table> newTableList = new ArrayList<>();
+        for(Table table: tableList){
+            String tableFQN = table.getFullyQualifiedName();
+            List<Column> currentColumnList = table.getUniversalColumnList();
+            List<Column> newCommonColumnList = new ArrayList<>();
+            for (Column column: commonColumnList){
+                try {
+                    if(currentColumnList.contains(column))
+                        continue;
+                    Column clone = column.clone();
+                    clone.setTableName(tableFQN);
+                    newCommonColumnList.add(clone);
+                }catch (CloneNotSupportedException e){
+                    System.out.println(e.getMessage());
+                }
+            }
+            table.setBaseColumnList(newCommonColumnList);
+            newTableList.add(table);
+        }
+        return newTableList;
     }
 
 
