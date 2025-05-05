@@ -1,6 +1,5 @@
 package com.example.springauth.controllers;
 
-
 import com.example.springauth.models.app.AdminModel;
 import com.example.springauth.models.jpa.AppUser;
 import com.example.springauth.services.UserService;
@@ -25,17 +24,34 @@ public class AdminRegistration {
 
     @GetMapping("/admin_registration")
     public String adminRegistration(Model model) {
+        model.addAttribute("adminRegistrationForm", new AdminModel());
         return "admin_registration";
     }
 
     @PostMapping("/admin_registration")
     public String adminRegistration(@ModelAttribute("adminRegistrationForm")AdminModel adminModel, Model model) {
+
+        String firstName = adminModel.getFirstName();
+        String lastName = adminModel.getLastName();
+        String otherNames = adminModel.getOtherNames();
+        String phoneNumber = adminModel.getPhoneNumber();
         String username = adminModel.getUsername();
-        String password = passwordEncoder.encode(adminModel.getPassword());
-        AppUser appUser = new AppUser(username, password);
-        userService.createUser(appUser);
+        String formPassword = adminModel.getPassword();
+        String confirmFormPassword = adminModel.getRepeatPassword();
+        String password = passwordEncoder.encode(formPassword);
+
+        boolean passwordsMatch = formPassword.equals(confirmFormPassword);
+
+        if (passwordsMatch) {
+            AppUser appUser = new AppUser(firstName, lastName, otherNames, phoneNumber, username, password);
+            userService.createUser(appUser);
+            model.addAttribute("successfulRegistration", "Admin registration successful");
+        }else {
+            model.addAttribute("unsuccessfulRegistration", "Provided passwords do not match");
+        }
+
         model.addAttribute("adminRegistrationForm", new AdminModel());
-        model.addAttribute("successfulRegistration", "Admin registration successful");
+
         return "admin_registration";
     }
 

@@ -1,5 +1,6 @@
 package com.example.springauth.dialects.postgres;
 
+import com.example.springauth.columns.ColumnValueOption;
 import com.example.springauth.dialects.SQLDialect;
 import com.example.springauth.specialtables.SpecialTable;
 import com.example.springauth.specialtables.SpecialTableNameGiver;
@@ -222,6 +223,34 @@ public class PostgresDialect extends SQLDialect {
         }
     }
 
+    public void documentColumnValueOptions(List<ColumnValueOption> columnValueOptionList){
+        if(columnValueOptionList == null || columnValueOptionList.isEmpty())
+            return;
+        List<String> insertionQueryList = new ArrayList<>();
+        List<ColumnValueOption> existingColumnValueOptionList = new ArrayList<>();
+        String setPathQuery = getSchemaPathQuery();
+        for(ColumnValueOption columnValueOption: columnValueOptionList) {
+            long columnId = columnValueOption.getColumnId();
+            String value = columnValueOption.getOptionValue();
+            Map<String, String> fieldNameValueMap = new HashMap<>();
+            fieldNameValueMap.put("column_id", columnId + "");
+            fieldNameValueMap.put("option_value", "'" + value + "'");
+            SpecialTable.EntryChecker columnChecker = new SpecialTable.EntryChecker(queryExecutor, documentingTableName, schema, fieldNameValueMap);
+            boolean columnOptionValueExists = columnChecker.entryExists();
+            if(columnOptionValueExists)
+                existingColumnValueOptionList.add(columnValueOption);
+        }
+        for(ColumnValueOption columnValueOption: columnValueOptionList) {
+            if(existingColumnValueOptionList.contains(columnValueOption))
+                continue;
+            insertionQueryList.add(setPathQuery + this.getTableOfColumnsValueOptionInsertionQuery(columnValueOption));
+        }
+        if(!insertionQueryList.isEmpty()) {
+            queryExecutor.executeQueryList(insertionQueryList);
+            queryExecutor.closeResources();
+        }
+    }
+
     public String getTableOfSchemasInsertionQuery(Schema someSchema){
         String targetColumns = "schema_name, description, created_at";
         String schemaName = someSchema.getName();
@@ -255,11 +284,19 @@ public class PostgresDialect extends SQLDialect {
         return "INSERT INTO \"" + documentingTableName + "\"(" + targetColumns + ") VALUES(" + columnValues + ");";
     }
 
+    public String getTableOfColumnsValueOptionInsertionQuery(ColumnValueOption columnValueOption){
+        String targetColumns = ("column_id, option_value");
+        String columnId = columnValueOption.getColumnId() + "";
+        String optionValue = columnValueOption.getOptionValue();
+        String columnValues = (columnId + ", " + "'" + optionValue + "'");
+        return "INSERT INTO \"" + documentingTableName + "\"(" + targetColumns + ") VALUES(" + columnValues + ");";
+    }
+
     public String getTableOfColumnsInsertionQuery(Column column){
         String targetColumns = (
                 "table_name, column_number, column_name, column_data_type, precision, scale, " +
-                "default_value, is_nullable, is_pk, is_fk, reference_table_name, reference_column_name, " +
-                "on_update_action, on_delete_action, is_a_fact_based_column, is_encrypted, is_indexed, description, created_at"
+                        "default_value, is_nullable, is_pk, is_fk, reference_table_name, reference_column_name, " +
+                        "on_update_action, on_delete_action, is_a_fact_based_column, is_encrypted, is_indexed, description, created_at"
         );
         String tableName = column.getTableName();
         String columnName = column.getName();
@@ -283,12 +320,13 @@ public class PostgresDialect extends SQLDialect {
 
         String columnValues = (
                 "'" + tableName + "'," + columnNumber + ", " + "'" + columnName + "'," + "'" + type + "'," + precision + ", " + scale + ", " +
-                "'" + defaultValue + "'," + "'" + isNullable + "'," + "'" + isPK + "'," + "'" + isFK + "'," + "'" + referenceTableName + "'," +
-                "'" + referenceColumnName + "'," + "'" + onUpdateAction + "'" + ", " + "'" + onDeleteAction + "'," + "'" + isAFactBasedColumn + "'," +
-                "'" + isEncrypted + "'," + "'" + isIndexed + "'," + "'" + description + "'," + "'" + createdAt + "'"
+                        "'" + defaultValue + "'," + "'" + isNullable + "'," + "'" + isPK + "'," + "'" + isFK + "'," + "'" + referenceTableName + "'," +
+                        "'" + referenceColumnName + "'," + "'" + onUpdateAction + "'" + ", " + "'" + onDeleteAction + "'," + "'" + isAFactBasedColumn + "'," +
+                        "'" + isEncrypted + "'," + "'" + isIndexed + "'," + "'" + description + "'," + "'" + createdAt + "'"
         );
         return "INSERT INTO \"" + documentingTableName + "\"(" + targetColumns + ") VALUES(" + columnValues + ");";
     }
+
 
     private String getSchemaPathQuery(){
         return String.format("SET search_path TO %s;", schema.getName());

@@ -3,9 +3,10 @@
 <head>
     <title>Admin Registration</title>
     <link rel="stylesheet" th:href="@{css/registration.css}">
+    <link rel="stylesheet" th:href="@{css/forms.css}">
 </head>
 
-<body style="margin:0%; padding:0%;">
+<body style="margin:0; padding:0;">
 
 
 <table style="width: 100%; height: 100vh;" border="0">
@@ -14,9 +15,16 @@
             <form th:action="@{/admin_registration}" th:object="${adminRegistrationForm}" method="post">
                 <table style="margin-top: auto; margin-bottom: auto; width: 40%;" border="0">
                     <tr>
+                        <td valign="middle">
+                            <label class="field_label">
+                                First name
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
                         <td valign="middle" align="center">
                             <label>
-                                <input type="email" name="username" style="width: 80%; height: 40px; font-size: larger; padding: 0px 10px;" placeholder="Email" required />
+                                <input type="text" th:field="*{firstName}" style="width: 80%; height: 40px; font-size: larger; padding: 0px 10px;" placeholder="First name" required />
                             </label>
                         </td>
                     </tr>
@@ -24,9 +32,104 @@
                         <td>&nbsp;</td>
                     </tr>
                     <tr>
+                        <td valign="middle">
+                            <label class="field_label">
+                                Last name
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
                         <td valign="middle" align="center">
                             <label>
-                                <input type="password" name="password" style="width: 80%; height: 40px; font-size: larger; padding: 0px 10px;" placeholder="Password" required />
+                                <input type="text" th:field="*{lastName}" style="width: 80%; height: 40px; font-size: larger; padding: 0px 10px;" placeholder="Surname or family name" required />
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td valign="middle">
+                            <label class="field_label">
+                                Other names
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="middle" align="center">
+                            <label>
+                                <input type="text" th:field="*{otherNames}" style="width: 80%; height: 40px; font-size: larger; padding: 0px 10px;" placeholder="Other names" required />
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td valign="middle">
+                            <label class="field_label">
+                                Phone number
+                                <label style="cursor: pointer; color: #000077; font-weight: bold;" title="include a country code for users/contacts outside Rwanda starting with a plus sign (+)">
+                                    <i>i</i>
+                                </label>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="middle" align="center">
+                            <label>
+                                <input type="text" th:field="*{phoneNumber}" style="width: 80%; height: 40px; font-size: larger; padding: 0px 10px;" placeholder="phone number" required />
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td valign="middle">
+                            <label class="field_label">
+                                Email
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="middle" align="center">
+                            <label>
+                                <input type="email" th:field="*{username}" style="width: 80%; height: 40px; font-size: larger; padding: 0px 10px;" placeholder="Email" autocomplete="off" required />
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td valign="middle">
+                            <label class="field_label">
+                                Password
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="middle" align="center">
+                            <label>
+                                <input type="password" th:field="*{password}" style="width: 80%; height: 40px; font-size: larger; padding: 0px 10px;" placeholder="Password" autocomplete="off" required />
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td valign="middle">
+                            <label class="field_label">
+                                Confirm password
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="middle" align="center">
+                            <label>
+                                <input type="password" th:field="*{repeatPassword}" style="width: 80%; height: 40px; font-size: larger; padding: 0px 10px;" placeholder=" type the same password" autocomplete="off" required />
                             </label>
                         </td>
                     </tr>
@@ -43,7 +146,7 @@
                     </tr>
                     <tr>
                         <td align="center">
-                            <div th:if="${registrationError}" id="failed_auth_message">
+                            <div th:if="${unsuccessfulRegistration != null}" id="failed_auth_message">
                                 Invalid username and/or password.
                             </div>
                             <div th:if="${successfulRegistration != null}" id="logged_out_message">

@@ -1,0 +1,74 @@
+#left_pane{
+    width: 20%;
+    padding: 0;
+    margin: 0;
+    background-color: #444444;
+    color: #FFFFFF;
+}
+
+#right_pane{
+    width: 20%;
+    padding: 0;
+    margin: 0;
+    background: white;
+}
+
+#center_pane{
+    padding: 0%;
+    background: #FFFFFF;
+}
+
+.action_selector{
+    width: 70%;
+    padding: 3% 15%;
+    cursor: pointer;
+}
+.action_selector:hover{
+    background: #555555;
+    color: white;
+}
+
+.action_pane{
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100%;
+    overflow-y: scroll;
+    overflow-x: scroll;
+}
+
+.init_button{
+    text-align: center;
+    vertical-align: center;
+    font-size: medium;
+    border: none;
+    height: 200px;
+    width: 90%;
+    border-radius: 0;
+    background: #444444;
+    color: white;
+}
+
+.init_button:hover{
+    background: #998833;
+    cursor: pointer;
+}
+
+.top_action_icon_image, .sidebar_icon_image{
+    width: 25px;
+    height: 25px;
+}
+
+.top_action_icon_image:hover{
+    cursor: pointer;
+}
+
+.failed_action_message{
+    color: red;
+    font-size: medium;
+}
+
+.successful_action_message{
+    color: green;
+    font-size: medium;
+}

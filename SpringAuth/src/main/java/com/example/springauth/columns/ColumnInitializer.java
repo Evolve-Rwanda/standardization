@@ -109,6 +109,30 @@ public class ColumnInitializer {
         return tocColumnList;
     }
 
+
+    public List<Column> getTableOfColumnValueOptionssColumnList(){
+        List<Column> tocvoColumnList = new ArrayList<>();
+        String tableName = SpecialTableNameGiver.getTableOfColumnValueOptionsName();
+        tableName = !dbDocSchemaName.isEmpty() ? (dbDocSchemaName + "." + tableName): tableName;
+        String timestamp = DateTime.getTimeStamp();
+        tocvoColumnList.add(new Column(tableName, "column_id", 1, "SMALLINT", 7, 0, null, false, false, false, true, false, false, null, null, null, "", "The primary key of this table which is also a foreign key in the table of columns, although the constraint may not be explicitly enforced.", timestamp, null));
+        tocvoColumnList.add(new Column(tableName, "option_value", 2,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "This holds one of the possible values of this particular column", timestamp, null));
+        return tocvoColumnList;
+    }
+
+    public List<Column> getTableOfColumnInputMarkupElementColumnList(){
+        List<Column> tocimeColumnList = new ArrayList<>();
+        String tableName = SpecialTableNameGiver.getTableOfColumnInputMarkupElementsName();
+        tableName = !dbDocSchemaName.isEmpty() ? (dbDocSchemaName + "." + tableName): tableName;
+        String timestamp = DateTime.getTimeStamp();
+        tocimeColumnList.add(new Column(tableName, "column_id", 1, "SMALLINT", 7, 0, null, false, false, false, true, false, false, null, null, null, "", "The primary key of this table which is also a foreign key in the table of columns, although the constraint may not be explicitly enforced.", timestamp, null));
+        tocimeColumnList.add(new Column(tableName, "tag_name", 2,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "This holds one of the possible values of this particular column", timestamp, null));
+        tocimeColumnList.add(new Column(tableName, "type_attribute_value", 3,"VARCHAR", 20, 0, null, false, false, false, false, false, false, null, null, null, "", "This holds one of the possible values of this particular column", timestamp, null));
+        tocimeColumnList.add(new Column(tableName, "name_attribute_value", 4,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "This holds one of the possible values of this particular column", timestamp, null));
+        tocimeColumnList.add(new Column(tableName, "is_mutually_exclusive", 5,"VARCHAR", 10, 0, null, false, false, false, false, false, false, null, null, null, "", "This holds one of the possible values of this particular column", timestamp, null));
+        return tocimeColumnList;
+    }
+
     public List<Column> getUserColumnList(){
 
         List<Column> userColumnList = new ArrayList<>();

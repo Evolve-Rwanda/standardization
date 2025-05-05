@@ -1,0 +1,59 @@
+.add_button{ /* button intended for submitting forms */
+    border: none;
+    background: #000000;
+    color: #FFFFFF;
+    padding: 14px 28px;
+    font-size: math;
+    border-radius: 8px;
+}
+.add_button:hover{
+    background: #998833;
+    cursor: pointer;
+}
+
+input[type="submit"]{
+    border: none;
+    background: #000000;
+    color: #FFFFFF;
+    padding: 14px 28px;
+    font-size: math;
+    border-radius: 8px;
+    cursor: pointer;
+}
+input[type="submit"]:hover{
+    background: #998833;
+}
+
+input[type="text"], input[type="number"]{
+    width: 80%;
+    height: 30px;
+    font-size: medium;
+    padding: 0 10px;
+}
+
+select{
+    width: 80%;
+    height: 30px;
+    font-size: medium;
+    padding: 0 10px;
+    border: none;
+    background: white;
+}
+
+textarea{
+    width: 80%;
+    height: 200px;
+    font-size: medium;
+    font-family: sans-serif;
+    padding: 10px 10px;
+    border-radius: 7px;
+}
+
+.field_label{
+    margin-left: 7%;
+    height: 30px;
+    font-size: medium;
+    padding: 0 10px;
+    border: none;
+    background: white;
+}
