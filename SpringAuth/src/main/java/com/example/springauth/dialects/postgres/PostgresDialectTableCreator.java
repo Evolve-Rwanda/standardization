@@ -27,7 +27,6 @@ public class PostgresDialectTableCreator {
 
     public void createTable(Table table){
         String tableDDL = this.getTableDDLQuery(table);
-        System.out.println(tableDDL);
         if(tableDDL != null) {
             queryExecutor.executeQuery(tableDDL);
             queryExecutor.closeResources();

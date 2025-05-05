@@ -66,7 +66,7 @@ public class DatabaseDocumentation {
         return relationshipList;
     }
 
-    // 1. Tell the developer of database administrator about the different schemas in the database
+    // 1. Tell the developer or database administrator about the different schemas in the database
     //    This list can be obtained from the table of schemas in the provided schema
     // 2. For Each schema, list the strong tables first.
     // 3. List the relationships between all the tables in the database and all information to describe the relationships

@@ -1,4 +1,4 @@
-package com.example.springauth;
+package com.example.springauth.controllers;
 
 import com.example.springauth.columns.Column;
 import com.example.springauth.columns.ColumnInitializer;
@@ -6,9 +6,9 @@ import com.example.springauth.dialects.postgres.PostgresDialect;
 import com.example.springauth.documentation.DatabaseDocumentation;
 import com.example.springauth.dialects.postgres.DatabaseCredentials;
 import com.example.springauth.dialects.postgres.QueryExecutor;
-import com.example.springauth.models.ColumnModel;
-import com.example.springauth.models.RelationshipModel;
-import com.example.springauth.models.SchemaModel;
+import com.example.springauth.models.utility.ColumnModel;
+import com.example.springauth.models.utility.RelationshipModel;
+import com.example.springauth.models.utility.SchemaModel;
 import com.example.springauth.relationships.Relationship;
 import com.example.springauth.relationships.RelationshipResolver;
 import com.example.springauth.schemas.Schema;
@@ -17,14 +17,13 @@ import com.example.springauth.schemas.SchemaGenerator;
 import com.example.springauth.schemas.SchemaNameGiver;
 import com.example.springauth.specialtables.*;
 import com.example.springauth.tables.Table;
-import com.example.springauth.models.TableModel;
+import com.example.springauth.models.utility.TableModel;
 import com.example.springauth.utilities.DateTime;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +53,22 @@ public class DatabaseController {
     Schema userManagementSchema = nameSchemaMap.get(SchemaNameGiver.getUserManagementSchemaName());
 
     @GetMapping("/")
-    public String home(Model model) {
+    public String root(Model model) {
+        return "index";
+    }
+
+    @GetMapping("/index")
+    public String indexRequest(Model model) {
+        return "index";
+    }
+
+    @GetMapping("/index.html")
+    public String indexPageRequest(Model model) {
+        return "index";
+    }
+
+    @GetMapping("/home")
+    public String homePageRequest(Model model) {
         attributeSetup(model);
         return "home";
     }
@@ -196,16 +210,45 @@ public class DatabaseController {
 
         List<Table> enhancedTableList = this.ensureEntityAndReferentialIntegrity(relationshipList);
         tableList = this.replaceWithEnhancedTables(tableList, enhancedTableList);
-        // add common column list
+        // Add common column list
         ColumnInitializer colInit = ColumnInitializer.getColumnInitializer(databaseDocumentationSchema, userManagementSchema);
         List<Column> commonColumnList = colInit.getCommonColumnList();
-        tableList = this.addCommonColumns(tableList, commonColumnList);
-        Table.createTables(tableList);
+
         List<Table> derivedTableList = getDerivedTables(relationshipList);
         derivedTableList = this.addCommonColumns(derivedTableList, commonColumnList);
-        Table.createTables(derivedTableList);
+
+        tableList = this.addCommonColumns(tableList, commonColumnList);
+        // Replace all derived tables in the database with new ones generated from resolving relationships
+        List<Table> newTableList = new ArrayList<>();
+        for (Table table : tableList) {
+            if(derivedTableList.contains(table))
+                continue;
+            newTableList.add(table);
+        }
+        newTableList.addAll(derivedTableList);
+        newTableList = reorganizeTables(tableList);
+        Table.createTables(newTableList);
         model.addAttribute("authInitializationMessage", "You have successfully initialized authentication.");
         return "home";
+    }
+
+    private List<Table> reorganizeTables(List<Table> tableList) {
+        // Strong tables must be created first and weak tables created last for all SQL dialects
+        // This is intended to avoid sql integrity errors.
+        List<Table> reorganizedTableList = new ArrayList<>();
+        List<Table> strongTableList = new ArrayList<>();
+        List<Table> weakTableList = new ArrayList<>();
+        for (Table table : tableList) {
+            List<Column> foreignKeyList = table.getForeignKeyList();
+            if(foreignKeyList != null && !foreignKeyList.isEmpty()) {
+                weakTableList.add(table);
+            }else {
+                strongTableList.add(table);
+            }
+        }
+        reorganizedTableList.addAll(strongTableList);
+        reorganizedTableList.addAll(weakTableList);
+        return reorganizedTableList;
     }
 
     @GetMapping("/initialize_logging")

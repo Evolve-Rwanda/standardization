@@ -1,0 +1,19 @@
+#submit_button{
+    border: none;
+    background: #000000;
+    color: #FFFFFF;
+    padding: 14px 28px;
+    font-size: math;
+}
+#submit_button:hover{
+    cursor: pointer;
+    background: #998833;
+}
+#failed_auth_message{
+    color: red;
+    font-size: medium;
+}
+#logged_out_message{
+    color: green;
+    font-size: medium;
+}

@@ -1,4 +1,4 @@
-package com.example.springauth.models;
+package com.example.springauth.models.utility;
 
 public class SchemaModel {
     private String name;

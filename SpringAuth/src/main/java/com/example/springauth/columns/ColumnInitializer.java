@@ -126,6 +126,7 @@ public class ColumnInitializer {
         userColumnList.add(new Column(tableName, "id_number", 8,"VARCHAR", 100, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         userColumnList.add(new Column(tableName, "current_phone_number", 9,"VARCHAR", 30, 0, null, false, false, false, false, false, false, null, null, null, "", "", timestamp, null));
         userColumnList.add(new Column(tableName, "current_photo", 10,"VARCHAR", 255, 0, null, true, false, false, false, false, false, null, null, null, "", "", timestamp, null));
+        userColumnList.add(new Column(tableName, "current_email", 11,"VARCHAR", 255, 0, null, false, false, true, false, false, false, null, null, null, "", "", timestamp, null));
         userColumnList.add(new Column(tableName, "current_password", 11,"VARCHAR", 255, 0, null, false, false, true, false, false, false, null, null, null, "", "", timestamp, null));
         userColumnList.add(new Column(tableName, "authentication_hash", 12,"VARCHAR", 255, 0, null, false, false, true, false, false, true, null, null, null, "", "", timestamp, null));
 
