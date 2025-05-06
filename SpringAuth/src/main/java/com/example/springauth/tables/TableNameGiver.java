@@ -5,7 +5,7 @@ public class TableNameGiver {
 
 
 
-    private static final String userTableName = "user";
+    public static final String userTableName = "user";
     private static final String addressTableTableName = "address";
     private static final String involvedEntityTableName = "involved_entity";
     private static final String roleTableName = "role";

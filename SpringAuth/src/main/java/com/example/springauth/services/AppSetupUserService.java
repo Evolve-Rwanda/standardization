@@ -1,6 +1,6 @@
 package com.example.springauth.services;
 
-import com.example.springauth.repositories.UserRepository;
+import com.example.springauth.repositories.AppSetupUserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,18 +11,19 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import com.example.springauth.models.jpa.AppUser;
+import com.example.springauth.models.jpa.AppSetupUser;
 
 @Service
-public class UserService implements UserDetailsService {
+public class AppSetupUserService implements UserDetailsService {
+
     @Autowired
-    private UserRepository userRepository;
+    private AppSetupUserRepository appSetupUserRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
-        Optional<AppUser> appUser = userRepository.findByUsername(username);
-        if(appUser.isPresent()){
-            var userObj = appUser.get();
+        Optional<AppSetupUser> appSetupUser = appSetupUserRepository.findByUsername(username);
+        if(appSetupUser.isPresent()){
+            var userObj = appSetupUser.get();
             return User
                        .builder()
                        .username(userObj.getUsername())
@@ -35,7 +36,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public AppUser createUser(AppUser user){
-        return userRepository.save(user);
+    public AppSetupUser createUser(AppSetupUser appSetupUser){
+        return appSetupUserRepository.save(appSetupUser);
     }
 }

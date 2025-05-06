@@ -1,8 +1,8 @@
 package com.example.springauth.controllers;
 
 import com.example.springauth.models.app.AdminModel;
-import com.example.springauth.models.jpa.AppUser;
-import com.example.springauth.services.UserService;
+import com.example.springauth.models.jpa.AppSetupUser;
+import com.example.springauth.services.AppSetupUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -20,7 +20,7 @@ public class AdminRegistration {
     PasswordEncoder passwordEncoder;
 
     @Autowired
-    UserService userService;
+    AppSetupUserService appSetupUserService;
 
     @GetMapping("/admin_registration")
     public String adminRegistration(Model model) {
@@ -43,8 +43,8 @@ public class AdminRegistration {
         boolean passwordsMatch = formPassword.equals(confirmFormPassword);
 
         if (passwordsMatch) {
-            AppUser appUser = new AppUser(firstName, lastName, otherNames, phoneNumber, username, password);
-            userService.createUser(appUser);
+            AppSetupUser appSetupUser = new AppSetupUser(firstName, lastName, otherNames, phoneNumber, username, password);
+            appSetupUserService.createUser(appSetupUser);
             model.addAttribute("successfulRegistration", "Admin registration successful");
         }else {
             model.addAttribute("unsuccessfulRegistration", "Provided passwords do not match");

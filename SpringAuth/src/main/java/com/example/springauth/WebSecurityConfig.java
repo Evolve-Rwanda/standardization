@@ -1,7 +1,8 @@
 package com.example.springauth;
 
 import com.example.springauth.authentication.CustomAuthenticationSuccessHandler;
-import com.example.springauth.services.UserService;
+import com.example.springauth.services.AppSetupUserService;
+import com.example.springauth.services.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,12 +11,9 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
@@ -26,7 +24,10 @@ public class WebSecurityConfig {
 
 
     @Autowired
-    private UserService userService;
+    private AppSetupUserService appSetupUserService;
+
+    @Autowired
+    private AppUserService appUserService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -34,14 +35,21 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    protected UserDetailsService userDetailsService() {
-        return userService;
+    protected UserDetailsService appSetupUserDetailsService() {
+        return appSetupUserService;
     }
+
+    @Bean
+    protected UserDetailsService appUserDetailsService() {
+        return appUserService;
+    }
+
 
     @Bean
     protected AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
+        UserDetailsService userDetailsService = appUserDetailsService();
         provider.setUserDetailsService(userDetailsService());
         return provider;
     }
