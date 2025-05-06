@@ -4,6 +4,7 @@ import com.example.springauth.columns.ColumnInitializer;
 import com.example.springauth.schemas.Schema;
 import com.example.springauth.schemas.SchemaNameGiver;
 import com.example.springauth.specialtables.SpecialTableNameGiver;
+import com.example.springauth.specialtables.TableOfColumnValueOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,6 +49,16 @@ public class TableGenerator {
         var tableOfColumns = new Table(toc, colInit.getTableOfColumnsColumnList());
         tableOfColumns.setSchema(categorySchemaMap.get(docSchema));
         nameTableMap.put(tableOfColumns.getName(), tableOfColumns);
+
+        String tocvo = SpecialTableNameGiver.getTableOfColumnValueOptionsName();
+        var tableOfColumnValueOptions = new Table(tocvo, colInit.getTableOfColumnValueOptionsColumnList());
+        tableOfColumnValueOptions.setSchema(categorySchemaMap.get(docSchema));
+        nameTableMap.put(tableOfColumnValueOptions.getName(), tableOfColumnValueOptions);
+
+        String tocime = SpecialTableNameGiver.getTableOfColumnInputMarkupElementsName();
+        var tableOfColumnInputMarkupElements = new Table(tocime, colInit.getTableOfColumnInputMarkupElementColumnList());
+        tableOfColumnInputMarkupElements.setSchema(categorySchemaMap.get(docSchema));
+        nameTableMap.put(tableOfColumnInputMarkupElements.getName(), tableOfColumnInputMarkupElements);
 
         String user = TableNameGiver.getUserTableName();
         var userTable = new UserTable(user, colInit.getUserColumnList());

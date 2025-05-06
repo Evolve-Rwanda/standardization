@@ -1,5 +1,6 @@
 package com.example.springauth;
 
+import com.example.springauth.authentication.CustomAuthenticationSuccessHandler;
 import com.example.springauth.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,12 +17,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
+
 
     @Autowired
     private UserService userService;
@@ -45,6 +47,11 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+        return new CustomAuthenticationSuccessHandler();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -58,7 +65,8 @@ public class WebSecurityConfig {
                 })
                 .formLogin((form) -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/home")
+                        //.defaultSuccessUrl("/home") // works for a default non-role based authentication success redirect
+                        .successHandler(customAuthenticationSuccessHandler())
                         .permitAll()
                 )
                 .logout((logout) -> logout.permitAll());
