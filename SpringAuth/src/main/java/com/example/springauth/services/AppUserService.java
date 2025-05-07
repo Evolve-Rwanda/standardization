@@ -20,6 +20,7 @@ public class AppUserService implements UserDetailsService {
     @Autowired
     private AppUserRepository appUserRepository;
 
+
     @Override
     public UserDetails loadUserByUsername(String username){
         Optional<AppUser> appUser = appUserRepository.findByUsername(username);

@@ -49,6 +49,17 @@
         }
     }
 
+    function showGroup(selectedClass, universalClass){
+        var selectedElements = document.getElementsByClassName(selectedClass);
+        var universalElements = document.getElementsByClassName(universalClass);
+        for(let i=0; i<universalElements.length; i++){
+            universalElements[i].style.display = "none";
+        }
+        for(let i=0; i<selectedElements.length; i++){
+            selectedElements[i].style.display = "table-row";
+        }
+    }
+
 </script>
 
 <body style="margin: 0; padding: 0;">
@@ -917,229 +928,21 @@
                     </tr>
                     <tr>
                         <td style="padding: 0; overflow: auto;">
-                            <!-- Start of add column form -->
+                            <!-- Start of add column value form -->
                             <div style="width:100%; margin:0; padding:0;" class="item_action" id="add_column_options">
-                                <form th:action="@{/add_column}" th:object="${columnForm}" method="post">
+                                <form th:action="@{/add_column_value_options}" th:object="${columnValueOptionsForm}" method="post">
                                     <table style="margin-top: auto; margin-bottom: auto; width: 100%;" border="0">
                                         <tr>
                                             <td>
                                                 <label class="field_label">
-                                                    Table
+                                                    Table name
                                                 </label>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td align="center">
                                                 <label>
-                                                    <select th:field="*{tableName}" th:required="required">
-                                                        <option disabled selected value="0">Select table</option>
-                                                        <option th:each="table_obj:${table_list}" th:text="${table_obj.getFullyQualifiedName()}" th:value="${table_obj.getFullyQualifiedName()}" th:title="${table_obj.getDescription()}"></option>
-                                                    </select>
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Column number
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <input type="number" th:min="1" th:field="*{number}" placeholder="e.g 1 (for ordering)" th:required="required">
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Column name
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <input type="text" th:field="*{name}" placeholder="e.g first name" th:required="required">
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <!--
-                                                <label>
-                                                    <select th:field="*{}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
-                                                        <option disabled selected>Select sql dialect</option>
-                                                        <option value="PostgreSQL">PostgreSQL(PL/pgSQL)</option>
-                                                        <option value="Oracle">Oracle(PL/SQL)</option>
-                                                        <option value="MySQL">MySQL</option>
-                                                        <option value="MSSQL">MSSQL(Transact-SQL)</option>
-                                                        <option value="DB2">DB2</option>
-                                                    </select>
-                                                </label>
-                                                -->
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Data type
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <input type="text" th:field="*{dataType}" placeholder="e.g varchar" th:required="required">
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Precision or length (for varchar and others)
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <input type="number" th:field="*{precision}" placeholder="precision">
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Scale (for floating point numbers)
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <input type="number" th:field="*{scale}" placeholder="scale">
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Default value
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <input type="text" th:field="*{defaultValue}" placeholder="default value e.g 1">
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Check all applicable properties
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="isNullable"> can be null
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="isPK"> is a primary key
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="isFK"> is a foreign key
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="isAFactBasedColumn"> is a fact based column
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="isEncrypted"> is encrypted
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="isIndexed"> is indexed
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Reference table name
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <select th:field="*{referenceTableName}" th:id="refTable" onchange="narrowSelectionOptions(this, 'refColumns')">
+                                                    <select th:id="refTable_1" onchange="narrowSelectionOptions(this, 'refColumns_1')">
                                                         <optgroup label="Has no reference">
                                                             <option value="None">None</option>
                                                         </optgroup>
@@ -1157,20 +960,18 @@
                                         <tr>
                                             <td>
                                                 <label class="field_label">
-                                                    Reference column name
+                                                    Column
                                                 </label>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td align="center">
                                                 <label>
-                                                    <select th:field="*{referenceColumnName}">
-                                                        <option disabled selected value="0">Select reference column name</option>
-                                                        <optgroup label="Has no reference">
-                                                            <option value="None">None</option>
-                                                        </optgroup>
-                                                        <optgroup th:each="table_obj:${table_list}" th:label="${table_obj.getFullyQualifiedName()}" th:value="${table_obj.getFullyQualifiedName()}" th:title="${table_obj.getDescription()}" class="refColumns" th:classappend="${table_obj.getFullyQualifiedName()}">
-                                                            <option th:each="col:${table_obj.getUniversalColumnList()}" th:text="${col.getName()}" th:value="${col.getName()}" th:title="${col.getName()}"></option>
+                                                    <select th:field="*{columnId}">
+                                                        <option disabled selected value="0">Select column</option>
+
+                                                        <optgroup th:each="table_obj:${table_list}" th:label="${table_obj.getFullyQualifiedName()}" th:value="${table_obj.getFullyQualifiedName()}" th:title="${table_obj.getDescription()}" class="refColumns_1" th:classappend="${table_obj.getFullyQualifiedName()}">
+                                                            <option th:each="col:${table_obj.getUniversalColumnList()}" th:text="${col.getName()}" th:value="${table_obj.getFullyQualifiedName() + '.' + col.getName()}" th:title="${col.getName()}"></option>
                                                         </optgroup>
                                                     </select>
                                                 </label>
@@ -1182,57 +983,14 @@
                                         <tr>
                                             <td>
                                                 <label class="field_label">
-                                                    On delete action (applicable to foreign key columns)
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <select th:field="*{onDeleteAction}">
-                                                        <option disabled selected value="0">Select on delete action</option>
-                                                        <option value="cascade">cascade</option>
-                                                        <option value="ignore or do nothing">ignore or do nothing</option>
-                                                    </select>
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    On update action (applicable to foreign key columns)
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <select th:field="*{onUpdateAction}">
-                                                        <option disabled selected value="0">Select on update or conflict action</option>
-                                                        <option value="cascade">cascade</option>
-                                                        <option value="ignore or do nothing">ignore or do nothing</option>
-                                                    </select>
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Description
+                                                    Optional value
                                                 </label>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td valign="middle" align="center">
                                                 <label>
-                                                    <textarea th:field="*{description}" placeholder="e.g - This column is the primary key for the ..." required>
-                                                    </textarea>
+                                                    <input type="text" th:field="*{optionalValue}" placeholder="e.g - Male, female, 1, 2 ..." required>
                                                 </label>
                                             </td>
                                         </tr>
@@ -1241,7 +999,7 @@
                                         </tr>
                                         <tr>
                                             <td align="center">
-                                                <input type="submit" value="Add Column" class="add_button"/>
+                                                <input type="submit" value="Add column optional value" class="add_button"/>
                                             </td>
                                         </tr>
                                         <tr>
@@ -1259,7 +1017,7 @@
                                     </table>
                                 </form>
                             </div>
-                            <!-- End of add column form -->
+                            <!-- End of add column value form -->
                             <!-- Start of view columns -->
                             <div style="margin: 0; padding: 0; display: none;" class="item_action" id="view_column_options">
                                 <div th:each="table_obj: ${table_list}" style="margin: 0;">
@@ -1315,7 +1073,7 @@
             </div>
 
             <div class="action_pane" id="column_markup" style="display: none;">
-                <h2 style="text-align: center;">Column values</h2>
+                <h2 style="text-align: center;">Column input elements</h2>
                 <div style="text-align: center;">
                     <img th:src="@{/images/add.png}" alt="Add" class="top_action_icon_image" onclick="displaySelectionAction('add_column_markup_element', 'view_column_markup_element')" />
                     <img th:src="@{/images/view.png}" alt="View" class="top_action_icon_image" onclick="displaySelectionAction('view_column_markup_element', 'add_column_markup_element')" />
@@ -1326,229 +1084,21 @@
                     </tr>
                     <tr>
                         <td style="padding: 0; overflow: auto;">
-                            <!-- Start of add column form -->
+                            <!-- Start of add column markup element form -->
                             <div style="width:100%; margin:0; padding:0;" class="item_action" id="add_column_markup_element">
-                                <form th:action="@{/add_column}" th:object="${columnForm}" method="post">
+                                <form th:action="@{/add_column_input_markup_element}" th:object="${columnInputElementMarkupForm}" method="post">
                                     <table style="margin-top: auto; margin-bottom: auto; width: 100%;" border="0">
                                         <tr>
                                             <td>
                                                 <label class="field_label">
-                                                    Table
+                                                    Table name
                                                 </label>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td align="center">
                                                 <label>
-                                                    <select th:field="*{tableName}" th:required="required">
-                                                        <option disabled selected value="0">Select table</option>
-                                                        <option th:each="table_obj:${table_list}" th:text="${table_obj.getFullyQualifiedName()}" th:value="${table_obj.getFullyQualifiedName()}" th:title="${table_obj.getDescription()}"></option>
-                                                    </select>
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Column number
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <input type="number" th:min="1" th:field="*{number}" placeholder="e.g 1 (for ordering)" th:required="required">
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Column name
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <input type="text" th:field="*{name}" placeholder="e.g first name" th:required="required">
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <!--
-                                                <label>
-                                                    <select th:field="*{}" style="width: 80%; height: 30px; font-size: large; padding: 0px 10px; border: none; background: white;" required>
-                                                        <option disabled selected>Select sql dialect</option>
-                                                        <option value="PostgreSQL">PostgreSQL(PL/pgSQL)</option>
-                                                        <option value="Oracle">Oracle(PL/SQL)</option>
-                                                        <option value="MySQL">MySQL</option>
-                                                        <option value="MSSQL">MSSQL(Transact-SQL)</option>
-                                                        <option value="DB2">DB2</option>
-                                                    </select>
-                                                </label>
-                                                -->
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Data type
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <input type="text" th:field="*{dataType}" placeholder="e.g varchar" th:required="required">
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Precision or length (for varchar and others)
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <input type="number" th:field="*{precision}" placeholder="precision">
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Scale (for floating point numbers)
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <input type="number" th:field="*{scale}" placeholder="scale">
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Default value
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <input type="text" th:field="*{defaultValue}" placeholder="default value e.g 1">
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Check all applicable properties
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="isNullable"> can be null
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="isPK"> is a primary key
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="isFK"> is a foreign key
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="isAFactBasedColumn"> is a fact based column
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="isEncrypted"> is encrypted
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="isIndexed"> is indexed
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Reference table name
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <select th:field="*{referenceTableName}" th:id="refTable" onchange="narrowSelectionOptions(this, 'refColumns')">
+                                                    <select th:id="refTable_1" onchange="narrowSelectionOptions(this, 'refColumns_1')">
                                                         <optgroup label="Has no reference">
                                                             <option value="None">None</option>
                                                         </optgroup>
@@ -1566,20 +1116,18 @@
                                         <tr>
                                             <td>
                                                 <label class="field_label">
-                                                    Reference column name
+                                                    Column
                                                 </label>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td align="center">
                                                 <label>
-                                                    <select th:field="*{referenceColumnName}">
-                                                        <option disabled selected value="0">Select reference column name</option>
-                                                        <optgroup label="Has no reference">
-                                                            <option value="None">None</option>
-                                                        </optgroup>
-                                                        <optgroup th:each="table_obj:${table_list}" th:label="${table_obj.getFullyQualifiedName()}" th:value="${table_obj.getFullyQualifiedName()}" th:title="${table_obj.getDescription()}" class="refColumns" th:classappend="${table_obj.getFullyQualifiedName()}">
-                                                            <option th:each="col:${table_obj.getUniversalColumnList()}" th:text="${col.getName()}" th:value="${col.getName()}" th:title="${col.getName()}"></option>
+                                                    <select th:field="*{columnId}">
+                                                        <option disabled selected value="0">Select column</option>
+
+                                                        <optgroup th:each="table_obj:${table_list}" th:label="${table_obj.getFullyQualifiedName()}" th:value="${table_obj.getFullyQualifiedName()}" th:title="${table_obj.getDescription()}" class="refColumns_1" th:classappend="${table_obj.getFullyQualifiedName()}">
+                                                            <option th:each="col:${table_obj.getUniversalColumnList()}" th:text="${col.getName()}" th:value="${table_obj.getFullyQualifiedName() + '.' + col.getName()}" th:title="${col.getName()}"></option>
                                                         </optgroup>
                                                     </select>
                                                 </label>
@@ -1591,18 +1139,14 @@
                                         <tr>
                                             <td>
                                                 <label class="field_label">
-                                                    On delete action (applicable to foreign key columns)
+                                                    Check all applicable properties
                                                 </label>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td align="center">
-                                                <label>
-                                                    <select th:field="*{onDeleteAction}">
-                                                        <option disabled selected value="0">Select on delete action</option>
-                                                        <option value="cascade">cascade</option>
-                                                        <option value="ignore or do nothing">ignore or do nothing</option>
-                                                    </select>
+                                            <td>
+                                                <label style="margin-left: 25%;">
+                                                    <input type="checkbox" name="isMutuallyExclusive" id="mutex" onclick="showGroup('mutex_elements', 'input_elements')"> Selected option is mutually exclusive
                                                 </label>
                                             </td>
                                         </tr>
@@ -1612,39 +1156,33 @@
                                         <tr>
                                             <td>
                                                 <label class="field_label">
-                                                    On update action (applicable to foreign key columns)
+                                                    Input tag
                                                 </label>
                                             </td>
                                         </tr>
+
                                         <tr>
                                             <td align="center">
                                                 <label>
-                                                    <select th:field="*{onUpdateAction}">
-                                                        <option disabled selected value="0">Select on update or conflict action</option>
-                                                        <option value="cascade">cascade</option>
-                                                        <option value="ignore or do nothing">ignore or do nothing</option>
+                                                    <select th:field="*{tagName}" th:id="refTable">
+                                                        <optgroup label="Mutually exclusive" class="input_elements mutex_elements">
+                                                            <option value="None">Select mutually exclusive element</option>
+                                                            <option th:text="input-radio" th:value="input-radio" title="radio"></option>
+                                                            <option th:text="select" th:value="select" title="dropdown-selection"></option>
+                                                        </optgroup>
+                                                        <optgroup label="Non-mutually exclusive" class="input_elements non_mutex_elements">
+                                                            <option disabled selected value="">Select non-mutually exclusive element</option>
+                                                            <option th:text="input-checkbox" th:value="input-checkbox" title="a checkbox"></option>
+                                                            <option th:text="input-text" th:value="input-text" title="a textbox"></option>
+                                                            <option th:text="select" th:value="select" title="a dropdown-selection"></option>
+                                                            <option th:text="textarea" th:value="textarea" title="a textarea"></option>
+                                                            <option th:text="datalist" th:value="datalist" title="a datalist"></option>
+                                                        </optgroup>
                                                     </select>
                                                 </label>
                                             </td>
                                         </tr>
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label class="field_label">
-                                                    Description
-                                                </label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td valign="middle" align="center">
-                                                <label>
-                                                    <textarea th:field="*{description}" placeholder="e.g - This column is the primary key for the ..." required>
-                                                    </textarea>
-                                                </label>
-                                            </td>
-                                        </tr>
+
                                         <tr>
                                             <td><br /></td>
                                         </tr>
@@ -1668,8 +1206,8 @@
                                     </table>
                                 </form>
                             </div>
-                            <!-- End of add column form -->
-                            <!-- Start of view columns -->
+                            <!-- End of add column markup element form -->
+                            <!-- Start of view columns markup element -->
                             <div style="margin: 0; padding: 0; display: none;" class="item_action" id="view_column_markup_element">
                                 <div th:each="table_obj: ${table_list}" style="margin: 0;">
                                     <h4 th:text="${table_obj.getName()}" style="text-align: center;"></h4>
@@ -1717,7 +1255,7 @@
                                     </table>
                                 </div>
                             </div>
-                            <!-- End of view columns -->
+                            <!-- End of view columns markup element -->
                         </td>
                     </tr>
                 </table>

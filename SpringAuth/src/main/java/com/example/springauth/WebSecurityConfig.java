@@ -18,6 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 
+
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
@@ -49,8 +50,8 @@ public class WebSecurityConfig {
     protected AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
-        UserDetailsService userDetailsService = appUserDetailsService();
-        provider.setUserDetailsService(userDetailsService());
+        UserDetailsService userDetailsService = appSetupUserDetailsService();
+        provider.setUserDetailsService(userDetailsService);
         return provider;
     }
 
@@ -81,15 +82,4 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-    /*
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user =
-                User.withDefaultPasswordEncoder()
-                        .username("user")
-                        .password("password")
-                        .roles("USER")
-                        .build();
-        return new InMemoryUserDetailsManager(user);
-    } */
 }

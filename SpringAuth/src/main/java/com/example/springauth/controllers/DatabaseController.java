@@ -2,13 +2,13 @@ package com.example.springauth.controllers;
 
 import com.example.springauth.columns.Column;
 import com.example.springauth.columns.ColumnInitializer;
+import com.example.springauth.columns.ColumnMarkupElement;
+import com.example.springauth.columns.ColumnValueOption;
 import com.example.springauth.dialects.postgres.PostgresDialect;
 import com.example.springauth.documentation.DatabaseDocumentation;
 import com.example.springauth.dialects.postgres.DatabaseCredentials;
 import com.example.springauth.dialects.postgres.QueryExecutor;
-import com.example.springauth.models.utility.ColumnModel;
-import com.example.springauth.models.utility.RelationshipModel;
-import com.example.springauth.models.utility.SchemaModel;
+import com.example.springauth.models.utility.*;
 import com.example.springauth.relationships.Relationship;
 import com.example.springauth.relationships.RelationshipResolver;
 import com.example.springauth.schemas.Schema;
@@ -17,7 +17,6 @@ import com.example.springauth.schemas.SchemaGenerator;
 import com.example.springauth.schemas.SchemaNameGiver;
 import com.example.springauth.specialtables.*;
 import com.example.springauth.tables.Table;
-import com.example.springauth.models.utility.TableModel;
 import com.example.springauth.utilities.DateTime;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -189,6 +188,38 @@ public class DatabaseController {
         return "home";
     }
 
+    @PostMapping("add_column_value_options")
+    public String addColumnOptionalValue(@ModelAttribute("columnValueOptionsForm") ColumnValueOptionModel columnValueOptionModel, Model model) {
+        var tableOfColumnValueOptions = new TableOfColumnValueOptions(queryExecutor, sqlDialect, databaseDocumentationSchema);
+        String columnId = columnValueOptionModel.getColumnId();
+        String optionalValue = columnValueOptionModel.getOptionalValue();
+        List<ColumnValueOption> columnValueOptionList = new ArrayList<>();
+        columnValueOptionList.add(new ColumnValueOption(columnId, optionalValue));
+        tableOfColumnValueOptions.documentColumnValueOptions(columnValueOptionList);
+        model.addAttribute("columnValueOptionAdded", "You have successfully registered a column value option.");
+        attributeSetup(model);
+        return "home";
+    }
+
+    @PostMapping("add_column_input_markup_element")
+    public String addColumnInputMarkupElement(
+            @ModelAttribute("columnInputElementMarkupForm")ColumnMarkupElementModel columnMarkupElementModel,
+            Model model) {
+        var tableOfColumnInputMarkupElements = new TableOfColumnInputMarkupElements(queryExecutor, sqlDialect, databaseDocumentationSchema);
+        String columnId = columnMarkupElementModel.getColumnId();
+        String[] tagAndTypeAttrib = columnMarkupElementModel.getTagName().split("-");
+        String tagName = tagAndTypeAttrib.length > 0 ? tagAndTypeAttrib[0] : "";
+        String typeAttributeValue = tagAndTypeAttrib.length > 1 ? tagAndTypeAttrib[1] : "";
+        String nameAttributeValue = columnMarkupElementModel.getNameAttributeValue();
+        boolean isMutuallyExclusive = columnMarkupElementModel.isMutuallyExclusive();
+        List<ColumnMarkupElement> columnMarkupElementList = new ArrayList<>();
+        columnMarkupElementList.add(new ColumnMarkupElement(columnId, tagName, typeAttributeValue, nameAttributeValue, isMutuallyExclusive));
+        tableOfColumnInputMarkupElements.documentColumnMarkupElements(columnMarkupElementList);
+        model.addAttribute("columnElementMarkupAdded", "You have successfully registered a column markup element.");
+        attributeSetup(model);
+        return "home";
+    }
+
 
     @GetMapping("/documentation")
     public String getDocumentation(Model model) {
@@ -278,6 +309,8 @@ public class DatabaseController {
         model.addAttribute("tableForm", new TableModel());
         model.addAttribute("relationshipForm", new RelationshipModel());
         model.addAttribute("columnForm", new ColumnModel());
+        model.addAttribute("columnValueOptionsForm", new ColumnValueOptionModel());
+        model.addAttribute("columnInputElementMarkupForm", new ColumnMarkupElementModel());
     }
 
     private List<Schema> getDatabaseSchemaList(){

@@ -1,5 +1,6 @@
 package com.example.springauth.dialects.postgres;
 
+import com.example.springauth.columns.ColumnMarkupElement;
 import com.example.springauth.columns.ColumnValueOption;
 import com.example.springauth.dialects.SQLDialect;
 import com.example.springauth.specialtables.SpecialTable;
@@ -230,10 +231,10 @@ public class PostgresDialect extends SQLDialect {
         List<ColumnValueOption> existingColumnValueOptionList = new ArrayList<>();
         String setPathQuery = getSchemaPathQuery();
         for(ColumnValueOption columnValueOption: columnValueOptionList) {
-            long columnId = columnValueOption.getColumnId();
+            String columnId = columnValueOption.getColumnId();
             String value = columnValueOption.getOptionValue();
             Map<String, String> fieldNameValueMap = new HashMap<>();
-            fieldNameValueMap.put("column_id", columnId + "");
+            fieldNameValueMap.put("column_id", columnId);
             fieldNameValueMap.put("option_value", "'" + value + "'");
             SpecialTable.EntryChecker columnChecker = new SpecialTable.EntryChecker(queryExecutor, documentingTableName, schema, fieldNameValueMap);
             boolean columnOptionValueExists = columnChecker.entryExists();
@@ -246,6 +247,33 @@ public class PostgresDialect extends SQLDialect {
             insertionQueryList.add(setPathQuery + this.getTableOfColumnsValueOptionInsertionQuery(columnValueOption));
         }
         if(!insertionQueryList.isEmpty()) {
+            queryExecutor.executeQueryList(insertionQueryList);
+            queryExecutor.closeResources();
+        }
+    }
+
+    public void documentColumnMarkupElements(List<ColumnMarkupElement> columnMarkupElementList){
+        if(columnMarkupElementList == null || columnMarkupElementList.isEmpty())
+            return;
+        List<String> insertionQueryList = new ArrayList<>();
+        List<ColumnMarkupElement> existingColumnMarkupElementList = new ArrayList<>();
+        String setPathQuery = getSchemaPathQuery();
+        for(ColumnMarkupElement columnMarkupElement: columnMarkupElementList) {
+            String columnId = columnMarkupElement.getColumnId();
+            Map<String, String> fieldNameValueMap = new HashMap<>();
+            fieldNameValueMap.put("column_id", columnId);
+            SpecialTable.EntryChecker columnChecker = new SpecialTable.EntryChecker(queryExecutor, documentingTableName, schema, fieldNameValueMap);
+            boolean columnMarkupElementExists = columnChecker.entryExists();
+            if(columnMarkupElementExists)
+                existingColumnMarkupElementList.add(columnMarkupElement);
+        }
+        for(ColumnMarkupElement columnMarkupElement: columnMarkupElementList) {
+            if(existingColumnMarkupElementList.contains(columnMarkupElement))
+                continue;
+            insertionQueryList.add(setPathQuery + this.getTableOfColumnMarkupElementInsertionQuery(columnMarkupElement));
+        }
+        if(!insertionQueryList.isEmpty()) {
+            System.out.println(insertionQueryList);
             queryExecutor.executeQueryList(insertionQueryList);
             queryExecutor.closeResources();
         }
@@ -285,10 +313,30 @@ public class PostgresDialect extends SQLDialect {
     }
 
     public String getTableOfColumnsValueOptionInsertionQuery(ColumnValueOption columnValueOption){
-        String targetColumns = ("column_id, option_value");
-        String columnId = columnValueOption.getColumnId() + "";
+        String targetColumns = ("column_id, option_value, created_at");
+        String columnId = columnValueOption.getColumnId();
         String optionValue = columnValueOption.getOptionValue();
-        String columnValues = (columnId + ", " + "'" + optionValue + "'");
+        String createdAt = DateTime.getTimeStamp();
+        String columnValues = ("'" + columnId + "', '" + optionValue + "', '" + createdAt + "'");
+        return "INSERT INTO \"" + documentingTableName + "\"(" + targetColumns + ") VALUES(" + columnValues + ");";
+    }
+
+    public String getTableOfColumnMarkupElementInsertionQuery(ColumnMarkupElement columnMarkupElement){
+        String targetColumns = ("column_id, tag_name, type_attribute_value, name_attribute_value, is_mutually_exclusive, created_at");
+        String columnId = columnMarkupElement.getColumnId();
+        String tagName = columnMarkupElement.getTagName();
+        String typeAttributeValue = columnMarkupElement.getTypeAttributeValue();
+        String nameAttributeValue = columnMarkupElement.getNameAttributeValue();
+        boolean isMutuallyExclusive = columnMarkupElement.isMutuallyExclusive();
+        String createdAt = DateTime.getTimeStamp();
+        String columnValues = (
+                "'" + columnId +
+                "', '" + tagName +
+                "', '" + typeAttributeValue +
+                "', '" + nameAttributeValue +
+                "', '" + isMutuallyExclusive +
+                "', '" + createdAt + "'"
+        );
         return "INSERT INTO \"" + documentingTableName + "\"(" + targetColumns + ") VALUES(" + columnValues + ");";
     }
 

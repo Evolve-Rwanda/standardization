@@ -8,10 +8,10 @@ import java.util.Objects;
 public class ColumnValueOption {
 
 
-    private long columnId;
+    private String columnId;
     private String optionValue;
 
-    public ColumnValueOption(long columnId, String optionValue) {
+    public ColumnValueOption(String columnId, String optionValue) {
         this.columnId = columnId;
         this.optionValue = optionValue;
     }
@@ -32,11 +32,11 @@ public class ColumnValueOption {
         return Objects.hash(columnId, optionValue);
     }
 
-    public long getColumnId() {
+    public String getColumnId() {
         return columnId;
     }
 
-    public void setColumnId(long columnId) {
+    public void setColumnId(String columnId) {
         this.columnId = columnId;
     }
 

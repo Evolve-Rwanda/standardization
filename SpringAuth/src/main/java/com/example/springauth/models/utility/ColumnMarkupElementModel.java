@@ -1,20 +1,33 @@
-package com.example.springauth.markup.inputelements;
+package com.example.springauth.models.utility;
 
 
-public class HTMLFormInputElement {
+public class ColumnMarkupElementModel {
 
 
+    private String columnId;
     private String tagName;
     private String typeAttributeValue;
     private String nameAttributeValue;
-    private boolean isMutext;
+    private boolean isMutuallyExclusive;
 
 
-    public HTMLFormInputElement(String tagName, String typeAttributeValue, String nameAttributeValue, boolean isMutext) {
+    public ColumnMarkupElementModel() {
+    }
+
+    public ColumnMarkupElementModel(String columnId, String tagName, String typeAttributeValue, String nameAttributeValue, boolean isMutuallyExclusive) {
+        this.columnId = columnId;
         this.tagName = tagName;
         this.typeAttributeValue = typeAttributeValue;
         this.nameAttributeValue = nameAttributeValue;
-        this.isMutext = isMutext;
+        this.isMutuallyExclusive = isMutuallyExclusive;
+    }
+
+    public String getColumnId() {
+        return columnId;
+    }
+
+    public void setColumnId(String columnId) {
+        this.columnId = columnId;
     }
 
     public String getTagName() {
@@ -41,12 +54,12 @@ public class HTMLFormInputElement {
         this.nameAttributeValue = nameAttributeValue;
     }
 
-    public boolean isMutext() {
-        return isMutext;
+    public boolean isMutuallyExclusive() {
+        return isMutuallyExclusive;
     }
 
-    public void setMutext(boolean mutext) {
-        isMutext = mutext;
+    public void setMutuallyExclusive(boolean mutuallyExclusive) {
+        isMutuallyExclusive = mutuallyExclusive;
     }
 
 }
