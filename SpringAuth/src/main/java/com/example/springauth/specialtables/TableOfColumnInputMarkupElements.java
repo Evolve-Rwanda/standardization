@@ -1,13 +1,11 @@
 package com.example.springauth.specialtables;
 
-import com.example.springauth.columns.Column;
 import com.example.springauth.columns.ColumnMarkupElement;
 import com.example.springauth.dialects.postgres.PostgresDialect;
 import com.example.springauth.dialects.postgres.QueryExecutor;
 import com.example.springauth.schemas.Schema;
 
 import java.util.List;
-import java.util.Map;
 
 
 

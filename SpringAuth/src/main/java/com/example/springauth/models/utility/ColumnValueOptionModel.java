@@ -14,6 +14,11 @@ public class ColumnValueOptionModel {
         this.optionalValue = optionalValue;
     }
 
+    @Override
+    public String toString() {
+        return "ColumnValueOptionModel{" + "columnId='" + columnId + '\'' + ", optionalValue='" + optionalValue + '\'' + '}';
+    }
+
     public String getColumnId() {
         return columnId;
     }

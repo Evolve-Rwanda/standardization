@@ -49,14 +49,22 @@
         }
     }
 
-    function showGroup(selectedClass, universalClass){
+    function showGroup(caller, selectedClass, universalClass){
         var selectedElements = document.getElementsByClassName(selectedClass);
         var universalElements = document.getElementsByClassName(universalClass);
+        var isChecked = caller.checked;
+
         for(let i=0; i<universalElements.length; i++){
-            universalElements[i].style.display = "none";
+            if (isChecked == true){
+                universalElements[i].style.display = "none";
+            }else{
+                universalElements[i].style.display = "table-row";
+            }
         }
-        for(let i=0; i<selectedElements.length; i++){
-            selectedElements[i].style.display = "table-row";
+        if (isChecked == true) {
+            for (let i=0; i<selectedElements.length; i++) {
+                selectedElements[i].style.display = "table-row";
+            }
         }
     }
 
@@ -1018,55 +1026,25 @@
                                 </form>
                             </div>
                             <!-- End of add column value form -->
-                            <!-- Start of view columns -->
+                            <!-- Start of view columns' optional value form -->
                             <div style="margin: 0; padding: 0; display: none;" class="item_action" id="view_column_options">
-                                <div th:each="table_obj: ${table_list}" style="margin: 0;">
-                                    <h4 th:text="${table_obj.getName()}" style="text-align: center;"></h4>
-                                    <table border="1" cellpadding="2" cellspacing="0" align="center" style="width: auto;">
-                                        <tr style="background: #777777; color: white; font-size: small;">
-                                            <td></td>
-                                            <td>Column number</td>
-                                            <td>Name</td>
-                                            <td>Data type</td>
-                                            <td>Precision</td>
-                                            <td>Scale</td>
-                                            <td>Default value</td>
-                                            <td>Nullable</td>
-                                            <td>PK</td>
-                                            <td>FK</td>
-                                            <td>Reference table name (FQN)</td>
-                                            <td>Reference column name</td>
-                                            <td>On update action</td>
-                                            <td>On delete action</td>
-                                            <td>Is a fact based column</td>
-                                            <td>Encrypted</td>
-                                            <td>Indexed</td>
-                                            <td>Description</td>
-                                        </tr>
-                                        <tr th:each="col:${table_obj.getUniversalColumnList()}" style="font-size: small">
-                                            <td th:text="${table_list.indexOf(table_obj) + 1}" style="text-align: center;"></td>
-                                            <td th:text="${col.getNumber()}"></td>
-                                            <td th:text="${col.getName()}"></td>
-                                            <td th:text="${col.getDataType()}"></td>
-                                            <td th:text="${col.getPrecision()}"></td>
-                                            <td th:text="${col.getScale()}"></td>
-                                            <td th:text="${col.getDefaultValue()}"></td>
-                                            <td th:text="${col.getIsNullable()}"></td>
-                                            <td th:text="${col.getIsPK()}"></td>
-                                            <td th:text="${col.getIsFK()}"></td>
-                                            <td th:text="${col.getReferenceTableName()}"></td>
-                                            <td th:text="${col.getReferenceColumnName()}"></td>
-                                            <td th:text="${col.getOnUpdateAction()}"></td>
-                                            <td th:text="${col.getOnDeleteAction()}"></td>
-                                            <td th:text="${col.getIsAFactBasedColumn()}"></td>
-                                            <td th:text="${col.getIsEncrypted()}"></td>
-                                            <td th:text="${col.getIsIndexed()}"></td>
-                                            <td th:text="${col.getDescription()}"></td>
-                                        </tr>
-                                    </table>
-                                </div>
+                                <h4 style="text-align: center;">Column UI markup</h4>
+                                <table border="1" cellpadding="2" cellspacing="0" align="center" style="width: 85%;">
+                                    <tr style="background: #777777; color: white; font-size: small;">
+                                        <td></td>
+                                        <td>Column Fully Qualified Name</td>
+                                        <td>Value</td>
+                                        <td>Action</td>
+                                    </tr>
+                                    <tr th:each="optionalValueModel:${column_value_option_list}" style="font-size: small">
+                                        <td th:text="${1}" style="text-align: center;"></td>
+                                        <td th:text="${optionalValueModel.getColumnId()}"></td>
+                                        <td th:text="${optionalValueModel.getOptionalValue()}"></td>
+                                        <td></td>
+                                    </tr>
+                                </table>
                             </div>
-                            <!-- End of view columns -->
+                            <!-- End of view columns' optional value form -->
                         </td>
                     </tr>
                 </table>
@@ -1098,7 +1076,7 @@
                                         <tr>
                                             <td align="center">
                                                 <label>
-                                                    <select th:id="refTable_1" onchange="narrowSelectionOptions(this, 'refColumns_1')">
+                                                    <select th:id="refTable_1" onchange="narrowSelectionOptions(this, 'refColumns_1')" required>
                                                         <optgroup label="Has no reference">
                                                             <option value="None">None</option>
                                                         </optgroup>
@@ -1123,7 +1101,7 @@
                                         <tr>
                                             <td align="center">
                                                 <label>
-                                                    <select th:field="*{columnId}">
+                                                    <select th:field="*{columnId}" required>
                                                         <option disabled selected value="0">Select column</option>
 
                                                         <optgroup th:each="table_obj:${table_list}" th:label="${table_obj.getFullyQualifiedName()}" th:value="${table_obj.getFullyQualifiedName()}" th:title="${table_obj.getDescription()}" class="refColumns_1" th:classappend="${table_obj.getFullyQualifiedName()}">
@@ -1139,14 +1117,15 @@
                                         <tr>
                                             <td>
                                                 <label class="field_label">
-                                                    Check all applicable properties
+                                                    Check if applicable
                                                 </label>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>
                                                 <label style="margin-left: 25%;">
-                                                    <input type="checkbox" name="isMutuallyExclusive" id="mutex" onclick="showGroup('mutex_elements', 'input_elements')"> Selected option is mutually exclusive
+                                                    <input type="checkbox" name="isMutuallyExclusive" id="mutex" onclick="showGroup(this, 'mutex_elements', 'input_elements')">
+                                                    Selected option is mutually exclusive
                                                 </label>
                                             </td>
                                         </tr>
@@ -1164,19 +1143,24 @@
                                         <tr>
                                             <td align="center">
                                                 <label>
-                                                    <select th:field="*{tagName}" th:id="refTable">
+                                                    <select name="tagName" required="required">
+                                                        <option selected disabled>Select element</option>
                                                         <optgroup label="Mutually exclusive" class="input_elements mutex_elements">
-                                                            <option value="None">Select mutually exclusive element</option>
-                                                            <option th:text="input-radio" th:value="input-radio" title="radio"></option>
-                                                            <option th:text="select" th:value="select" title="dropdown-selection"></option>
+                                                            <option disabled>Select mutually exclusive element</option>
+                                                            <option value="input-radio" title="radio">input-radio</option>
+                                                            <option value="select" title="dropdown-selection">select</option>
                                                         </optgroup>
                                                         <optgroup label="Non-mutually exclusive" class="input_elements non_mutex_elements">
-                                                            <option disabled selected value="">Select non-mutually exclusive element</option>
-                                                            <option th:text="input-checkbox" th:value="input-checkbox" title="a checkbox"></option>
-                                                            <option th:text="input-text" th:value="input-text" title="a textbox"></option>
-                                                            <option th:text="select" th:value="select" title="a dropdown-selection"></option>
-                                                            <option th:text="textarea" th:value="textarea" title="a textarea"></option>
-                                                            <option th:text="datalist" th:value="datalist" title="a datalist"></option>
+                                                            <option disabled>Select non-mutually exclusive element</option>
+                                                            <option value="input-checkbox" title="a checkbox">input-checkbox</option>
+                                                            <option value="input-text" title="a textbox">input-text</option>
+                                                            <option value="input-number" title="a file upload">input-number</option>
+                                                            <option value="input-text" title="a file upload">input-file</option>
+                                                            <option value="input-date" title="a file upload">input-date</option>
+                                                            <option value="input-datetime" title="a file upload">input-datetime</option>
+                                                            <option value="select" title="a dropdown-selection">select</option>
+                                                            <option value="textarea" title="a textarea">textarea</option>
+                                                            <option value="datalist" title="a datalist">datalist</option>
                                                         </optgroup>
                                                     </select>
                                                 </label>
@@ -1209,51 +1193,27 @@
                             <!-- End of add column markup element form -->
                             <!-- Start of view columns markup element -->
                             <div style="margin: 0; padding: 0; display: none;" class="item_action" id="view_column_markup_element">
-                                <div th:each="table_obj: ${table_list}" style="margin: 0;">
-                                    <h4 th:text="${table_obj.getName()}" style="text-align: center;"></h4>
-                                    <table border="1" cellpadding="2" cellspacing="0" align="center" style="width: auto;">
-                                        <tr style="background: #777777; color: white; font-size: small;">
-                                            <td></td>
-                                            <td>Column number</td>
-                                            <td>Name</td>
-                                            <td>Data type</td>
-                                            <td>Precision</td>
-                                            <td>Scale</td>
-                                            <td>Default value</td>
-                                            <td>Nullable</td>
-                                            <td>PK</td>
-                                            <td>FK</td>
-                                            <td>Reference table name (FQN)</td>
-                                            <td>Reference column name</td>
-                                            <td>On update action</td>
-                                            <td>On delete action</td>
-                                            <td>Is a fact based column</td>
-                                            <td>Encrypted</td>
-                                            <td>Indexed</td>
-                                            <td>Description</td>
-                                        </tr>
-                                        <tr th:each="col:${table_obj.getUniversalColumnList()}" style="font-size: small">
-                                            <td th:text="${table_list.indexOf(table_obj) + 1}" style="text-align: center;"></td>
-                                            <td th:text="${col.getNumber()}"></td>
-                                            <td th:text="${col.getName()}"></td>
-                                            <td th:text="${col.getDataType()}"></td>
-                                            <td th:text="${col.getPrecision()}"></td>
-                                            <td th:text="${col.getScale()}"></td>
-                                            <td th:text="${col.getDefaultValue()}"></td>
-                                            <td th:text="${col.getIsNullable()}"></td>
-                                            <td th:text="${col.getIsPK()}"></td>
-                                            <td th:text="${col.getIsFK()}"></td>
-                                            <td th:text="${col.getReferenceTableName()}"></td>
-                                            <td th:text="${col.getReferenceColumnName()}"></td>
-                                            <td th:text="${col.getOnUpdateAction()}"></td>
-                                            <td th:text="${col.getOnDeleteAction()}"></td>
-                                            <td th:text="${col.getIsAFactBasedColumn()}"></td>
-                                            <td th:text="${col.getIsEncrypted()}"></td>
-                                            <td th:text="${col.getIsIndexed()}"></td>
-                                            <td th:text="${col.getDescription()}"></td>
-                                        </tr>
-                                    </table>
-                                </div>
+                                <h4 style="text-align: center;">Column UI markup</h4>
+                                <table border="1" cellpadding="2" cellspacing="0" align="center" style="width: 85%;">
+                                    <tr style="background: #777777; color: white; font-size: small;">
+                                        <td></td>
+                                        <td>Column Fully Qualified Name</td>
+                                        <td>Input element</td>
+                                        <td>Type attribute</td>
+                                        <td>Name attribute</td>
+                                        <td>Is mutually exclusive</td>
+                                        <td>Action</td>
+                                    </tr>
+                                    <tr th:each="inputElModel:${column_markup_element_list}" style="font-size: small">
+                                        <td th:text="${1}" style="text-align: center;"></td>
+                                        <td th:text="${inputElModel.getColumnId()}"></td>
+                                        <td th:text="${inputElModel.getTagName()}"></td>
+                                        <td th:text="${inputElModel.getTypeAttributeValue()}"></td>
+                                        <td th:text="${inputElModel.getNameAttributeValue()}"></td>
+                                        <td th:text="${inputElModel.isMutuallyExclusive()}"></td>
+                                        <td></td>
+                                    </tr>
+                                </table>
                             </div>
                             <!-- End of view columns markup element -->
                         </td>

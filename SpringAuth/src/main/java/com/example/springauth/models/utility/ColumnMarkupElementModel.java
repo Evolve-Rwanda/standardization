@@ -1,6 +1,8 @@
 package com.example.springauth.models.utility;
 
 
+import java.util.Objects;
+
 public class ColumnMarkupElementModel {
 
 
@@ -12,6 +14,7 @@ public class ColumnMarkupElementModel {
 
 
     public ColumnMarkupElementModel() {
+
     }
 
     public ColumnMarkupElementModel(String columnId, String tagName, String typeAttributeValue, String nameAttributeValue, boolean isMutuallyExclusive) {
@@ -20,6 +23,28 @@ public class ColumnMarkupElementModel {
         this.typeAttributeValue = typeAttributeValue;
         this.nameAttributeValue = nameAttributeValue;
         this.isMutuallyExclusive = isMutuallyExclusive;
+    }
+
+    @Override
+    public String toString() {
+        return "ColumnMarkupElementModel{" +
+                "columnId='" + columnId + '\'' +
+                ", tagName='" + tagName + '\'' +
+                ", typeAttributeValue='" + typeAttributeValue + '\'' +
+                ", nameAttributeValue='" + nameAttributeValue + '\'' +
+                ", isMutuallyExclusive=" + isMutuallyExclusive +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ColumnMarkupElementModel that)) return false;
+        return Objects.equals(columnId, that.columnId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(columnId);
     }
 
     public String getColumnId() {
@@ -58,8 +83,8 @@ public class ColumnMarkupElementModel {
         return isMutuallyExclusive;
     }
 
-    public void setMutuallyExclusive(boolean mutuallyExclusive) {
-        isMutuallyExclusive = mutuallyExclusive;
+    public void setIsMutuallyExclusive(boolean isMutuallyExclusive) {
+        this.isMutuallyExclusive = isMutuallyExclusive;
     }
 
 }

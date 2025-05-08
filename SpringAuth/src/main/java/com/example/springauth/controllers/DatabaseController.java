@@ -8,6 +8,8 @@ import com.example.springauth.dialects.postgres.PostgresDialect;
 import com.example.springauth.documentation.DatabaseDocumentation;
 import com.example.springauth.dialects.postgres.DatabaseCredentials;
 import com.example.springauth.dialects.postgres.QueryExecutor;
+import com.example.springauth.models.app.UserModel;
+import com.example.springauth.models.app.UserPropModel;
 import com.example.springauth.models.utility.*;
 import com.example.springauth.relationships.Relationship;
 import com.example.springauth.relationships.RelationshipResolver;
@@ -17,7 +19,9 @@ import com.example.springauth.schemas.SchemaGenerator;
 import com.example.springauth.schemas.SchemaNameGiver;
 import com.example.springauth.specialtables.*;
 import com.example.springauth.tables.Table;
+import com.example.springauth.tables.TableNameGiver;
 import com.example.springauth.utilities.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -263,6 +267,83 @@ public class DatabaseController {
         return "home";
     }
 
+    @PostMapping("/create_user_profile")
+    public String createUserProfile(
+            @ModelAttribute("updateUserProfileForm")
+            UserModel userModel,
+            Model model
+    ){
+        // rebuild the user model
+        DatabaseDocumentation databaseDocumentation = new DatabaseDocumentation(sqlDialect, queryExecutor, databaseDocumentationSchema);
+        databaseDocumentation.generateDatabaseDocumentation();
+        List<Table> tableList = databaseDocumentation.getTableList();
+        List<ColumnValueOptionModel> columnValueOptionModelList = databaseDocumentation.getColumnValueOptionModelList();
+        List<ColumnMarkupElementModel> columnMarkupElementModelList = databaseDocumentation.getColumnMarkupElementModelList();
+        Table userTable = null;
+        for (Table table : tableList) {
+            String userTableName = TableNameGiver.getUserTableName();
+            if (table.getName().equalsIgnoreCase(userTableName)) {
+                userTable = table;
+                break;
+            }
+        }
+        List<Column> userTableColumns = null;
+        List<UserPropModel> userPropModelList = new ArrayList<>();
+        try{
+            userTableColumns = userTable.getUniversalColumnList();
+            for (Column column : userTableColumns) {
+                String tableName = column.getTableName();
+                String columnName = column.getName();
+                String columnFullyQualifiedName = tableName + "." + columnName;
+                String dataType = column.getDataType();
+                String htmlLabelText = columnName.replaceAll("_", " ");
+                userPropModelList.add(
+                        new UserPropModel(columnName, htmlLabelText, null)
+                );
+                ColumnMarkupElementModel columnMarkupElementModel = null;
+                for(ColumnMarkupElementModel cmem : columnMarkupElementModelList) {
+                    if(cmem.getColumnId().equalsIgnoreCase(columnFullyQualifiedName)) {
+                        columnMarkupElementModel = cmem;
+                        break;
+                    }
+                }
+
+            }
+        }catch (NullPointerException e){
+            System.out.println(e.getMessage());
+        }
+
+        model.addAttribute("UserProfileCreatedMessage", "You have successfully created a user profile.");
+        return "home";
+    }
+
+    @PostMapping("/change_password")
+    public String changePassword(){
+        return "profile";
+    }
+
+    @PostMapping("/update_user_profile")
+    public String updateUserProfile(
+            @ModelAttribute("updateUserProfileForm")
+            UserModel userModel,
+            Model model
+    ){
+        model.addAttribute("UserProfileUpdatedMessage", "You have successfully updated user profile.");
+        // rebuild the user model
+        // update the user model based on the provided properties
+        // user model properties directly map to columns in the user table in the UM schema in the DB
+        // to check whether certain properties exist as means of verification, use the table of columns
+        return "home";
+    }
+
+    @GetMapping("/initialize_logging")
+    public String initializeLogging(Model model) {
+        model.addAttribute("loggingInitializationMessage", "You have successfully initialized logging.");
+        attributeSetup(model);
+        return "home";
+    }
+
+
     private List<Table> reorganizeTables(List<Table> tableList) {
         // Strong tables must be created first and weak tables created last for all SQL dialects
         // This is intended to avoid sql integrity errors.
@@ -282,13 +363,6 @@ public class DatabaseController {
         return reorganizedTableList;
     }
 
-    @GetMapping("/initialize_logging")
-    public String initializeLogging(Model model) {
-        model.addAttribute("loggingInitializationMessage", "You have successfully initialized logging.");
-        attributeSetup(model);
-        return "home";
-    }
-
     private void attributeSetup(Model model) {
         /* Deliverable - 1/2. Obtain database documentation */
         DatabaseDocumentation databaseDocumentation = new DatabaseDocumentation(sqlDialect, queryExecutor, databaseDocumentationSchema);
@@ -299,12 +373,18 @@ public class DatabaseController {
         Map<String, List<String>> schemaNameTableNameListMap = databaseDocumentation.getSchemaNameTableNameMap();
         List<Table> tableList = databaseDocumentation.getTableList();
         List<Relationship> relationshipList = databaseDocumentation.getRelationshipList();
+        List<ColumnValueOptionModel> columnValueOptionModelList = databaseDocumentation.getColumnValueOptionModelList();
+        List<ColumnMarkupElementModel> columnMarkupElementModelList = databaseDocumentation.getColumnMarkupElementModelList();
+
         model.addAttribute("documentation_schema", documentationSchema.getName());
         model.addAttribute("app_schema_list", schemaList);
         model.addAttribute("all_schema_list", schemaNameList);
         model.addAttribute("schema_name_table_list_map", schemaNameTableNameListMap);
         model.addAttribute("table_list", tableList);
         model.addAttribute("relationship_list", relationshipList);
+        model.addAttribute("column_value_option_list", columnValueOptionModelList);
+        model.addAttribute("column_markup_element_list", columnMarkupElementModelList);
+
         model.addAttribute("schemaForm", new SchemaModel());
         model.addAttribute("tableForm", new TableModel());
         model.addAttribute("relationshipForm", new RelationshipModel());

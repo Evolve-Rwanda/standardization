@@ -3,6 +3,8 @@ package com.example.springauth.documentation;
 import com.example.springauth.columns.Column;
 import com.example.springauth.dialects.postgres.PostgresDialect;
 import com.example.springauth.dialects.postgres.QueryExecutor;
+import com.example.springauth.models.utility.ColumnMarkupElementModel;
+import com.example.springauth.models.utility.ColumnValueOptionModel;
 import com.example.springauth.schemas.Schema;
 import com.example.springauth.specialtables.SpecialTableNameGiver;
 import com.example.springauth.tables.Table;
@@ -91,6 +93,14 @@ public class DatabaseDocumentation {
         String tableOfTables = SpecialTableNameGiver.getTableOfTablesName();
         this.tableList = getTableList(tableOfTables);
         this.relationshipList = this.getTableRelationships(SpecialTableNameGiver.getTableOfRelationshipsName());
+
+        // Select all registered column option values in the database for all registered applicable columns
+        //String columnOptionValuesTable = SpecialTableNameGiver.getTableOfColumnValueOptionsName();
+        //List<ColumnValueOptionModel> columnValueOptionModelList = getColumnValueOptionModelList(columnOptionValuesTable);
+
+        // Select all columns' form data capturing elements/tag information for all columns for which the data has been provided
+        //getColumnMarkupElementModelList();
+
     }
 
     private List<Schema> getDatabaseSchemaList(){
@@ -154,6 +164,35 @@ public class DatabaseDocumentation {
             tableList = postgresDialect.getTableList(searchTable);
         }
         return tableList;
+    }
+
+    public List<ColumnValueOptionModel> getColumnValueOptionModelList(){
+        // Select all registered column option values in the database for all registered applicable columns
+        String columnOptionValuesTable = SpecialTableNameGiver.getTableOfColumnValueOptionsName();
+        return getColumnValueOptionModelList(columnOptionValuesTable);
+    }
+
+    private List<ColumnValueOptionModel> getColumnValueOptionModelList(String searchTable){
+        List<ColumnValueOptionModel> columnValueOptionModelList = new ArrayList<>();
+        if (sqlDialect.equalsIgnoreCase("POSTGRES")) {
+            PostgresDialect postgresDialect = new PostgresDialect(queryExecutor, searchTable, documentationSchema);
+            columnValueOptionModelList = postgresDialect.getColumnValueOptionModelList(searchTable);
+        }
+        return columnValueOptionModelList;
+    }
+
+    public List<ColumnMarkupElementModel> getColumnMarkupElementModelList(){
+        String columnMarkupElementTableName = SpecialTableNameGiver.getTableOfColumnInputMarkupElementsName();
+        return getColumnMarkupElementModelList(columnMarkupElementTableName);
+    }
+
+    private List<ColumnMarkupElementModel> getColumnMarkupElementModelList(String searchTable){
+        List<ColumnMarkupElementModel> columnMarkupElementModelList = new ArrayList<>();
+        if (sqlDialect.equalsIgnoreCase("POSTGRES")) {
+            PostgresDialect postgresDialect = new PostgresDialect(queryExecutor, searchTable, documentationSchema);
+            columnMarkupElementModelList = postgresDialect.getColumnMarkupElementModelList(searchTable);
+        }
+        return columnMarkupElementModelList;
     }
 
 }

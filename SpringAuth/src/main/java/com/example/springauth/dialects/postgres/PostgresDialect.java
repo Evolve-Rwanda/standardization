@@ -3,6 +3,8 @@ package com.example.springauth.dialects.postgres;
 import com.example.springauth.columns.ColumnMarkupElement;
 import com.example.springauth.columns.ColumnValueOption;
 import com.example.springauth.dialects.SQLDialect;
+import com.example.springauth.models.utility.ColumnMarkupElementModel;
+import com.example.springauth.models.utility.ColumnValueOptionModel;
 import com.example.springauth.specialtables.SpecialTable;
 import com.example.springauth.specialtables.SpecialTableNameGiver;
 import com.example.springauth.tables.Table;
@@ -562,7 +564,7 @@ public class PostgresDialect extends SQLDialect {
 
     private List<Column> getTableColumnList(String schemaName, String tableFQN){
         List<Column> columnList = new ArrayList<>();
-        String searchTable = "table_of_columns";
+        String searchTable = SpecialTableNameGiver.getTableOfColumnsName();
         String searchTableSchema = schema!= null ? schema.getName() : "";
         String searchTableFQN = !searchTableSchema.isEmpty() ? searchTableSchema + "." + searchTable : searchTable;
         String query = String.format("SELECT * from %s WHERE table_name = '%s';", searchTableFQN, tableFQN);
@@ -602,6 +604,57 @@ public class PostgresDialect extends SQLDialect {
             queryExecutor.closeResources();
         }
         return columnList;
+    }
+
+    public List<ColumnValueOptionModel> getColumnValueOptionModelList(String searchTable){
+        List<ColumnValueOptionModel> columnValueOptionModelList = new ArrayList<>();
+        String searchTableSchema = schema!= null ? schema.getName() : "";
+        String searchTableFQN = !searchTableSchema.isEmpty() ? searchTableSchema + "." + searchTable : searchTable;
+        String query = String.format("SELECT * from %s;", searchTableFQN);
+
+        ResultWrapper resultWrapper = queryExecutor.executeQuery(query);
+        ResultSet resultSet = resultWrapper.getResultSet();
+        try {
+            while (resultSet.next()) {
+                String columnId = resultSet.getString("column_id");
+                String optionValue = resultSet.getString("option_value");
+                columnValueOptionModelList.add(new ColumnValueOptionModel(columnId, optionValue));
+            }
+        }catch (SQLException e){
+            System.out.println("Error retrieving table columns from the database table - " + searchTableFQN + " - " + e.getMessage());
+        }finally {
+            queryExecutor.closeResources();
+        }
+        return columnValueOptionModelList;
+    }
+
+    public List<ColumnMarkupElementModel> getColumnMarkupElementModelList(String searchTable){
+        List<ColumnMarkupElementModel> columnMarkupElementModelList = new ArrayList<>();
+        String searchTableSchema = schema!= null ? schema.getName() : "";
+        String searchTableFQN = !searchTableSchema.isEmpty() ? searchTableSchema + "." + searchTable : searchTable;
+        String query = String.format("SELECT * from %s;", searchTableFQN);
+
+        ResultWrapper resultWrapper = queryExecutor.executeQuery(query);
+        ResultSet resultSet = resultWrapper.getResultSet();
+        try {
+            while (resultSet.next()) {
+                String columnId = resultSet.getString("column_id");
+                String tagName = resultSet.getString("tag_name");
+                String typeAttribValue = resultSet.getString("type_attribute_value");
+                String nameAttribValue = resultSet.getString("name_attribute_value");
+                boolean isMutuallyExclusive = resultSet.getString("is_mutually_exclusive").equalsIgnoreCase("true");
+                columnMarkupElementModelList.add(
+                        new ColumnMarkupElementModel(
+                                columnId, tagName, typeAttribValue, nameAttribValue, isMutuallyExclusive
+                        )
+                );
+            }
+        }catch (SQLException e){
+            System.out.println("Error retrieving table columns from the database table - " + searchTableFQN + " - " + e.getMessage());
+        }finally {
+            queryExecutor.closeResources();
+        }
+        return columnMarkupElementModelList;
     }
 
 }
