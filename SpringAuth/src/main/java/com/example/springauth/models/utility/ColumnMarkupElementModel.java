@@ -1,7 +1,8 @@
 package com.example.springauth.models.utility;
 
-
 import java.util.Objects;
+
+
 
 public class ColumnMarkupElementModel {
 

@@ -1,18 +1,32 @@
 package com.example.springauth.models.app;
 
+import com.example.springauth.models.utility.ColumnMarkupElementModel;
+import com.example.springauth.models.utility.ColumnValueOptionModel;
+
+import java.util.List;
+
+
 public class UserPropModel {
 
+
     private String propertyName;
-    private String htmlLabelText;
     private String propertyValue;
+    private ColumnMarkupElementModel columnMarkupElementModel;
+    private List<ColumnValueOptionModel> columnValueOptionModels;
 
     public UserPropModel() {
     }
 
-    public UserPropModel(String propertyName, String htmlLabelText, String propertyValue) {
+    public UserPropModel(String propertyName, String propertyValue) {
         this.propertyName = propertyName;
-        this.htmlLabelText = htmlLabelText;
         this.propertyValue = propertyValue;
+    }
+
+    @Override
+    public String toString() {
+        return "UserPropModel{" +
+                  "propertyName='" + propertyName + "'" + ", propertyValue='" + propertyValue + "'" +
+                "}";
     }
 
     public String getPropertyName() {
@@ -23,14 +37,6 @@ public class UserPropModel {
         this.propertyName = propertyName;
     }
 
-    public String getHtmlLabelText() {
-        return htmlLabelText;
-    }
-
-    public void setHtmlLabelText(String htmlLabelText) {
-        this.htmlLabelText = htmlLabelText;
-    }
-
     public String getPropertyValue() {
         return propertyValue;
     }
@@ -38,4 +44,21 @@ public class UserPropModel {
     public void setPropertyValue(String propertyValue) {
         this.propertyValue = propertyValue;
     }
+
+    public ColumnMarkupElementModel getColumnMarkupElementModel() {
+        return columnMarkupElementModel;
+    }
+
+    public void setColumnMarkupElementModel(ColumnMarkupElementModel columnMarkupElementModel) {
+        this.columnMarkupElementModel = columnMarkupElementModel;
+    }
+
+    public List<ColumnValueOptionModel> getColumnValueOptionModels() {
+        return columnValueOptionModels;
+    }
+
+    public void setColumnValueOptionModels(List<ColumnValueOptionModel> columnValueOptionModels) {
+        this.columnValueOptionModels = columnValueOptionModels;
+    }
+
 }

@@ -267,7 +267,7 @@ public class DatabaseController {
         return "home";
     }
 
-    @PostMapping("/create_user_profile")
+    @GetMapping("/create_user_profile")
     public String createUserProfile(
             @ModelAttribute("updateUserProfileForm")
             UserModel userModel,
@@ -277,8 +277,9 @@ public class DatabaseController {
         DatabaseDocumentation databaseDocumentation = new DatabaseDocumentation(sqlDialect, queryExecutor, databaseDocumentationSchema);
         databaseDocumentation.generateDatabaseDocumentation();
         List<Table> tableList = databaseDocumentation.getTableList();
-        List<ColumnValueOptionModel> columnValueOptionModelList = databaseDocumentation.getColumnValueOptionModelList();
         List<ColumnMarkupElementModel> columnMarkupElementModelList = databaseDocumentation.getColumnMarkupElementModelList();
+        List<ColumnValueOptionModel> columnValueOptionModelList = databaseDocumentation.getColumnValueOptionModelList();
+
         Table userTable = null;
         for (Table table : tableList) {
             String userTableName = TableNameGiver.getUserTableName();
@@ -297,18 +298,37 @@ public class DatabaseController {
                 String columnFullyQualifiedName = tableName + "." + columnName;
                 String dataType = column.getDataType();
                 String htmlLabelText = columnName.replaceAll("_", " ");
-                userPropModelList.add(
-                        new UserPropModel(columnName, htmlLabelText, null)
-                );
+
+                UserPropModel userPropModel = new UserPropModel(columnName, htmlLabelText);
+
                 ColumnMarkupElementModel columnMarkupElementModel = null;
                 for(ColumnMarkupElementModel cmem : columnMarkupElementModelList) {
                     if(cmem.getColumnId().equalsIgnoreCase(columnFullyQualifiedName)) {
                         columnMarkupElementModel = cmem;
+                        userPropModel.setColumnMarkupElementModel(columnMarkupElementModel);
                         break;
                     }
                 }
+                if (columnMarkupElementModel != null) {
+                    String columnMarkupColumnId = columnMarkupElementModel.getColumnId();
+                    for (ColumnValueOptionModel cvoml: columnValueOptionModelList){
+                        String cvomlColumnId = cvoml.getColumnId();
+                        if (columnMarkupColumnId.equalsIgnoreCase(cvomlColumnId)) {
+                            userPropModel.setColumnValueOptionModels(columnValueOptionModelList);
+                            break;
+                        }
+                    }
+                }
+                System.out.println(userPropModel);
+                System.out.println(userPropModel.getColumnMarkupElementModel());
+                System.out.println(userPropModel.getColumnValueOptionModels());
+                System.out.println("\n");
 
+                userPropModelList.add(userPropModel);
             }
+            model.addAttribute("userProfileUISetupObject", userPropModelList);
+            attributeSetup(model);
+
         }catch (NullPointerException e){
             System.out.println(e.getMessage());
         }
