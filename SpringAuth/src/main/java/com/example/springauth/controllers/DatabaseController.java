@@ -8,6 +8,7 @@ import com.example.springauth.dialects.postgres.PostgresDialect;
 import com.example.springauth.documentation.DatabaseDocumentation;
 import com.example.springauth.dialects.postgres.DatabaseCredentials;
 import com.example.springauth.dialects.postgres.QueryExecutor;
+import com.example.springauth.markup.HTMLFormCreator;
 import com.example.springauth.models.app.UserModel;
 import com.example.springauth.models.app.UserPropModel;
 import com.example.springauth.models.utility.*;
@@ -326,7 +327,8 @@ public class DatabaseController {
 
                 userPropModelList.add(userPropModel);
             }
-            model.addAttribute("userProfileUISetupObject", userPropModelList);
+            HTMLFormCreator htmlFormCreator = new HTMLFormCreator("create_user_profile", userPropModelList);
+            model.addAttribute("createUserProfileForm", htmlFormCreator.create());
             attributeSetup(model);
 
         }catch (NullPointerException e){

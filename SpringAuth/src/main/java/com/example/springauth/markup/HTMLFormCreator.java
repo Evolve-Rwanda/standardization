@@ -38,7 +38,8 @@ public class HTMLFormCreator {
         StringBuilder formBuilder = new StringBuilder();
 
         // create a form opening tag
-        formBuilder.append("<form action=\"\" method=\"post\">");
+        String formOpeningTag = String.format("<form action=\"%s\" method=\"post\">", this.formActionAttribValue);
+        formBuilder.append(formOpeningTag);
 
         StringBuilder tableBuilder = new StringBuilder();
 
