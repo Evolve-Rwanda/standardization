@@ -3,10 +3,13 @@ package com.example.springauth.models.app;
 import com.example.springauth.models.utility.ColumnMarkupElementModel;
 import com.example.springauth.models.utility.ColumnValueOptionModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
+
 public class UserPropModel {
+
 
 
     private String propertyName;
@@ -14,19 +17,19 @@ public class UserPropModel {
     private ColumnMarkupElementModel columnMarkupElementModel;
     private List<ColumnValueOptionModel> columnValueOptionModels;
 
+
     public UserPropModel() {
     }
 
     public UserPropModel(String propertyName, String propertyValue) {
         this.propertyName = propertyName;
         this.propertyValue = propertyValue;
+        this.columnValueOptionModels = new ArrayList<>();
     }
 
     @Override
     public String toString() {
-        return "UserPropModel{" +
-                  "propertyName='" + propertyName + "'" + ", propertyValue='" + propertyValue + "'" +
-                "}";
+        return "UserPropModel{" + "propertyName='" + propertyName + "'" + ", propertyValue='" + propertyValue + "'" + "}";
     }
 
     public String getPropertyName() {
@@ -59,6 +62,10 @@ public class UserPropModel {
 
     public void setColumnValueOptionModels(List<ColumnValueOptionModel> columnValueOptionModels) {
         this.columnValueOptionModels = columnValueOptionModels;
+    }
+
+    public void addColumnValueOptionModel(ColumnValueOptionModel columnValueOptionModel) {
+        this.columnValueOptionModels.add(columnValueOptionModel);
     }
 
 }

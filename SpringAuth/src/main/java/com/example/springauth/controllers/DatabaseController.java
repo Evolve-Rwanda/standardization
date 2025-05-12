@@ -21,6 +21,7 @@ import com.example.springauth.schemas.SchemaNameGiver;
 import com.example.springauth.specialtables.*;
 import com.example.springauth.tables.Table;
 import com.example.springauth.tables.TableNameGiver;
+import com.example.springauth.utilities.CustomFileWriter;
 import com.example.springauth.utilities.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -56,26 +57,31 @@ public class DatabaseController {
     Schema databaseDocumentationSchema = nameSchemaMap.get(SchemaNameGiver.getDocumentationSchemaName());
     Schema userManagementSchema = nameSchemaMap.get(SchemaNameGiver.getUserManagementSchemaName());
 
+
     @GetMapping("/")
     public String root(Model model) {
         return "index";
     }
+
 
     @GetMapping("/index")
     public String indexRequest(Model model) {
         return "index";
     }
 
+
     @GetMapping("/index.html")
     public String indexPageRequest(Model model) {
         return "index";
     }
+
 
     @GetMapping("/home")
     public String homePageRequest(Model model) {
         attributeSetup(model);
         return "home";
     }
+
 
     @PostMapping("/add_schema")
     public String addSchema(@ModelAttribute("schemaForm") SchemaModel schemaModel, Model model) {
@@ -95,6 +101,7 @@ public class DatabaseController {
         return "home";
     }
 
+
     @PostMapping("/add_table")
     public String addTable(@ModelAttribute("tableForm") TableModel tableModel, Model model) {
         var tableOfTables = new TableOfTables(queryExecutor, sqlDialect, databaseDocumentationSchema);
@@ -112,6 +119,7 @@ public class DatabaseController {
         attributeSetup(model);
         return "home";
     }
+
 
     @PostMapping("/add_relationship")
     public String addRelationship(@ModelAttribute("relationshipForm") RelationshipModel relationshipModel, Model model) {
@@ -268,6 +276,17 @@ public class DatabaseController {
         return "home";
     }
 
+    @PostMapping("/create_user_profile")
+    public String createUserProfile(
+            @ModelAttribute("createUserForm")
+            UserPropModel userPropModel,
+            Model model
+    ) {
+        System.out.println(userPropModel);
+        attributeSetup(model);
+        return "user_profile";
+    }
+
     @GetMapping("/create_user_profile")
     public String createUserProfile(
             @ModelAttribute("updateUserProfileForm")
@@ -291,16 +310,24 @@ public class DatabaseController {
         }
         List<Column> userTableColumns = null;
         List<UserPropModel> userPropModelList = new ArrayList<>();
+
         try{
+
             userTableColumns = userTable.getUniversalColumnList();
+            List<String> excludedColumnList = this.getExcludedFormFields();
+
             for (Column column : userTableColumns) {
+
                 String tableName = column.getTableName();
                 String columnName = column.getName();
+
+                // action is to create, simply hide the some fields when the action is to update
+                if (excludedColumnList.contains(columnName.toLowerCase())){
+                    continue;
+                }
                 String columnFullyQualifiedName = tableName + "." + columnName;
                 String dataType = column.getDataType();
-                String htmlLabelText = columnName.replaceAll("_", " ");
-
-                UserPropModel userPropModel = new UserPropModel(columnName, htmlLabelText);
+                UserPropModel userPropModel = new UserPropModel(columnName, null); // set the value only in the case of updating profiles
 
                 ColumnMarkupElementModel columnMarkupElementModel = null;
                 for(ColumnMarkupElementModel cmem : columnMarkupElementModelList) {
@@ -315,19 +342,26 @@ public class DatabaseController {
                     for (ColumnValueOptionModel cvoml: columnValueOptionModelList){
                         String cvomlColumnId = cvoml.getColumnId();
                         if (columnMarkupColumnId.equalsIgnoreCase(cvomlColumnId)) {
-                            userPropModel.setColumnValueOptionModels(columnValueOptionModelList);
-                            break;
+                            userPropModel.addColumnValueOptionModel(cvoml);
                         }
                     }
                 }
-                System.out.println(userPropModel);
-                System.out.println(userPropModel.getColumnMarkupElementModel());
-                System.out.println(userPropModel.getColumnValueOptionModels());
-                System.out.println("\n");
-
+                // if no UI input element is provided, the input-text element is the default input
+                // and is assigned to the particular field/column here
+                if (columnMarkupElementModel == null) {
+                    String columnId = column.getTableName() + "." + column.getName();
+                    String nameAttributeValue = column.getName().toLowerCase();
+                    columnMarkupElementModel = new ColumnMarkupElementModel(columnId, "input", "text", nameAttributeValue, false);
+                    userPropModel.setColumnMarkupElementModel(columnMarkupElementModel);
+                }
                 userPropModelList.add(userPropModel);
             }
             HTMLFormCreator htmlFormCreator = new HTMLFormCreator("create_user_profile", userPropModelList);
+            String userProfileMarkup = htmlFormCreator.create();
+            CustomFileWriter customFileWriter = new CustomFileWriter();
+            String resourcePath = "src/main/resources/templates/";
+            customFileWriter.writeFile(resourcePath + "user_profile.html", userProfileMarkup);
+            System.out.println(htmlFormCreator.create());
             model.addAttribute("createUserProfileForm", htmlFormCreator.create());
             attributeSetup(model);
 
@@ -336,7 +370,7 @@ public class DatabaseController {
         }
 
         model.addAttribute("UserProfileCreatedMessage", "You have successfully created a user profile.");
-        return "home";
+        return "user_profile";
     }
 
     @PostMapping("/change_password")
@@ -413,6 +447,7 @@ public class DatabaseController {
         model.addAttribute("columnForm", new ColumnModel());
         model.addAttribute("columnValueOptionsForm", new ColumnValueOptionModel());
         model.addAttribute("columnInputElementMarkupForm", new ColumnMarkupElementModel());
+        model.addAttribute("createUserForm", new UserPropModel());
     }
 
     private List<Schema> getDatabaseSchemaList(){
@@ -461,6 +496,16 @@ public class DatabaseController {
             table.setQueryExecutor(queryExecutor);
         }
         return derivedTableList;
+    }
+
+    private List<String> getExcludedFormFields(){
+        List<String> excludedFormFields = new ArrayList<>();
+        excludedFormFields.add("id");
+        excludedFormFields.add("authentication_hash");
+        excludedFormFields.add("created_at");
+        excludedFormFields.add("last_updated_at");
+        excludedFormFields.add("deleted_at");
+        return excludedFormFields;
     }
 
     private List<Table> ensureEntityAndReferentialIntegrity(List<Relationship> relationshipList){

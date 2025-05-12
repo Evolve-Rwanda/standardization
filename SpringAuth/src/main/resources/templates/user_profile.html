@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+	<title>User profile</title>
+	<link rel="stylesheet"  th:href="@{css/forms.css}" />
+</head>
+<body style="margin: 0; padding: 0;">
+	<form action="create_user_profile" method="post" th:object="${createUserForm}">
+
+	<table cellspacing="0" cellpadding="0" border="0" width="40%" align="center">
+		<tr>
+			<td><label class="field_label">First name</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" th:field="*{propertyName}" th:value="first_name" />
+					<input type="text" th:field="*{propertyValue}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Last name</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" th:field="*{propertyName}" th:value="last_name" />
+					<input type="text" th:field="*{propertyValue}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Other names</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" th:field="*{propertyName}" th:value="other_names" />
+					<input type="text" th:field="*{propertyValue}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Gender</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+					<label>
+						<input type="radio" name="gender" /> Male
+					</label>
+					<label>
+						<input type="radio" name="gender" /> Female
+					</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Date of birth</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" th:field="*{propertyName}" th:value="date_of_birth" />
+					<input type="text" th:field="*{propertyValue}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Id type</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<select name ="id_type">
+						<option selected disabled>select</option>
+						<option value="National ID">National ID</option>
+						<option value="Passport">Passport</option>
+					</select>
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Id number</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" th:field="*{propertyName}" th:value="id_number" />
+					<input type="text" th:field="*{propertyValue}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Current phone number</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" th:field="*{propertyName}" th:value="current_phone_number" />
+					<input type="text" th:field="*{propertyValue}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Current photo</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" th:field="*{propertyName}" th:value="current_photo" />
+					<input type="text" th:field="*{propertyValue}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Current email</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" th:field="*{propertyName}" th:value="current_email" />
+					<input type="text" th:field="*{propertyValue}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Current password</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" th:field="*{propertyName}" th:value="current_password" />
+					<input type="text" th:field="*{propertyValue}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label"> </label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+					<input type="submit" value="Submit" /><br />
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+	</table>
+	</form>
+</body>
+</html>
