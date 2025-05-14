@@ -6,20 +6,20 @@ import java.util.List;
 public class UserModel {
 
 
-    private List<UserPropModel> userPropModelList;
+    private List<EntityPropModel> entityPropModelList;
 
     public UserModel() {
     }
 
-    public UserModel(List<UserPropModel> userPropModelList) {
-        this.userPropModelList = userPropModelList;
+    public UserModel(List<EntityPropModel> entityPropModelList) {
+        this.entityPropModelList = entityPropModelList;
     }
 
-    public List<UserPropModel> getUserPropModelList() {
-        return userPropModelList;
+    public List<EntityPropModel> getUserPropModelList() {
+        return entityPropModelList;
     }
 
-    public void setUserPropModelList(List<UserPropModel> userPropModelList) {
-        this.userPropModelList = userPropModelList;
+    public void setUserPropModelList(List<EntityPropModel> entityPropModelList) {
+        this.entityPropModelList = entityPropModelList;
     }
 }

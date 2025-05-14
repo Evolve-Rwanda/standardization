@@ -9,8 +9,7 @@ import com.example.springauth.documentation.DatabaseDocumentation;
 import com.example.springauth.dialects.postgres.DatabaseCredentials;
 import com.example.springauth.dialects.postgres.QueryExecutor;
 import com.example.springauth.markup.HTMLFormCreator;
-import com.example.springauth.models.app.UserModel;
-import com.example.springauth.models.app.UserPropModel;
+import com.example.springauth.models.app.*;
 import com.example.springauth.models.utility.*;
 import com.example.springauth.relationships.Relationship;
 import com.example.springauth.relationships.RelationshipResolver;
@@ -23,7 +22,6 @@ import com.example.springauth.tables.Table;
 import com.example.springauth.tables.TableNameGiver;
 import com.example.springauth.utilities.CustomFileWriter;
 import com.example.springauth.utilities.DateTime;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -278,11 +276,13 @@ public class DatabaseController {
 
     @PostMapping("/create_user_profile")
     public String createUserProfile(
-            @ModelAttribute("createUserForm")
-            UserPropModel userPropModel,
+            @ModelAttribute("userPropModelList")
+            //ArrayList<EntityPropModel> entityPropModelList,
+            UserPropModelList userPropModelList,
             Model model
     ) {
-        System.out.println(userPropModel);
+        System.out.println("User property list displayed here");
+        System.out.print(userPropModelList.getUserPropModels());
         attributeSetup(model);
         return "user_profile";
     }
@@ -293,83 +293,7 @@ public class DatabaseController {
             UserModel userModel,
             Model model
     ){
-        // rebuild the user model
-        DatabaseDocumentation databaseDocumentation = new DatabaseDocumentation(sqlDialect, queryExecutor, databaseDocumentationSchema);
-        databaseDocumentation.generateDatabaseDocumentation();
-        List<Table> tableList = databaseDocumentation.getTableList();
-        List<ColumnMarkupElementModel> columnMarkupElementModelList = databaseDocumentation.getColumnMarkupElementModelList();
-        List<ColumnValueOptionModel> columnValueOptionModelList = databaseDocumentation.getColumnValueOptionModelList();
-
-        Table userTable = null;
-        for (Table table : tableList) {
-            String userTableName = TableNameGiver.getUserTableName();
-            if (table.getName().equalsIgnoreCase(userTableName)) {
-                userTable = table;
-                break;
-            }
-        }
-        List<Column> userTableColumns = null;
-        List<UserPropModel> userPropModelList = new ArrayList<>();
-
-        try{
-
-            userTableColumns = userTable.getUniversalColumnList();
-            List<String> excludedColumnList = this.getExcludedFormFields();
-
-            for (Column column : userTableColumns) {
-
-                String tableName = column.getTableName();
-                String columnName = column.getName();
-
-                // action is to create, simply hide the some fields when the action is to update
-                if (excludedColumnList.contains(columnName.toLowerCase())){
-                    continue;
-                }
-                String columnFullyQualifiedName = tableName + "." + columnName;
-                String dataType = column.getDataType();
-                UserPropModel userPropModel = new UserPropModel(columnName, null); // set the value only in the case of updating profiles
-
-                ColumnMarkupElementModel columnMarkupElementModel = null;
-                for(ColumnMarkupElementModel cmem : columnMarkupElementModelList) {
-                    if(cmem.getColumnId().equalsIgnoreCase(columnFullyQualifiedName)) {
-                        columnMarkupElementModel = cmem;
-                        userPropModel.setColumnMarkupElementModel(columnMarkupElementModel);
-                        break;
-                    }
-                }
-                if (columnMarkupElementModel != null) {
-                    String columnMarkupColumnId = columnMarkupElementModel.getColumnId();
-                    for (ColumnValueOptionModel cvoml: columnValueOptionModelList){
-                        String cvomlColumnId = cvoml.getColumnId();
-                        if (columnMarkupColumnId.equalsIgnoreCase(cvomlColumnId)) {
-                            userPropModel.addColumnValueOptionModel(cvoml);
-                        }
-                    }
-                }
-                // if no UI input element is provided, the input-text element is the default input
-                // and is assigned to the particular field/column here
-                if (columnMarkupElementModel == null) {
-                    String columnId = column.getTableName() + "." + column.getName();
-                    String nameAttributeValue = column.getName().toLowerCase();
-                    columnMarkupElementModel = new ColumnMarkupElementModel(columnId, "input", "text", nameAttributeValue, false);
-                    userPropModel.setColumnMarkupElementModel(columnMarkupElementModel);
-                }
-                userPropModelList.add(userPropModel);
-            }
-            HTMLFormCreator htmlFormCreator = new HTMLFormCreator("create_user_profile", userPropModelList);
-            String userProfileMarkup = htmlFormCreator.create();
-            CustomFileWriter customFileWriter = new CustomFileWriter();
-            String resourcePath = "src/main/resources/templates/";
-            customFileWriter.writeFile(resourcePath + "user_profile.html", userProfileMarkup);
-            System.out.println(htmlFormCreator.create());
-            model.addAttribute("createUserProfileForm", htmlFormCreator.create());
-            attributeSetup(model);
-
-        }catch (NullPointerException e){
-            System.out.println(e.getMessage());
-        }
-
-        model.addAttribute("UserProfileCreatedMessage", "You have successfully created a user profile.");
+        this.attributeSetup(model);
         return "user_profile";
     }
 
@@ -384,12 +308,28 @@ public class DatabaseController {
             UserModel userModel,
             Model model
     ){
-        model.addAttribute("UserProfileUpdatedMessage", "You have successfully updated user profile.");
         // rebuild the user model
         // update the user model based on the provided properties
         // user model properties directly map to columns in the user table in the UM schema in the DB
         // to check whether certain properties exist as means of verification, use the table of columns
         return "home";
+    }
+
+    @PostMapping("/create_user_role")
+    public String createUserProfile(
+            @ModelAttribute("roleForm")
+            RoleModel roleModel,
+            Model model
+    ) {
+        System.out.println(roleModel);
+        attributeSetup(model);
+        return "role";
+    }
+
+    @GetMapping("/create_user_role")
+    public String createUserProfile(Model model) {
+        attributeSetup(model);
+        return "role";
     }
 
     @GetMapping("/initialize_logging")
@@ -447,7 +387,110 @@ public class DatabaseController {
         model.addAttribute("columnForm", new ColumnModel());
         model.addAttribute("columnValueOptionsForm", new ColumnValueOptionModel());
         model.addAttribute("columnInputElementMarkupForm", new ColumnMarkupElementModel());
-        model.addAttribute("createUserForm", new UserPropModel());
+
+        model.addAttribute("roleForm", new RoleModel());
+        model.addAttribute("privilegeForm", new PrivilegeModel());
+
+        String userTableName = TableNameGiver.getUserTableName();
+        List<EntityPropModel> userPropModelList = this.generateEntityPropModelList(
+                userTableName,
+                tableList,
+                columnMarkupElementModelList,
+                columnValueOptionModelList
+        );
+        UserPropModelList userPropModelList1 = new UserPropModelList(userPropModelList);
+        model.addAttribute("userPropModelList", userPropModelList1);
+
+        String userFormMarkup = this.generateThymeleafViewMarkup("create_user_profile", userPropModelList);
+        model.addAttribute("userFormMarkup", userFormMarkup);
+        String resourcePath = "src/main/resources/templates/";
+        //this.generateFile(resourcePath + "user_profile.html", userFormMarkup);
+
+    }
+
+    private List<EntityPropModel> generateEntityPropModelList(
+            String targetTableName,
+            List<Table> tableList,
+            List<ColumnMarkupElementModel> columnMarkupElementModelList,
+            List<ColumnValueOptionModel> columnValueOptionModelList
+    ) {
+        Table entityTable = getTableByName(targetTableName, tableList);
+        return this.getEntityPropModelList(
+                entityTable,
+                columnMarkupElementModelList,
+                columnValueOptionModelList
+        );
+    }
+
+    private List<EntityPropModel> getEntityPropModelList(
+            Table entityTable,
+            List<ColumnMarkupElementModel> columnMarkupElementModelList,
+            List<ColumnValueOptionModel> columnValueOptionModelList
+    ) {
+        List<Column> userTableColumns = null;
+        List<EntityPropModel> entityPropModelList = new ArrayList<>();
+
+        try {
+
+            userTableColumns = entityTable.getUniversalColumnList();
+            List<String> excludedColumnList = this.getExcludedFormFields();
+
+            for (Column column : userTableColumns) {
+
+                String tableName = column.getTableName();
+                String columnName = column.getName();
+
+                // action is to create, simply hide the some fields when the action is to update
+                if (excludedColumnList.contains(columnName.toLowerCase())) {
+                    continue;
+                }
+                String columnFullyQualifiedName = tableName + "." + columnName;
+                String dataType = column.getDataType();
+                EntityPropModel entityPropModel = new EntityPropModel(columnName, null); // set the value only in the case of updating profiles
+
+                ColumnMarkupElementModel columnMarkupElementModel = null;
+                for (ColumnMarkupElementModel cmem : columnMarkupElementModelList) {
+                    if (cmem.getColumnId().equalsIgnoreCase(columnFullyQualifiedName)) {
+                        columnMarkupElementModel = cmem;
+                        entityPropModel.setColumnMarkupElementModel(columnMarkupElementModel);
+                        break;
+                    }
+                }
+                if (columnMarkupElementModel != null) {
+                    String columnMarkupColumnId = columnMarkupElementModel.getColumnId();
+                    for (ColumnValueOptionModel cvoml : columnValueOptionModelList) {
+                        String cvomlColumnId = cvoml.getColumnId();
+                        if (columnMarkupColumnId.equalsIgnoreCase(cvomlColumnId)) {
+                            entityPropModel.addColumnValueOptionModel(cvoml);
+                        }
+                    }
+                }
+                // if no UI input element is provided, the input-text element is the default input
+                // and is assigned to the particular field/column here
+                if (columnMarkupElementModel == null) {
+                    String columnId = column.getTableName() + "." + column.getName();
+                    String nameAttributeValue = column.getName().toLowerCase();
+                    columnMarkupElementModel = new ColumnMarkupElementModel(columnId, "input", "text", nameAttributeValue, false);
+                    entityPropModel.setColumnMarkupElementModel(columnMarkupElementModel);
+                }
+                entityPropModelList.add(entityPropModel);
+            }
+
+        }catch (NullPointerException e){
+            System.out.println(e.getMessage());
+        }
+
+        return entityPropModelList;
+    }
+
+    private String generateThymeleafViewMarkup(String formAction, List<EntityPropModel> entityPropModelList){
+        HTMLFormCreator htmlFormCreator = new HTMLFormCreator(formAction, entityPropModelList);
+        return htmlFormCreator.create();
+    }
+
+    private void generateFile(String fileName, String contents) {
+        CustomFileWriter customFileWriter = new CustomFileWriter();
+        customFileWriter.writeFile(fileName, contents);
     }
 
     private List<Schema> getDatabaseSchemaList(){
@@ -457,6 +500,15 @@ public class DatabaseController {
             schemaList = postgresDialect.getDatabaseSchemaList();
         }
         return schemaList;
+    }
+
+    private Table getTableByName(String tableName, List<Table> tableList) {
+        for (Table table : tableList) {
+            if (table.getName().equalsIgnoreCase(tableName)) {
+                return table;
+            }
+        }
+        return null;
     }
 
     private List<Table> getTableList(String searchTable){

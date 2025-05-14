@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+  <title>User roles</title>
+  <link rel="stylesheet"  th:href="@{css/forms.css}" />
+</head>
+<body style="margin: 0; padding: 0;">
+<form action="create_user_privilege" method="post" th:object="${userPrivilege}">
+  <table cellspacing="0" cellpadding="0" border="0" width="40%" align="center">
+    <tr>
+      <td><br /></td>
+    </tr>
+    <tr>
+      <td align="center">
+        <input type="submit" value="Submit" /><br />
+      </td>
+    </tr>
+    <tr>
+      <td><br /></td>
+    </tr>
+  </table>
+</form>
+</body>
+</html>

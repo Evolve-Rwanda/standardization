@@ -8,44 +8,47 @@ import java.util.List;
 
 
 
-public class UserPropModel {
+public class EntityPropModel {
 
 
 
-    private String propertyName;
-    private String propertyValue;
+    private String name;
+    private String value;
     private ColumnMarkupElementModel columnMarkupElementModel;
     private List<ColumnValueOptionModel> columnValueOptionModels;
 
 
-    public UserPropModel() {
+    public EntityPropModel() {
     }
 
-    public UserPropModel(String propertyName, String propertyValue) {
-        this.propertyName = propertyName;
-        this.propertyValue = propertyValue;
+    public EntityPropModel(String name, String value) {
+        this.name = name;
+        this.value = value;
         this.columnValueOptionModels = new ArrayList<>();
     }
 
     @Override
     public String toString() {
-        return "UserPropModel{" + "propertyName='" + propertyName + "'" + ", propertyValue='" + propertyValue + "'" + "}";
+        return "EntityPropModel{" +
+                "name='" + name + '\'' +
+                ", value='" + value + '\'' +
+                '}';
     }
 
-    public String getPropertyName() {
-        return propertyName;
+    public String getName() {
+        return name;
     }
 
-    public void setPropertyName(String propertyName) {
-        this.propertyName = propertyName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getPropertyValue() {
-        return propertyValue;
+    public String getValue() {
+        return value;
     }
 
-    public void setPropertyValue(String propertyValue) {
-        this.propertyValue = propertyValue;
+    public void setValue(String value) {
+        this.value = value;
     }
 
     public ColumnMarkupElementModel getColumnMarkupElementModel() {

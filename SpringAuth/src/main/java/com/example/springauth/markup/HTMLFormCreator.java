@@ -1,6 +1,6 @@
 package com.example.springauth.markup;
 
-import com.example.springauth.models.app.UserPropModel;
+import com.example.springauth.models.app.EntityPropModel;
 import com.example.springauth.models.utility.ColumnMarkupElementModel;
 import com.example.springauth.models.utility.ColumnValueOptionModel;
 
@@ -14,15 +14,15 @@ public class HTMLFormCreator {
 
 
     private final String formActionAttribValue;
-    private final List<UserPropModel> userPropModelList;
+    private final List<EntityPropModel> entityPropModelList;
 
 
     public HTMLFormCreator(
             String formActionAttribValue,
-            List<UserPropModel> userPropModelList
+            List<EntityPropModel> entityPropModelList
     ) {
         this.formActionAttribValue = formActionAttribValue;
-        this.userPropModelList = userPropModelList;
+        this.entityPropModelList = entityPropModelList;
     }
 
     public String create() {
@@ -40,23 +40,23 @@ public class HTMLFormCreator {
 
         // create a form opening tag
         String thObject = "${createUserForm}";
-        String formOpeningTag = String.format("\n\t<form action=\"%s\" method=\"post\" th:object=\"%s\">\n", this.formActionAttribValue, thObject);
+        String formOpeningTag = String.format("\n\t<form th:action=\"@{/%s}\" method=\"post\" th:object=\"%s\">\n", this.formActionAttribValue, thObject);
         formBuilder.append(formOpeningTag);
 
         StringBuilder tableBuilder = new StringBuilder();
 
-        for (UserPropModel userPropModel : userPropModelList) {
+        for (EntityPropModel entityPropModel : entityPropModelList) {
 
-            String propertyName = userPropModel.getPropertyName();
-            String propertyValue = userPropModel.getPropertyValue();
-            ColumnMarkupElementModel cmem = userPropModel.getColumnMarkupElementModel();
+            String propertyName = entityPropModel.getName();
+            String propertyValue = entityPropModel.getValue();
+            ColumnMarkupElementModel cmem = entityPropModel.getColumnMarkupElementModel();
 
             String columnId = cmem.getColumnId();
             String tagName = cmem.getTagName();
             String typeAttributeValue = cmem.getTypeAttributeValue();
             boolean isMutuallyExclusive = cmem.isMutuallyExclusive();
 
-            List<ColumnValueOptionModel> columnValueOptionModelList = userPropModel.getColumnValueOptionModels();
+            List<ColumnValueOptionModel> columnValueOptionModelList = entityPropModel.getColumnValueOptionModels();
             String tagLabel =getTagLabel(columnId);
 
             if (isMutuallyExclusive &&
@@ -169,8 +169,8 @@ public class HTMLFormCreator {
         String[] columnFQNParts = cmem.getColumnId().split("\\.");
         String type = cmem.getTypeAttributeValue();
         String name = columnFQNParts[columnFQNParts.length - 1];
-        String thymleafField = String.format("th:field=\"*{%s}\" th:value=\"%s\"", "propertyName", name);
-        String thymleafValue = String.format("th:field=\"*{%s}\"", "propertyValue");
+        String thymleafField = String.format("name=\"%s\" value=\"%s\"", "propertyName", name);
+        String thymleafValue = String.format("name=\"%s\"", "propertyValue");
         String propertyNameTag = String.format("\n\t\t\t\t\t<input type=\"%s\" %s />", "hidden", thymleafField);
         String propertyValueTag = String.format("\n\t\t\t\t\t<input type=\"%s\" %s />", type, thymleafValue);
         tagBuilder.append("\n\t\t\t\t<label>")
