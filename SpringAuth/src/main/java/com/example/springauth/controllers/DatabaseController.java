@@ -5,6 +5,7 @@ import com.example.springauth.columns.ColumnInitializer;
 import com.example.springauth.columns.ColumnMarkupElement;
 import com.example.springauth.columns.ColumnValueOption;
 import com.example.springauth.dialects.postgres.PostgresDialect;
+import com.example.springauth.dialects.postgres.PostgresDialectSelection;
 import com.example.springauth.documentation.DatabaseDocumentation;
 import com.example.springauth.dialects.postgres.DatabaseCredentials;
 import com.example.springauth.dialects.postgres.QueryExecutor;
@@ -18,16 +19,22 @@ import com.example.springauth.schemas.SchemaGenerator;
 
 import com.example.springauth.schemas.SchemaNameGiver;
 import com.example.springauth.specialtables.*;
+import com.example.springauth.tables.PrivilegeTable;
+import com.example.springauth.tables.RoleTable;
 import com.example.springauth.tables.Table;
 import com.example.springauth.tables.TableNameGiver;
 import com.example.springauth.utilities.CustomFileWriter;
 import com.example.springauth.utilities.DateTime;
+import com.example.springauth.utilities.PrivilegeIDGenerator;
+import com.example.springauth.utilities.RoleIDGenerator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -278,11 +285,11 @@ public class DatabaseController {
     public String createUserProfile(
             @ModelAttribute("userPropModelList")
             //ArrayList<EntityPropModel> entityPropModelList,
-            UserPropModelList userPropModelList,
+            ArrayList<EntityPropModel> userPropModelList,
             Model model
     ) {
         System.out.println("User property list displayed here");
-        System.out.print(userPropModelList.getUserPropModels());
+        System.out.print(userPropModelList);
         attributeSetup(model);
         return "user_profile";
     }
@@ -315,21 +322,126 @@ public class DatabaseController {
         return "home";
     }
 
+    @GetMapping("/create_user_role")
+    public String createUserProfile(Model model) {
+        attributeSetup(model);
+        return "role";
+    }
+
     @PostMapping("/create_user_role")
     public String createUserProfile(
             @ModelAttribute("roleForm")
             RoleModel roleModel,
             Model model
     ) {
-        System.out.println(roleModel);
+        String id = RoleIDGenerator.generateRoleID();
+        String code = roleModel.getCode();
+        String name = roleModel.getName();
+        String description = roleModel.getDescription();
+        String createdBy = "SUPER_ADMIN";
+        String status = roleModel.getStatus();
+        String createdAt = DateTime.getTimeStamp();
+        String lastUpdatedAt = "";
+        String deletedAt = "";
+        RoleModel newRoleModel = new RoleModel(id, code, name, description, createdBy, status, createdAt, lastUpdatedAt, deletedAt);
+
+        RoleTable roleTable = new RoleTable();
+        roleTable.setSchema(userManagementSchema);
+        roleTable.setQueryExecutor(queryExecutor);
+        roleTable.setSqlDialect(sqlDialect);
+        RoleModel insertedRole = roleTable.insertRole(newRoleModel);
+        model.addAttribute("role", "successfully added role: " + insertedRole.getName());
         attributeSetup(model);
         return "role";
     }
 
-    @GetMapping("/create_user_role")
-    public String createUserProfile(Model model) {
+    @GetMapping("/create_user_privilege")
+    public String createUserPrivilege(Model model) {
         attributeSetup(model);
-        return "role";
+        return "privilege";
+    }
+
+    @PostMapping("/create_user_privilege")
+    public String createUserPrivilege(
+            @ModelAttribute("privilegeForm")
+            PrivilegeModel privilegeModel,
+            Model model
+    ) {
+        String id = PrivilegeIDGenerator.generatePrivilegeID();
+        String code = privilegeModel.getCode();
+        String name = privilegeModel.getName();
+        String description = privilegeModel.getDescription();
+        String approvalMethod = privilegeModel.getApprovalMethod();
+        String createdBy = "SUPER_ADMIN";
+        String status = privilegeModel.getStatus();
+        String createdAt = DateTime.getTimeStamp();
+        String lastUpdatedAt = "";
+        String deletedAt = "";
+        PrivilegeModel newPrivilegeModel = new PrivilegeModel(id, code, name, description, approvalMethod, createdBy, status, createdAt, lastUpdatedAt, deletedAt);
+
+        PrivilegeTable privilegeTable = new PrivilegeTable();
+        privilegeTable.setSchema(userManagementSchema);
+        privilegeTable.setQueryExecutor(queryExecutor);
+        privilegeTable.setSqlDialect(sqlDialect);
+        PrivilegeModel insertedRole = privilegeTable.insertPrivilege(newPrivilegeModel);
+        model.addAttribute("privilege", "successfully added a privilege: " + insertedRole.getName());
+        attributeSetup(model);
+        return "privilege";
+    }
+
+    @GetMapping("/create_role_privilege_mappings")
+    public String createRolePrivilegeMapping(Model model) {
+        List<RolePrivilegeMap> rolePrivilegeMapList = new ArrayList<>();
+        PrivilegeTable privilegeTable = new PrivilegeTable();
+        privilegeTable.setSchema(userManagementSchema);
+        privilegeTable.setQueryExecutor(queryExecutor);
+        privilegeTable.setSqlDialect(sqlDialect);
+        List<PrivilegeModel> privilegeModelList = null;
+        try {
+            privilegeModelList = privilegeTable.selectPrivileges();
+            model.addAttribute("privilege_list", privilegeModelList);
+        }catch (SQLException e){
+            // log errors and exceptions
+            System.out.println(e.getMessage());
+        }finally {
+            model.addAttribute("privilege_list", new ArrayList<PrivilegeModel>());
+        }
+        RoleTable roleTable = new RoleTable();
+        roleTable.setSchema(userManagementSchema);
+        roleTable.setQueryExecutor(queryExecutor);
+        roleTable.setSqlDialect(sqlDialect);
+        List<RoleModel> roleModelList = null;
+        try {
+            roleModelList = roleTable.selectRoles();
+            model.addAttribute("role_list", roleModelList);
+        }catch (SQLException e){
+            // log errors and exceptions
+            System.out.println(e.getMessage());
+        }finally {
+            if((roleModelList != null && !roleModelList.isEmpty())
+                    && (privilegeModelList != null && !privilegeModelList.isEmpty())
+            ){
+                for (RoleModel roleModel : roleModelList) {
+                    for (PrivilegeModel privilegeModel : privilegeModelList) {
+                        RolePrivilegeMap rolePrivilegeMap1 = new RolePrivilegeMap(roleModel, privilegeModel, "");
+                        rolePrivilegeMapList.add(rolePrivilegeMap1);
+                    }
+                }
+                model.addAttribute("role_privilege_list", rolePrivilegeMapList);
+            }
+        }
+        attributeSetup(model);
+        return "role_privilege";
+    }
+
+    @PostMapping(value = "/create_role_privilege_mappings", consumes = "application/json")
+    public String createRolePrivilegeMapping(
+            @RequestBody String rolePrivilegeMap,
+            Model model
+    ) {
+        System.out.println("Role privilege mappings created" + rolePrivilegeMap);
+        attributeSetup(model);
+        return "role_privilege";
     }
 
     @GetMapping("/initialize_logging")
@@ -372,6 +484,8 @@ public class DatabaseController {
         List<ColumnValueOptionModel> columnValueOptionModelList = databaseDocumentation.getColumnValueOptionModelList();
         List<ColumnMarkupElementModel> columnMarkupElementModelList = databaseDocumentation.getColumnMarkupElementModelList();
 
+        var selectionObj = new PostgresDialectSelection(queryExecutor, userManagementSchema);
+
         model.addAttribute("documentation_schema", documentationSchema.getName());
         model.addAttribute("app_schema_list", schemaList);
         model.addAttribute("all_schema_list", schemaNameList);
@@ -390,6 +504,8 @@ public class DatabaseController {
 
         model.addAttribute("roleForm", new RoleModel());
         model.addAttribute("privilegeForm", new PrivilegeModel());
+        model.addAttribute("rolePrivilegeForm", "");
+
 
         String userTableName = TableNameGiver.getUserTableName();
         List<EntityPropModel> userPropModelList = this.generateEntityPropModelList(
@@ -399,12 +515,15 @@ public class DatabaseController {
                 columnValueOptionModelList
         );
         UserPropModelList userPropModelList1 = new UserPropModelList(userPropModelList);
-        model.addAttribute("userPropModelList", userPropModelList1);
+        model.addAttribute("userPropModelList", new EntityPropModel());
+        model.addAttribute("userPropModelList1", userPropModelList1);
 
         String userFormMarkup = this.generateThymeleafViewMarkup("create_user_profile", userPropModelList);
         model.addAttribute("userFormMarkup", userFormMarkup);
         String resourcePath = "src/main/resources/templates/";
         //this.generateFile(resourcePath + "user_profile.html", userFormMarkup);
+
+        model.addAttribute("rolePrivilegeForm", resourcePath);
 
     }
 

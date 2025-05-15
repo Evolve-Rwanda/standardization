@@ -8,17 +8,17 @@
 <form th:action="@{/create_user_profile}" th:object="${userPropModelList}" method="post">
 
 	<table cellspacing="0" cellpadding="0" border="0" width="40%" align="center">
-		<th:block th:each="userProp, userPropStat: ${userPropModelList}">
+		<th:block th:each="userProp: ${userPropModelList1}">
 			<tr>
 				<td>
-					<label class="field_label" th:text="${userPropModelList[__${userPropStat.index}__].getUserPropModels().get(userPropStat.index).name.replaceAll('_', ' ')}"></label>
+					<label class="field_label" th:text="${userProp.getName().replaceAll('_', ' ')}"></label>
 				</td>
 			</tr>
 			<tr>
 				<td align="center">
 					<label>
-						<input type="hidden" th:field="*{userPropModelList[__${userPropStat.index}__].getUserPropModels().get(userPropStat.index).name}" th:value="${userPropModelList[__${userPropStat.index}__].getUserPropModels().get(userPropStat.index).name}" />
-						<input type="text" th:field="*{userPropModelList[__${userPropStat.index}__].getUserPropModels().get(userPropStat.index).name}" th:value="${userPropModelList[__${userPropStat.index}__].getUserPropModels().get(userPropStat.index).name}" />
+						<input type="hidden" th:field="*{userProp.name}" th:value="${userProp.name}" />
+						<input type="text" th:field="*{userProp.name}" th:value="${userProp.name}" />
 					</label>
 				</td>
 			</tr>

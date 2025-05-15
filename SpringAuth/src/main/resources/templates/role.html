@@ -53,8 +53,29 @@
         <tr>
             <td valign="middle" align="center">
                 <label>
-                    <textarea type="text" th:field="*{description}" placeholder="e.g describe the role for the user" required>
+                    <textarea th:field="*{description}" placeholder="e.g describe the role for the user" required>
                     </textarea>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td><br /></td>
+        </tr>
+        <tr>
+            <td>
+                <label class="field_label">
+                    Status
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td align="center">
+                <label>
+                    <select th:field="*{status}" required>
+                        <option value="" disabled>Select </option>
+                        <option value="ACTIVE" selected>Active</option>
+                        <option value="NOT_ACTIVE">Not active</option>
+                    </select>
                 </label>
             </td>
         </tr>

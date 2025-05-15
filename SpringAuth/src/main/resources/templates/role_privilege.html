@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+  <title>User privileges</title>
+  <link rel="stylesheet"  th:href="@{css/forms.css}" />
+  <script type="application/javascript">
+    function handleSubmission(){
+       var roleIdElements = document.getElementsByClassName("roles");
+       var privilegeIdElements = document.getElementsByClassName("privileges");
+       var statusElements = document.getElementsByClassName("statuses");
+       var submissionString = [];
+       for(let i=0; i<roleIdElements.length; i++){
+          var roleId = roleIdElements[i].value;
+          var privilegeId = privilegeIdElements[i].value;
+          var status = statusElements[i].checked;
+         submissionString[i] = "{role_id:" + roleId + ", privilege_id: " + privilegeId + ", status: " + status + "}";
+       }
+       fetch('/create_role_privilege_mappings',
+               {
+                 method: 'POST',
+                 headers: {'Content-Type': 'application/json'},
+                 body: JSON.stringify(submissionString)
+               }
+       );
+    }
+  </script>
+</head>
+<body style="margin: 0; padding: 0;">
+
+<form th:action="@{/create_role_privilege_mappings}" th:object="${rolePrivilegeForm}" method="post">
+
+  <table cellspacing="0" cellpadding="0" border="0" width="40%" align="center">
+    <tr style="font-size: medium; font-weight: bold;">
+      <td valign="middle" align="center">
+          Role
+      </td>
+      <td valign="middle" align="center">
+          Privilege
+      </td>
+      <td valign="middle" align="center">
+        Privilege Description
+      </td>
+      <td valign="middle" align="center">
+        Action
+      </td>
+    </tr>
+    <th:block th:each="rolePrivilegeMap: ${role_privilege_list}">
+      <tr style="font-size: small;">
+        <td>
+          <label class="field_label"
+                 th:text="${
+                    rolePrivilegeMap.getRole().getName() + '(' + rolePrivilegeMap.getRole().getCode()+ ') '
+                 }"
+                 th:title="${rolePrivilegeMap.getRole().getDescription()}">
+          </label>
+        </td>
+        <td>
+          <label class="field_label" th:text="${rolePrivilegeMap.getPrivilege().getName()}">
+          </label>
+        </td>
+        <td>
+          <label class="field_label"
+                 th:text="${rolePrivilegeMap.getPrivilege().getDescription()}">
+          </label>
+        </td>
+        <td valign="middle" align="center">
+          <label>
+            <input type="hidden" class="roles" name="role_id" th:value="${rolePrivilegeMap.getRole().getId()}" />
+            <input type="hidden" class="privileges" name="privilege" th:value="${rolePrivilegeMap.getPrivilege().getId()}" />
+            <input type="checkbox" class="statuses" name="id" th:value="${rolePrivilegeMap.getId()}" />
+          </label>
+        </td>
+      </tr>
+    </th:block>
+    <tr>
+      <td colspan="4"><br /></td>
+    </tr>
+    <tr>
+      <td align="center" colspan="4">
+        <input type="button" value="Submit" onclick="handleSubmission()" /><br />
+      </td>
+    </tr>
+    <tr>
+      <td colspan="4"><br /></td>
+    </tr>
+  </table>
+</form>
+</body>
+</html>

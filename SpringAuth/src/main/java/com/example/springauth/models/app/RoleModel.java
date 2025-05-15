@@ -12,12 +12,24 @@ public class RoleModel {
     private String createdBy;
     private String status;
     private String createdAt;
+    private String lastUpdatedAt;
+    private String deletedAt;
 
 
     public RoleModel() {
     }
 
-    public RoleModel(String id, String code, String name, String description, String createdBy, String status, String createdAt) {
+    public RoleModel(
+            String id,
+            String code,
+            String name,
+            String description,
+            String createdBy,
+            String status,
+            String createdAt,
+            String lastUpdatedAt,
+            String deletedAt
+    ) {
         this.id = id;
         this.code = code;
         this.name = name;
@@ -29,11 +41,7 @@ public class RoleModel {
 
     @Override
     public String toString() {
-        return "PrivilegeModel{" +
-                "code='" + code + "'" +
-                ", name='" + name + "'" +
-                ", description='" + description + "'" +
-                "}";
+        return "RoleModel{" + "code='" + code + "'" + ", name='" + name + "'" + ", description='" + description + "'" + "}";
     }
 
     @Override
@@ -101,5 +109,21 @@ public class RoleModel {
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getLastUpdatedAt() {
+        return lastUpdatedAt;
+    }
+
+    public void setLastUpdatedAt(String lastUpdatedAt) {
+        this.lastUpdatedAt = lastUpdatedAt;
+    }
+
+    public String getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(String deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }

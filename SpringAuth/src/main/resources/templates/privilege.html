@@ -1,12 +1,108 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
-  <title>User roles</title>
+  <title>User privileges</title>
   <link rel="stylesheet"  th:href="@{css/forms.css}" />
 </head>
 <body style="margin: 0; padding: 0;">
-<form action="create_user_privilege" method="post" th:object="${userPrivilege}">
+
+<form th:action="@{/create_user_privilege}" th:object="${privilegeForm}" method="post">
+
   <table cellspacing="0" cellpadding="0" border="0" width="40%" align="center">
+    <tr>
+      <td>
+        <label class="field_label">
+          Code
+        </label>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" align="center">
+        <label>
+          <input type="text" th:field="*{code}" placeholder="e.g ADMIN for administrators" required />
+        </label>
+      </td>
+    </tr>
+    <tr>
+      <td><br /></td>
+    </tr>
+    <tr>
+      <td>
+        <label class="field_label">
+          Name
+        </label>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" align="center">
+        <label>
+          <input type="text" th:field="*{name}" placeholder="e.g Administrator" required />
+        </label>
+      </td>
+    </tr>
+    <tr>
+      <td><br /></td>
+    </tr>
+    <tr>
+      <td>
+        <label class="field_label">
+          Description
+        </label>
+      </td>
+    </tr>
+    <tr>
+      <td valign="middle" align="center">
+        <label>
+          <textarea th:field="*{description}" placeholder="e.g describe the role for the user" required>
+          </textarea>
+        </label>
+      </td>
+    </tr>
+    <tr>
+      <td><br /></td>
+    </tr>
+    <tr>
+      <td>
+        <label class="field_label">
+          Approval method
+        </label>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <label>
+          <select th:field="*{approvalMethod}" required>
+            <option value="" disabled>Select </option>
+            <option value="AUTOMATIC" selected>Automatic</option>
+            <option value="PASSWORD">Password</option>
+            <option value="EMAIL">EMAIL</option>
+            <option value="OTP">One-time-password</option>
+            <option value="MODERATOR">Moderator</option>
+          </select>
+        </label>
+      </td>
+    </tr>
+    <tr>
+      <td><br /></td>
+    </tr>
+    <tr>
+      <td>
+        <label class="field_label">
+          Status
+        </label>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <label>
+          <select th:field="*{status}" required>
+            <option value="" disabled>Select </option>
+            <option value="ACTIVE" selected>Active</option>
+            <option value="NOT_ACTIVE">Not active</option>
+          </select>
+        </label>
+      </td>
+    </tr>
     <tr>
       <td><br /></td>
     </tr>

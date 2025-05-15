@@ -35,7 +35,7 @@ public class BaseRelationshipGenerator {
         new Relationship(contactTypeTable, contactTable, "1:*");
         new Relationship(userTable, authHistTable, "1:*");
         new Relationship(authHistTable, authMetadataTable, "1:1");
-        new Relationship(roleTable, privilegeTable, "1:*");
+        new Relationship(roleTable, privilegeTable, "*:*");
         new Relationship(involvedEntityTable, contactTable, "*:*");
         new Relationship(involvedEntityTable, addressTable, "*:*");
         return Relationship.getRelationshipList();

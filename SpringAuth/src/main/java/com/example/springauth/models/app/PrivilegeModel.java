@@ -3,6 +3,7 @@ package com.example.springauth.models.app;
 
 import java.util.Objects;
 
+
 public class PrivilegeModel {
 
 
@@ -13,8 +14,9 @@ public class PrivilegeModel {
     private String approvalMethod;
     private String createdBy;
     private String status;
-    private String roleId;
     private String createdAt;
+    private String lastUpdatedAt;
+    private String deletedAt;
 
     public PrivilegeModel() {}
 
@@ -26,8 +28,9 @@ public class PrivilegeModel {
             String approvalMethod,
             String createdBy,
             String status,
-            String roleId,
-            String createdAt
+            String createdAt,
+            String lastUpdatedAt,
+            String deletedAt
     ) {
         this.id = id;
         this.code = code;
@@ -36,8 +39,9 @@ public class PrivilegeModel {
         this.approvalMethod = approvalMethod;
         this.createdBy = createdBy;
         this.status = status;
-        this.roleId = roleId;
         this.createdAt = createdAt;
+        this.lastUpdatedAt = lastUpdatedAt;
+        this.deletedAt = deletedAt;
     }
 
     @Override
@@ -116,19 +120,27 @@ public class PrivilegeModel {
         this.status = status;
     }
 
-    public String getRoleId() {
-        return roleId;
-    }
-
-    public void setRoleId(String roleId) {
-        this.roleId = roleId;
-    }
-
     public String getCreatedAt() {
         return createdAt;
     }
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getLastUpdatedAt() {
+        return lastUpdatedAt;
+    }
+
+    public void setLastUpdatedAt(String lastUpdatedAt) {
+        this.lastUpdatedAt = lastUpdatedAt;
+    }
+
+    public String getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(String deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }
