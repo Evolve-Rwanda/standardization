@@ -1,7 +1,9 @@
 package com.example.springauth.dialects.postgres;
 
+import com.example.springauth.models.app.EntityPropModel;
 import com.example.springauth.models.app.PrivilegeModel;
 import com.example.springauth.models.app.RoleModel;
+import com.example.springauth.models.app.UserModel;
 import com.example.springauth.schemas.Schema;
 import com.example.springauth.tables.TableNameGiver;
 
@@ -11,7 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
 public class PostgresDialectSelection {
+
 
 
     private final Schema tableSchema;
@@ -22,6 +26,7 @@ public class PostgresDialectSelection {
         this.queryExecutor = queryExecutor;
         this.tableSchema = tableSchema;
     }
+
 
     public List<RoleModel> selectRoles() throws SQLException {
 
@@ -51,13 +56,14 @@ public class PostgresDialectSelection {
         return roleModelList;
     }
 
+
     public List<PrivilegeModel> selectPrivileges() throws SQLException {
 
         List<PrivilegeModel> privilegeModelList = new ArrayList<>();
         String privilegeTableName = TableNameGiver.getPrivilegeTableName();
-        String tableFQN = tableSchema != null ? String.format("%s.%s", tableSchema.getName(), privilegeTableName) : privilegeTableName;
+        String tableFQN = (tableSchema != null) ? String.format("%s.%s", tableSchema.getName(), privilegeTableName) : privilegeTableName;
         String query = String.format("SELECT * FROM %s;", tableFQN);
-        System.out.println(query);
+
         ResultWrapper resultWrapper = queryExecutor.executeQuery(query);
         ResultSet resultSet = resultWrapper.getResultSet();
 
@@ -78,6 +84,50 @@ public class PostgresDialectSelection {
 
         }
         return privilegeModelList;
+    }
+
+
+    public List<UserModel> selectUsers() throws SQLException{
+
+        List<UserModel> userModelList = new ArrayList<>();
+        String userTableName = TableNameGiver.getUserTableName();
+        String tableFQN = (tableSchema != null) ? String.format("%s.%s", tableSchema.getName(), userTableName) : userTableName;
+        String query = String.format("SELECT id FROM %s;", tableFQN);
+
+        ResultWrapper resultWrapper = queryExecutor.executeQuery(query);
+        ResultSet resultSet = resultWrapper.getResultSet();
+
+        while (resultSet.next()) {
+            String id = resultSet.getString("id");
+            UserModel userModel = selectUser(id);
+            userModelList.add(userModel);
+        }
+        return userModelList;
+    }
+
+
+    public UserModel selectUser(String userId) throws SQLException{
+
+        String userTableName = TableNameGiver.getUserTableName();
+        String tableFQN = (tableSchema != null) ? String.format("%s.%s", tableSchema.getName(), userTableName) : userTableName;
+        String query = String.format("SELECT * FROM %s WHERE id = '%s';", tableFQN, userId);
+
+        ResultWrapper resultWrapper = queryExecutor.executeQuery(query);
+        ResultSet resultSet = resultWrapper.getResultSet();
+
+        List<EntityPropModel> entityPropModelList = new ArrayList<>();
+
+        while (resultSet.next()) {
+
+            for(EntityPropModel entityPropModel : entityPropModelList){
+                // maybe add a type property to the entity prop model to avoid type errors
+                String value = resultSet.getString(entityPropModel.getName());
+                entityPropModel.setValue(value);
+            }
+        }
+        UserModel userModel = new UserModel();
+        userModel.setUserPropModelList(entityPropModelList);
+        return userModel;
     }
 
 

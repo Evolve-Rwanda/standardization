@@ -20,6 +20,7 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addViewController("/create_user_role").setViewName("role");
         registry.addViewController("/create_user_privilege").setViewName("privilege");
         registry.addViewController("/role_privilege_mapping").setViewName("role_privilege");
+        registry.addViewController("/user_role_mapping").setViewName("user_role");
     }
 
 }

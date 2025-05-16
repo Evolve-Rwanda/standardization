@@ -10,6 +10,8 @@ public class TableNameGiver {
     private static final String involvedEntityTableName = "involved_entity";
     private static final String roleTableName = "role";
     private static final String privilegeTableName = "privilege";
+    /* @DerivedTable */
+    private static final String rolePrivilegeMapTableName = "role_privilege_map";
     private static final String contactTableName = "contact";
     private static final String contactTypeTableName = "contact_type";
     private static final String authenticationHistoryTableName = "authentication_history";
@@ -33,6 +35,10 @@ public class TableNameGiver {
 
     public static String getPrivilegeTableName(){
         return privilegeTableName;
+    }
+
+    public static String getRolePrivilegeMapTableName(){
+        return rolePrivilegeMapTableName;
     }
 
     public static String getContactTableName(){

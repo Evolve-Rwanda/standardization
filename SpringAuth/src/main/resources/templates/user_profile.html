@@ -5,36 +5,215 @@
 	<link rel="stylesheet"  th:href="@{css/forms.css}" />
 </head>
 <body style="margin: 0; padding: 0;">
-<form th:action="@{/create_user_profile}" th:object="${userPropModelList}" method="post">
+	<form th:action="@{/create_user_profile}" method="post" th:object="${createUserForm}">
 
 	<table cellspacing="0" cellpadding="0" border="0" width="40%" align="center">
-		<th:block th:each="userProp: ${userPropModelList1}">
-			<tr>
-				<td>
-					<label class="field_label" th:text="${userProp.getName().replaceAll('_', ' ')}"></label>
-				</td>
-			</tr>
-			<tr>
-				<td align="center">
-					<label>
-						<input type="hidden" th:field="*{userProp.name}" th:value="${userProp.name}" />
-						<input type="text" th:field="*{userProp.name}" th:value="${userProp.name}" />
-					</label>
-				</td>
-			</tr>
-		</th:block>
+		<tr>
+			<td><label class="field_label">First name</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="first_name" />
+					<input type="text" class="property_value" name="first_name" />
+				</label>
+			</td>
+		</tr>
 		<tr>
 			<td><br /></td>
 		</tr>
 		<tr>
+			<td><label class="field_label">Last name</label>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">
-				<input type="submit" value="Submit" /><br />
+				<label>
+					<input type="hidden" class="property_name" value="last_name" />
+					<input type="text" class="property_value" name="last_name" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Other names</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="other_names" />
+					<input type="text" class="property_value" name="other_names" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Gender</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+					<label>
+						<input type="radio" name="gender" /> Male
+					</label>
+					<label>
+						<input type="radio" name="gender" /> Female
+					</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Date of birth</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="date_of_birth" />
+					<input type="text" class="property_value" name="date_of_birth" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Id type</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<select name ="id_type">
+						<option selected disabled>select</option>
+						<option value="National ID">National ID</option>
+						<option value="Passport">Passport</option>
+					</select>
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Id number</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="id_number" />
+					<input type="text" class="property_value" name="id_number" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Current phone number</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="current_phone_number" />
+					<input type="text" class="property_value" name="current_phone_number" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Current photo</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="current_photo" />
+					<input type="text" class="property_value" name="current_photo" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Current email</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="current_email" />
+					<input type="text" class="property_value" name="current_email" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label">Current password</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="current_password" />
+					<input type="text" class="property_value" name="current_password" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td><label class="field_label"> </label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+					<input type="button" class="add_button" id="submit_user_profile_button" value="Submit" /><br />
 			</td>
 		</tr>
 		<tr>
 			<td><br /></td>
 		</tr>
 	</table>
-</form>
+	</form>
+	<script type="application/javascript">
+		var submitButton = document.getElementById('submit_user_profile_button');
+		submitButton.addEventListener("click", () => {
+			var propNameElements = document.getElementsByClassName("property_name");
+			var propValueElements = document.getElementsByClassName("property_value");
+			var submission = [];
+			for(let i=0; i<propNameElements.length; i++){
+				var propName = propNameElements[i].value;
+				var propValue = propValueElements[i].value;
+				submission[i] = {
+					property_name: propName,
+					property_value: propValue
+				};
+			}
+			fetch('/create_user_profile',
+				{
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify(submission)
+				}
+			);
+		});
+	</script>
 </body>
 </html>

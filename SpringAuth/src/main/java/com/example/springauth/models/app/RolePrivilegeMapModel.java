@@ -1,7 +1,7 @@
 package com.example.springauth.models.app;
 
 
-public class RolePrivilegeMap {
+public class RolePrivilegeMapModel {
 
 
     private static int ID_COUNT = 0;
@@ -10,10 +10,10 @@ public class RolePrivilegeMap {
     private PrivilegeModel privilege;
     private String createdAt;
 
-    public RolePrivilegeMap() {
+    public RolePrivilegeMapModel() {
     }
 
-    public RolePrivilegeMap(RoleModel role, PrivilegeModel privilege, String createdAt) {
+    public RolePrivilegeMapModel(RoleModel role, PrivilegeModel privilege, String createdAt) {
         this.id = ID_COUNT;
         this.role = role;
         this.privilege = privilege;
@@ -43,5 +43,13 @@ public class RolePrivilegeMap {
 
     public void setPrivilege(PrivilegeModel privilege) {
         this.privilege = privilege;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 }

@@ -124,6 +124,7 @@ public class HTMLFormCreator {
 
     private String createHTMLPage(String htmlMarkup){
         StringBuilder pageBuilder = new StringBuilder();
+        String submissionEventJavascript = this.getFormSubmissionJavascript();
         return pageBuilder.append("<!DOCTYPE html>")
                    .append("\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:th=\"https://www.thymeleaf.org\">")
                    .append("\n<head>")
@@ -132,9 +133,38 @@ public class HTMLFormCreator {
                    .append("\n</head>")
                    .append("\n<body style=\"margin: 0; padding: 0;\">")
                    .append(htmlMarkup)
+                   .append(submissionEventJavascript)
                    .append("\n</body>")
                    .append("\n</html>")
                    .toString();
+    }
+
+    private String getFormSubmissionJavascript() {
+        StringBuilder javascriptBuilder = new StringBuilder();
+        javascriptBuilder.append("\n\t<script type=\"application/javascript\">")
+                .append("\n\t\tvar submitButton = document.getElementById('").append("submit_user_profile_button").append("');")
+                .append("\n\t\tsubmitButton.addEventListener(\"click\", () => {")
+                .append("\n\t\t\tvar propNameElements = document.getElementsByClassName(\"property_name\");")
+                .append("\n\t\t\tvar propValueElements = document.getElementsByClassName(\"property_value\");")
+                .append("\n\t\t\tvar submission = [];")
+                .append("\n\t\t\tfor(let i=0; i<propNameElements.length; i++){")
+                .append("\n\t\t\t\tvar propName = propNameElements[i].value;")
+                .append("\n\t\t\t\tvar propValue = propValueElements[i].value;")
+                .append("\n\t\t\t\tsubmission[i] = {")
+                .append("\n\t\t\t\t\tproperty_name: propName,")
+                .append("\n\t\t\t\t\tproperty_value: propValue")
+                .append("\n\t\t\t\t};")
+                .append("\n\t\t\t}")
+                .append("\n\t\t\tfetch('/").append(this.formActionAttribValue).append("',")
+                .append("\n\t\t\t\t{")
+                .append("\n\t\t\t\t\tmethod: 'POST',")
+                .append("\n\t\t\t\t\theaders: {'Content-Type': 'application/json'},")
+                .append("\n\t\t\t\t\tbody: JSON.stringify(submission)")
+                .append("\n\t\t\t\t}")
+                .append("\n\t\t\t);")
+                .append("\n\t\t});")
+                .append("\n\t</script>");
+        return javascriptBuilder.toString();
     }
 
     private String createFormTable(String tableRows) {
@@ -161,7 +191,7 @@ public class HTMLFormCreator {
     }
 
     private String getFormSubmissionButton(){
-        return "\n\t\t\t\t\t<input type=\"submit\" value=\"Submit\" /><br />";
+        return "\n\t\t\t\t\t<input type=\"button\" class=\"add_button\" id=\"submit_user_profile_button\" value=\"Submit\" /><br />";
     }
 
     private String createInputTag(ColumnMarkupElementModel cmem) {
@@ -169,8 +199,8 @@ public class HTMLFormCreator {
         String[] columnFQNParts = cmem.getColumnId().split("\\.");
         String type = cmem.getTypeAttributeValue();
         String name = columnFQNParts[columnFQNParts.length - 1];
-        String thymleafField = String.format("name=\"%s\" value=\"%s\"", "propertyName", name);
-        String thymleafValue = String.format("name=\"%s\"", "propertyValue");
+        String thymleafField = String.format("class=\"%s\" value=\"%s\"", "property_name", name);
+        String thymleafValue = String.format("class=\"%s\" name=\"%s\"", "property_value", name);
         String propertyNameTag = String.format("\n\t\t\t\t\t<input type=\"%s\" %s />", "hidden", thymleafField);
         String propertyValueTag = String.format("\n\t\t\t\t\t<input type=\"%s\" %s />", type, thymleafValue);
         tagBuilder.append("\n\t\t\t\t<label>")

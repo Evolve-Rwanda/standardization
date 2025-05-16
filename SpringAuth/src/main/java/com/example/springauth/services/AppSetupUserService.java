@@ -39,6 +39,7 @@ public class AppSetupUserService implements UserDetailsService {
                        .roles("ADMIN")
                        .build();
         }else{
+            /*
             System.out.println("Couldn't find the user - " + appSetupUser + " - " + appSetupUser.toString());
             Optional<AppUser> appUser = appUserRepository.findByUsername(username);
             if(appUser.isPresent()){
@@ -52,6 +53,7 @@ public class AppSetupUserService implements UserDetailsService {
                         .build();
             }
             System.out.println("Couldn't find the user - " + appUser + " - " + appUser.toString());
+             */
             throw new UsernameNotFoundException(username);
         }
     }
