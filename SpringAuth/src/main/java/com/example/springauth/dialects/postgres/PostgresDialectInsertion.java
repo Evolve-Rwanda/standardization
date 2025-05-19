@@ -114,12 +114,12 @@ public class PostgresDialectInsertion {
         StringBuilder targetColumnBuilder = new StringBuilder();
         StringBuilder columnValueBuilder = new StringBuilder();
         List<EntityPropModel> entityPropModelList = userModel.getUserPropModelList();
-        int i=0;
+        int i=1;
         int size = entityPropModelList.size();
 
         for(EntityPropModel entityPropModel: entityPropModelList){
             boolean isNumeric = this.isFieldNumeric(entityPropModel.getName());
-            if((i+1) < size){
+            if(i < size){
                 targetColumnBuilder
                         .append(entityPropModel.getName())
                         .append(",");
@@ -149,6 +149,7 @@ public class PostgresDialectInsertion {
                             .append(entityPropModel.getValue());
                 }
             }
+            i++;
         }
         return String.format(
                 "INSERT INTO \"%s\"(%s) VALUES(%s);",

@@ -4,7 +4,7 @@ import com.example.springauth.models.app.EntityPropModel;
 import com.example.springauth.models.utility.ColumnMarkupElementModel;
 import com.example.springauth.models.utility.ColumnValueOptionModel;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -27,20 +27,18 @@ public class HTMLFormCreator {
 
     public String create() {
 
-        List<String> inputTypeAttribValueList = new ArrayList<>();
-        inputTypeAttribValueList.add("text");
-        inputTypeAttribValueList.add("password");
-        inputTypeAttribValueList.add("checkbox");
-        inputTypeAttribValueList.add("number");
-        inputTypeAttribValueList.add("date");
-        inputTypeAttribValueList.add("datetime");
-        inputTypeAttribValueList.add("file");
+        List<String> inputTypeAttribValueList = Arrays.asList(
+                "text", "password", "checkbox", "number", "email", "date", "datetime", "file"
+        );
 
         StringBuilder formBuilder = new StringBuilder();
 
         // create a form opening tag
         String thObject = "${createUserForm}";
-        String formOpeningTag = String.format("\n\t<form th:action=\"@{/%s}\" method=\"post\" th:object=\"%s\">\n", this.formActionAttribValue, thObject);
+        String formOpeningTag = String.format(
+                "\n\t<form th:action=\"@{/%s}\" method=\"post\" th:object=\"%s\" enctype=\"multipart/form-data\">\n",
+                this.formActionAttribValue, thObject
+        );
         formBuilder.append(formOpeningTag);
 
         StringBuilder tableBuilder = new StringBuilder();
@@ -51,13 +49,11 @@ public class HTMLFormCreator {
             String propertyValue = entityPropModel.getValue();
             ColumnMarkupElementModel cmem = entityPropModel.getColumnMarkupElementModel();
 
-            String columnId = cmem.getColumnId();
             String tagName = cmem.getTagName();
             String typeAttributeValue = cmem.getTypeAttributeValue();
             boolean isMutuallyExclusive = cmem.isMutuallyExclusive();
 
             List<ColumnValueOptionModel> columnValueOptionModelList = entityPropModel.getColumnValueOptionModels();
-            String tagLabel =getTagLabel(columnId);
 
             if (isMutuallyExclusive &&
                     (tagName.equalsIgnoreCase("input")
@@ -66,23 +62,23 @@ public class HTMLFormCreator {
 
                 if (typeAttributeValue.equalsIgnoreCase("radio")) {
                     // create a radio button group with radio buttons using optional values
-                    String radioButtonsElementString = createRadioButtons(columnValueOptionModelList);
-                    String tableRows = createLabelInputElementRowPair(tagLabel, radioButtonsElementString);
+                    String radioButtonsElementString = createRadioButtons(cmem, columnValueOptionModelList);
+                    String tableRows = createLabelInputElementRowPair(cmem, radioButtonsElementString);
                     tableBuilder.append(tableRows);
                     continue;
                 }
                 if (typeAttributeValue.equalsIgnoreCase("checkbox")) {
                     // create a single checkbox, cannot have more than a single option
                     String checkboxElementString = createACheckbox(columnValueOptionModelList.getFirst());
-                    String tableRows = createLabelInputElementRowPair(tagLabel, checkboxElementString);
+                    String tableRows = createLabelInputElementRowPair(cmem, checkboxElementString);
                     tableBuilder.append(tableRows);
                     continue;
                 }
                 // select tag has no "type" attrib, so we instead rely on the tagName to make this check
                 if (tagName.equalsIgnoreCase("select")) {
                     // create a single select dropdown
-                    String selectElementString = createSelectionDropdown(columnValueOptionModelList);
-                    String tableRows = createLabelInputElementRowPair(tagLabel, selectElementString);
+                    String selectElementString = createSelectionDropdown(cmem, columnValueOptionModelList);
+                    String tableRows = createLabelInputElementRowPair(cmem, selectElementString);
                     tableBuilder.append(tableRows);
                     continue;
                 }
@@ -92,28 +88,34 @@ public class HTMLFormCreator {
                 if (typeAttributeValue.equalsIgnoreCase("checkbox")) {
                     // can create multiple checkboxes
                     String checkboxElementString = createACheckbox(columnValueOptionModelList.getFirst());
-                    String tableRows = createLabelInputElementRowPair(tagLabel, checkboxElementString);
+                    String tableRows = createLabelInputElementRowPair(cmem, checkboxElementString);
                     tableBuilder.append(tableRows);
                     continue;
                 }
                 if (typeAttributeValue.equalsIgnoreCase("select")) {
                     // create a single select dropdown, add multiple selection attrib
-                    String selectElementString = createSelectionDropdown(columnValueOptionModelList);
-                    String tableRows = createLabelInputElementRowPair(tagLabel, selectElementString);
+                    String selectElementString = createSelectionDropdown(cmem, columnValueOptionModelList);
+                    String tableRows = createLabelInputElementRowPair(cmem, selectElementString);
                     tableBuilder.append(tableRows);
                     continue;
                 }
                 if (inputTypeAttribValueList.contains(typeAttributeValue.toLowerCase())) {
+                    if (typeAttributeValue.equalsIgnoreCase("file")) {
+                        String inputElementString = this.createFileInputTag(cmem);
+                        String tableRows = this.createLabelInputElementRowPair(cmem, inputElementString);
+                        tableBuilder.append(tableRows);
+                        continue;
+                    }
                     // create a single text, number, date, datetime, file input tag
-                    String inputElementString = createInputTag(cmem);
-                    String tableRows = createLabelInputElementRowPair(tagLabel, inputElementString);
+                    String inputElementString = this.createInputTag(cmem);
+                    String tableRows = this.createLabelInputElementRowPair(cmem, inputElementString);
                     tableBuilder.append(tableRows);
                     continue;
                 }
             }
         }
         // add a form submission tag
-        String tableRows = createLabelInputElementRowPair(" ", getFormSubmissionButton());
+        String tableRows = createLabelInputElementRowPair(null, getFormSubmissionButton());
         tableBuilder.append(tableRows);
         formBuilder.append(this.createFormTable(tableBuilder.toString()));
         // create a form closing tag
@@ -148,8 +150,26 @@ public class HTMLFormCreator {
                 .append("\n\t\t\tvar propValueElements = document.getElementsByClassName(\"property_value\");")
                 .append("\n\t\t\tvar submission = [];")
                 .append("\n\t\t\tfor(let i=0; i<propNameElements.length; i++){")
+                .append("\n\t\t\t\tconst typeAttributeValue = propValueElements[i].getAttribute('type');")
+                .append("\n\t\t\t\tconst nameAttribute = propValueElements[i].getAttribute('name');")
                 .append("\n\t\t\t\tvar propName = propNameElements[i].value;")
-                .append("\n\t\t\t\tvar propValue = propValueElements[i].value;")
+                .append("\n\t\t\t\tconsole.log(propName + '_id');")
+                .append("\n\t\t\t\tvar elementValue = typeAttributeValue !== \"radio\" ? document.getElementById(propName + '_id').value : \"\";")
+                .append("\n\t\t\t\tvar propValue = elementValue;")
+                .append("\n\t\t\t\tconsole.log(propValue);")
+                .append("\n\t\t\t\tconst tagName = propValueElements[i].nodeName;" +
+                        "\n\t\t\t\tif(typeAttributeValue === \"radio\"){" +
+                        "\n\t\t\t\t\tconsole.log(nameAttribute);" +
+                        "\n\t\t\t\t\tconst radioButtons = document.getElementsByName(nameAttribute);" +
+                        "\n\t\t\t\t\tlet checkedValue;" +
+                        "\n\t\t\t\t\tfor (let j = 0; j < radioButtons.length; j++) {" +
+                        "\n\t\t\t\t\t\tif (radioButtons[j].checked) {" +
+                        "\n\t\t\t\t\t\t\tcheckedValue = radioButtons[j].value;" +
+                        "\n\t\t\t\t\t\t\tpropValue = checkedValue;" +
+                        "\n\t\t\t\t\t\t\tbreak;" +
+                        "\n\t\t\t\t\t\t}" +
+                        "\n\t\t\t\t}" +
+                        "\n\t\t\t\t}")
                 .append("\n\t\t\t\tsubmission[i] = {")
                 .append("\n\t\t\t\t\tproperty_name: propName,")
                 .append("\n\t\t\t\t\tproperty_value: propValue")
@@ -175,14 +195,19 @@ public class HTMLFormCreator {
         return tableBuilder.toString();
     }
 
-    private String createLabelInputElementRowPair(String label, String InputElement) {
+    private String createLabelInputElementRowPair(ColumnMarkupElementModel cmem, String inputElement) {
+        String columnId = (cmem != null) ? cmem.getColumnId() : "";
+        String label = (cmem != null) ? this.getTagLabel(columnId) : "";
+        String id = (cmem != null) ? this.generateLabelForAttribValue(this.extractColumnName(cmem)) : "";
         StringBuilder rowBuilder = new StringBuilder();
-        String tagWrappedLabel = "<label class=\"field_label\">" + label + "</label>";
+        String tagWrappedLabel = String.format(
+                "\n\t\t\t\t<label class=\"field_label\" for=\"%s\" style=\"cursor: pointer;\">" + label + "</label>",
+                id);
         rowBuilder.append("\n\t\t<tr>")
                   .append("\n\t\t\t<td>").append(tagWrappedLabel).append("\n\t\t\t</td>")
                   .append("\n\t\t</tr>")
                   .append("\n\t\t<tr>")
-                  .append("\n\t\t\t<td align=\"center\">").append(InputElement).append("\n\t\t\t</td>")
+                  .append("\n\t\t\t<td align=\"center\">").append(inputElement).append("\n\t\t\t</td>")
                   .append("\n\t\t</tr>")
                   .append("\n\t\t<tr>")
                   .append("\n\t\t\t<td><br /></td>")
@@ -195,14 +220,18 @@ public class HTMLFormCreator {
     }
 
     private String createInputTag(ColumnMarkupElementModel cmem) {
-        StringBuilder tagBuilder = new StringBuilder();
-        String[] columnFQNParts = cmem.getColumnId().split("\\.");
         String type = cmem.getTypeAttributeValue();
-        String name = columnFQNParts[columnFQNParts.length - 1];
+        String name = this.extractColumnName(cmem);
+        String id = this.generateLabelForAttribValue(name);
+
+        StringBuilder tagBuilder = new StringBuilder();
+
         String thymleafField = String.format("class=\"%s\" value=\"%s\"", "property_name", name);
         String thymleafValue = String.format("class=\"%s\" name=\"%s\"", "property_value", name);
         String propertyNameTag = String.format("\n\t\t\t\t\t<input type=\"%s\" %s />", "hidden", thymleafField);
-        String propertyValueTag = String.format("\n\t\t\t\t\t<input type=\"%s\" %s />", type, thymleafValue);
+        String propertyValueTag = String.format(
+                "\n\t\t\t\t\t<input type=\"%s\" %s id=\"%s\" value=\"\" />",
+                type, thymleafValue, id);
         tagBuilder.append("\n\t\t\t\t<label>")
                   .append(propertyNameTag)
                   .append(propertyValueTag)
@@ -210,14 +239,54 @@ public class HTMLFormCreator {
         return tagBuilder.toString();
     }
 
-    private String createRadioButtons(List<ColumnValueOptionModel> columnValueOptionModelList) {
+    private String createFileInputTag(ColumnMarkupElementModel cmem) {
+
+        String type = cmem.getTypeAttributeValue();
+        String name = this.extractColumnName(cmem);
+        String id = this.generateLabelForAttribValue(name);
+
+        StringBuilder tagBuilder = new StringBuilder();
+        String thymleafField = String.format("class=\"%s\" value=\"%s\"", "property_name", name);
+        String thymleafValue = String.format("class=\"%s\" name=\"%s\"", "property_value", name);
+        String propertyNameTag = String.format(
+                "\n\t\t\t\t\t<input type=\"%s\" %s />", "hidden",
+                thymleafField
+        );
+        String propertyValueTag = String.format(
+                "\n\t\t\t\t\t<input type=\"%s\" %s id=\"%s\" style=\"display: none;\" />",
+                type, thymleafValue, id);
+        tagBuilder.append("\n\t\t\t\t<label>")
+                .append(propertyNameTag)
+                .append(propertyValueTag)
+                .append("\n\t\t\t\t</label>");
+        return tagBuilder.toString();
+    }
+
+    private String createRadioButtons(
+            ColumnMarkupElementModel cmem,
+            List<ColumnValueOptionModel> columnValueOptionModelList
+    ) {
+        String type = cmem.getTypeAttributeValue();
+        String name = this.extractColumnName(cmem);
+        String id = this.generateLabelForAttribValue(name);
+
+        String thymleafField = String.format("class=\"%s\" value=\"%s\"", "property_name", name);
+
+        String propertyNameTag = String.format(
+                "\n\t\t\t\t\t<input type=\"%s\" %s />", "hidden",
+                thymleafField
+        );
+
         StringBuilder radioBuilder = new StringBuilder();
+        radioBuilder.append(propertyNameTag);
         for (ColumnValueOptionModel columnValueOptionModel : columnValueOptionModelList) {
             String label = columnValueOptionModel.getOptionalValue();
-            String[] columnFQN = columnValueOptionModel.getColumnId().split("\\.");
-            String columnName = columnFQN[columnFQN.length - 1];
-            String nameAttribAndValue = String.format("name=\"%s\"", columnName);
-            String inputTag = String.format("\n\t\t\t\t\t\t<input type=\"radio\" %s /> ", nameAttribAndValue);
+            String thymleafValue = String.format(
+                    "class=\"%s\" name=\"%s\" value=\"%s\"",
+                    "property_value", name, label);
+            String inputTag = String.format(
+                    "\n\t\t\t\t\t\t<input type=\"radio\" %s /> ",
+                    thymleafValue);
             radioBuilder.append("\n\t\t\t\t\t<label>")
                         .append(inputTag)
                         .append(label)
@@ -226,17 +295,34 @@ public class HTMLFormCreator {
         return radioBuilder.toString();
     }
 
-    private String createSelectionDropdown(List<ColumnValueOptionModel> columnValueOptionModelList) {
+    private String createSelectionDropdown(
+            ColumnMarkupElementModel cmem,
+            List<ColumnValueOptionModel> columnValueOptionModelList
+    ) {
+
+        String type = cmem.getTypeAttributeValue();
+        String name = this.extractColumnName(cmem);
+        String id = this.generateLabelForAttribValue(name);
+
+        String thymleafField = String.format("class=\"%s\" value=\"%s\"", "property_name", name);
+        String propertyNameTag = String.format(
+                "\n\t\t\t\t<input type=\"%s\" %s />", "hidden",
+                thymleafField
+        );
+        String thymleafValue = String.format("class=\"%s\" name=\"%s\" id=\"%s\"", "property_value", name, id);
+
         StringBuilder selectionBuilder = new StringBuilder();
-        String[] columnFQN = columnValueOptionModelList.getFirst().getColumnId().split("\\.");
-        String columnName = columnFQN[columnFQN.length - 1];
+        selectionBuilder.append(propertyNameTag);
         selectionBuilder.append("\n\t\t\t\t<label>");
-        String selectTag = String.format("\n\t\t\t\t\t<select name =\"%s\">", columnName);
+        String selectTag = String.format("\n\t\t\t\t\t<select %s>", thymleafValue);
         selectionBuilder.append(selectTag)
                         .append("\n\t\t\t\t\t\t<option selected disabled>select</option>");
         for (ColumnValueOptionModel columnValueOptionModel : columnValueOptionModelList) {
             String optionValue = columnValueOptionModel.getOptionalValue();
-            String optionTag = String.format("\n\t\t\t\t\t\t<option value=\"%s\">%s</option>", optionValue, optionValue);
+            String optionTag = String.format(
+                    "\n\t\t\t\t\t\t<option value=\"%s\">%s</option>",
+                    optionValue, optionValue
+            );
             selectionBuilder.append(optionTag);
         }
         selectionBuilder.append("\n\t\t\t\t\t</select>")
@@ -251,7 +337,9 @@ public class HTMLFormCreator {
         String optionString = columnValueOptionModel.getOptionalValue();
 
         String nameAttribAndValue = String.format("name=\"%s\"", optionString);
-        String checkboxTag = String.format("\n\t\t\t\t\t<input type=\"checkbox\" %s />", nameAttribAndValue);
+        String checkboxTag = String.format(
+                "\n\t\t\t\t\t<input type=\"checkbox\" %s />",
+                nameAttribAndValue);
         checkboxBuilder.append("\n\t\t\t\t<label>")
                        .append(checkboxTag)
                        .append(label)
@@ -264,6 +352,15 @@ public class HTMLFormCreator {
         int length = tagLabelParts.length;
         String intermediateTagLabel = tagLabelParts[length - 1].replaceAll("_", " ");
         return intermediateTagLabel.substring(0, 1).toUpperCase() + intermediateTagLabel.substring(1);
+    }
+
+    private String extractColumnName(ColumnMarkupElementModel cmem) {
+        String[] columnFQNParts = cmem.getColumnId().split("\\.");
+        return columnFQNParts[columnFQNParts.length - 1];
+    }
+
+    private String generateLabelForAttribValue(String columnName){
+        return columnName + "_id";
     }
 
 }

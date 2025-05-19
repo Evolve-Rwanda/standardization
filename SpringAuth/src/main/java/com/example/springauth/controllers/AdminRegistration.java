@@ -1,8 +1,8 @@
 package com.example.springauth.controllers;
 
 import com.example.springauth.models.app.AdminModel;
-import com.example.springauth.models.jpa.AppSetupUser;
-import com.example.springauth.services.AppSetupUserService;
+import com.example.springauth.models.jpa.AppUser;
+import com.example.springauth.services.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -20,7 +20,7 @@ public class AdminRegistration {
     PasswordEncoder passwordEncoder;
 
     @Autowired
-    AppSetupUserService appSetupUserService;
+    AppUserService appUserService;
 
     @GetMapping("/admin_registration")
     public String adminRegistration(Model model) {
@@ -29,7 +29,11 @@ public class AdminRegistration {
     }
 
     @PostMapping("/admin_registration")
-    public String adminRegistration(@ModelAttribute("adminRegistrationForm")AdminModel adminModel, Model model) {
+    public String adminRegistration(
+            @ModelAttribute("adminRegistrationForm")
+            AdminModel adminModel,
+            Model model
+    ) {
 
         String firstName = adminModel.getFirstName();
         String lastName = adminModel.getLastName();
@@ -38,19 +42,44 @@ public class AdminRegistration {
         String username = adminModel.getUsername();
         String formPassword = adminModel.getPassword();
         String confirmFormPassword = adminModel.getRepeatPassword();
+        String role = "SUPER_ADMIN";
         String password = passwordEncoder.encode(formPassword);
 
         boolean passwordsMatch = formPassword.equals(confirmFormPassword);
 
         if (passwordsMatch) {
-            AppSetupUser appSetupUser = new AppSetupUser(firstName, lastName, otherNames, phoneNumber, username, password);
-            appSetupUserService.createUser(appSetupUser);
-            model.addAttribute("successfulRegistration", "Admin registration successful");
+
+            AppUser appUser = new AppUser(
+                    firstName,
+                    lastName,
+                    otherNames,
+                    phoneNumber,
+                    username,
+                    password,
+                    role
+            );
+
+            AppUser returnedUser = appUserService.createUser(appUser);
+
+            model.addAttribute(
+                    "successfulRegistration",
+                    String.format(
+                            "successfully created admin user with email %s",
+                            returnedUser.getUsername()
+                    )
+            );
+
         }else {
-            model.addAttribute("unsuccessfulRegistration", "Provided passwords do not match");
+            model.addAttribute(
+                    "unsuccessfulRegistration",
+                    "Provided passwords do not match"
+            );
         }
 
-        model.addAttribute("adminRegistrationForm", new AdminModel());
+        model.addAttribute(
+                "adminRegistrationForm",
+                new AdminModel()
+        );
 
         return "admin_registration";
     }

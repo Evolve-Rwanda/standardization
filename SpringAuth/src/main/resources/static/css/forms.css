@@ -24,7 +24,13 @@ input[type="submit"]:hover{
     background: #998833;
 }
 
-input[type="text"], input[type="number"]{
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="date"],
+input[type="datetime"],
+input[type="file"],
+input[type="password"]{
     width: 80%;
     height: 30px;
     font-size: medium;

@@ -55,13 +55,13 @@
             var isChecked = caller.checked;
 
             for(let i=0; i<universalElements.length; i++){
-                if (isChecked == true){
+                if (isChecked === true){
                     universalElements[i].style.display = "none";
                 }else{
                     universalElements[i].style.display = "table-row";
                 }
             }
-            if (isChecked == true) {
+            if (isChecked === true) {
                 for (let i=0; i<selectedElements.length; i++) {
                     selectedElements[i].style.display = "table-row";
                 }
@@ -1157,10 +1157,12 @@
                                                             <option disabled>Select non-mutually exclusive element</option>
                                                             <option value="input-checkbox" title="a checkbox">input-checkbox</option>
                                                             <option value="input-text" title="a textbox">input-text</option>
-                                                            <option value="input-number" title="a file upload">input-number</option>
-                                                            <option value="input-text" title="a file upload">input-file</option>
-                                                            <option value="input-date" title="a file upload">input-date</option>
-                                                            <option value="input-datetime" title="a file upload">input-datetime</option>
+                                                            <option value="input-number" title="only accept numbers">input-number</option>
+                                                            <option value="input-email" title="only accept email addresses">input-email</option>
+                                                            <option value="input-password" title="password field">input-password</option>
+                                                            <option value="input-file" title="accept text input">input-file</option>
+                                                            <option value="input-date" title="only accept date inputs">input-date</option>
+                                                            <option value="input-datetime" title="only accept dates and time">input-datetime</option>
                                                             <option value="select" title="a dropdown-selection">select</option>
                                                             <option value="textarea" title="a textarea">textarea</option>
                                                             <option value="datalist" title="a datalist">datalist</option>
@@ -1347,6 +1349,7 @@
 
                 </div>
             </div>
+
             <div class="action_pane" id="app_initialization" style="display: none; width: 100%; padding: 0; margin: 0;">
                 <h2 style="text-align: center;">Application Initialization</h2>
                 <div style="width: 100%; overflow-x: auto; font-size: small;">
@@ -1376,8 +1379,10 @@
                     </table>
                 </div>
             </div>
+
         </td>
 
+        <!--Log out right pane in form of a table column -->
         <td align="center" valign="top" id="right_pane">
             <table style="width: 100%; border: 0;">
                 <tr>

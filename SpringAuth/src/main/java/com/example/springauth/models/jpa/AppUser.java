@@ -1,39 +1,78 @@
 package com.example.springauth.models.jpa;
 
-
-import com.example.springauth.schemas.SchemaNameGiver;
-import com.example.springauth.tables.TableNameGiver;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 
 
 @Entity
-@Table(name=TableNameGiver.userTableName, schema=SchemaNameGiver.userManagement)
 public class AppUser {
 
-
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
+    private String firstName;
+    private String lastName;
+    private String otherNames;
+    private String phoneNumber;
     private String username;
     private String password;
+    private String role;
 
 
     public AppUser() {
+
     }
 
-    public AppUser(String id, String username, String password) {
-        this.id = id;
+    public AppUser(String firstName, String lastName, String otherNames, String phoneNumber, String username, String password, String role) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.otherNames = otherNames;
+        this.phoneNumber = phoneNumber;
         this.username = username;
         this.password = password;
+        this.role = role;
     }
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getOtherNames() {
+        return otherNames;
+    }
+
+    public void setOtherNames(String otherNames) {
+        this.otherNames = otherNames;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public String getUsername() {
@@ -52,4 +91,11 @@ public class AppUser {
         this.password = password;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 }

@@ -5,18 +5,19 @@
 	<link rel="stylesheet"  th:href="@{css/forms.css}" />
 </head>
 <body style="margin: 0; padding: 0;">
-	<form th:action="@{/create_user_profile}" method="post" th:object="${createUserForm}">
+	<form th:action="@{/create_user_profile}" method="post" th:object="${createUserForm}" enctype="multipart/form-data">
 
 	<table cellspacing="0" cellpadding="0" border="0" width="40%" align="center">
 		<tr>
-			<td><label class="field_label">First name</label>
+			<td>
+				<label class="field_label" for="first_name_id" style="cursor: pointer;">First name</label>
 			</td>
 		</tr>
 		<tr>
 			<td align="center">
 				<label>
 					<input type="hidden" class="property_name" value="first_name" />
-					<input type="text" class="property_value" name="first_name" />
+					<input type="text" class="property_value" name="first_name" id="first_name_id" value="" />
 				</label>
 			</td>
 		</tr>
@@ -24,14 +25,15 @@
 			<td><br /></td>
 		</tr>
 		<tr>
-			<td><label class="field_label">Last name</label>
+			<td>
+				<label class="field_label" for="last_name_id" style="cursor: pointer;">Last name</label>
 			</td>
 		</tr>
 		<tr>
 			<td align="center">
 				<label>
 					<input type="hidden" class="property_name" value="last_name" />
-					<input type="text" class="property_value" name="last_name" />
+					<input type="text" class="property_value" name="last_name" id="last_name_id" value="" />
 				</label>
 			</td>
 		</tr>
@@ -39,14 +41,15 @@
 			<td><br /></td>
 		</tr>
 		<tr>
-			<td><label class="field_label">Other names</label>
+			<td>
+				<label class="field_label" for="other_names_id" style="cursor: pointer;">Other names</label>
 			</td>
 		</tr>
 		<tr>
 			<td align="center">
 				<label>
 					<input type="hidden" class="property_name" value="other_names" />
-					<input type="text" class="property_value" name="other_names" />
+					<input type="text" class="property_value" name="other_names" id="other_names_id" value="" />
 				</label>
 			</td>
 		</tr>
@@ -54,16 +57,18 @@
 			<td><br /></td>
 		</tr>
 		<tr>
-			<td><label class="field_label">Gender</label>
+			<td>
+				<label class="field_label" for="gender_id" style="cursor: pointer;">Gender</label>
 			</td>
 		</tr>
 		<tr>
 			<td align="center">
+					<input type="hidden" class="property_name" value="gender" />
 					<label>
-						<input type="radio" name="gender" /> Male
+						<input type="radio" class="property_value" name="gender" value="Male" /> Male
 					</label>
 					<label>
-						<input type="radio" name="gender" /> Female
+						<input type="radio" class="property_value" name="gender" value="Female" /> Female
 					</label>
 			</td>
 		</tr>
@@ -71,14 +76,15 @@
 			<td><br /></td>
 		</tr>
 		<tr>
-			<td><label class="field_label">Date of birth</label>
+			<td>
+				<label class="field_label" for="date_of_birth_id" style="cursor: pointer;">Date of birth</label>
 			</td>
 		</tr>
 		<tr>
 			<td align="center">
 				<label>
 					<input type="hidden" class="property_name" value="date_of_birth" />
-					<input type="text" class="property_value" name="date_of_birth" />
+					<input type="date" class="property_value" name="date_of_birth" id="date_of_birth_id" value="" />
 				</label>
 			</td>
 		</tr>
@@ -86,13 +92,15 @@
 			<td><br /></td>
 		</tr>
 		<tr>
-			<td><label class="field_label">Id type</label>
+			<td>
+				<label class="field_label" for="id_type_id" style="cursor: pointer;">Id type</label>
 			</td>
 		</tr>
 		<tr>
 			<td align="center">
+				<input type="hidden" class="property_name" value="id_type" />
 				<label>
-					<select name ="id_type">
+					<select class="property_value" name="id_type" id="id_type_id">
 						<option selected disabled>select</option>
 						<option value="National ID">National ID</option>
 						<option value="Passport">Passport</option>
@@ -104,14 +112,15 @@
 			<td><br /></td>
 		</tr>
 		<tr>
-			<td><label class="field_label">Id number</label>
+			<td>
+				<label class="field_label" for="id_number_id" style="cursor: pointer;">Id number</label>
 			</td>
 		</tr>
 		<tr>
 			<td align="center">
 				<label>
 					<input type="hidden" class="property_name" value="id_number" />
-					<input type="text" class="property_value" name="id_number" />
+					<input type="text" class="property_value" name="id_number" id="id_number_id" value="" />
 				</label>
 			</td>
 		</tr>
@@ -119,14 +128,15 @@
 			<td><br /></td>
 		</tr>
 		<tr>
-			<td><label class="field_label">Current phone number</label>
+			<td>
+				<label class="field_label" for="current_phone_number_id" style="cursor: pointer;">Current phone number</label>
 			</td>
 		</tr>
 		<tr>
 			<td align="center">
 				<label>
 					<input type="hidden" class="property_name" value="current_phone_number" />
-					<input type="text" class="property_value" name="current_phone_number" />
+					<input type="text" class="property_value" name="current_phone_number" id="current_phone_number_id" value="" />
 				</label>
 			</td>
 		</tr>
@@ -134,14 +144,15 @@
 			<td><br /></td>
 		</tr>
 		<tr>
-			<td><label class="field_label">Current photo</label>
+			<td>
+				<label class="field_label" for="current_photo_id" style="cursor: pointer;">Current photo</label>
 			</td>
 		</tr>
 		<tr>
 			<td align="center">
 				<label>
 					<input type="hidden" class="property_name" value="current_photo" />
-					<input type="text" class="property_value" name="current_photo" />
+					<input type="file" class="property_value" name="current_photo" id="current_photo_id" style="display: none;" />
 				</label>
 			</td>
 		</tr>
@@ -149,14 +160,15 @@
 			<td><br /></td>
 		</tr>
 		<tr>
-			<td><label class="field_label">Current email</label>
+			<td>
+				<label class="field_label" for="current_email_id" style="cursor: pointer;">Current email</label>
 			</td>
 		</tr>
 		<tr>
 			<td align="center">
 				<label>
 					<input type="hidden" class="property_name" value="current_email" />
-					<input type="text" class="property_value" name="current_email" />
+					<input type="email" class="property_value" name="current_email" id="current_email_id" value="" />
 				</label>
 			</td>
 		</tr>
@@ -164,14 +176,15 @@
 			<td><br /></td>
 		</tr>
 		<tr>
-			<td><label class="field_label">Current password</label>
+			<td>
+				<label class="field_label" for="current_password_id" style="cursor: pointer;">Current password</label>
 			</td>
 		</tr>
 		<tr>
 			<td align="center">
 				<label>
 					<input type="hidden" class="property_name" value="current_password" />
-					<input type="text" class="property_value" name="current_password" />
+					<input type="password" class="property_value" name="current_password" id="current_password_id" value="" />
 				</label>
 			</td>
 		</tr>
@@ -179,7 +192,8 @@
 			<td><br /></td>
 		</tr>
 		<tr>
-			<td><label class="field_label"> </label>
+			<td>
+				<label class="field_label" for="" style="cursor: pointer;"></label>
 			</td>
 		</tr>
 		<tr>
@@ -199,8 +213,26 @@
 			var propValueElements = document.getElementsByClassName("property_value");
 			var submission = [];
 			for(let i=0; i<propNameElements.length; i++){
+				const typeAttributeValue = propValueElements[i].getAttribute('type');
+				const nameAttribute = propValueElements[i].getAttribute('name');
 				var propName = propNameElements[i].value;
-				var propValue = propValueElements[i].value;
+				console.log(propName + '_id');
+				var elementValue = typeAttributeValue !== "radio" ? document.getElementById(propName + '_id').value : "";
+				var propValue = elementValue;
+				console.log(propValue);
+				const tagName = propValueElements[i].nodeName;
+				if(typeAttributeValue === "radio"){
+					console.log(nameAttribute);
+					const radioButtons = document.getElementsByName(nameAttribute);
+					let checkedValue;
+					for (let j = 0; j < radioButtons.length; j++) {
+						if (radioButtons[j].checked) {
+							checkedValue = radioButtons[j].value;
+							propValue = checkedValue;
+							break;
+						}
+				}
+				}
 				submission[i] = {
 					property_name: propName,
 					property_value: propValue

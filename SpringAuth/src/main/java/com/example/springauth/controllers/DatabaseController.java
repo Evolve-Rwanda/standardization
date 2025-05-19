@@ -14,7 +14,6 @@ import com.example.springauth.models.utility.*;
 import com.example.springauth.relationships.Relationship;
 import com.example.springauth.relationships.RelationshipResolver;
 import com.example.springauth.schemas.Schema;
-import com.example.springauth.schemas.SchemaGenerator;
 
 import com.example.springauth.schemas.SchemaNameGiver;
 import com.example.springauth.specialtables.*;
@@ -273,14 +272,14 @@ public class DatabaseController {
         return "home";
     }
 
-    @PostMapping(value ="/create_user_profile", consumes = "application/json")
+    @PostMapping(value ="/create_user_profile_2", consumes = "application/json")
     public String createUserProfile(
             @RequestBody
             String entityPropModelJSONArray,
             Model model
     ) {
         System.out.println("User property list displayed here");
-        System.out.print(entityPropModelJSONArray);
+        System.out.println(entityPropModelJSONArray);
         List<EntityPropModel> entityPropModelList = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
         UserModel userModel = new UserModel();
@@ -320,7 +319,7 @@ public class DatabaseController {
         return "user_profile";
     }
 
-    @GetMapping("/create_user_profile")
+    @GetMapping("/create_user_profile_2")
     public String createUserProfile(
             @ModelAttribute("updateUserProfileForm")
             UserModel userModel,

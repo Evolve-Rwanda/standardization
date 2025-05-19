@@ -1,7 +1,6 @@
 package com.example.springauth;
 
 import com.example.springauth.authentication.CustomAuthenticationSuccessHandler;
-import com.example.springauth.services.AppSetupUserService;
 import com.example.springauth.services.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,19 +24,11 @@ public class WebSecurityConfig {
 
 
     @Autowired
-    private AppSetupUserService appSetupUserService;
-
-    @Autowired
     private AppUserService appUserService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    protected UserDetailsService appSetupUserDetailsService() {
-        return appSetupUserService;
     }
 
     @Bean
@@ -50,7 +41,7 @@ public class WebSecurityConfig {
     protected AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
-        UserDetailsService userDetailsService = appSetupUserDetailsService();
+        UserDetailsService userDetailsService = appUserDetailsService();
         provider.setUserDetailsService(userDetailsService);
         return provider;
     }
