@@ -21,6 +21,7 @@ import com.example.springauth.services.AppUserService;
 import com.example.springauth.tables.Table;
 import com.example.springauth.tables.TableNameGiver;
 import com.example.springauth.utilities.CustomFileWriter;
+import com.example.springauth.utilities.DateTime;
 import com.example.springauth.utilities.UserIDGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,7 +39,7 @@ import java.util.List;
 
 
 @Controller
-public class EntityAdminRegistration {
+public class UserController {
 
 
 
@@ -105,6 +106,7 @@ public class EntityAdminRegistration {
                     new TypeReference<List<EntityPropJSONModel>>() {}
             );
 
+            // Generate a user ID (pk) - mandatory
             entityPropModelList.add(new EntityPropModel("id", UserIDGenerator.generateUserID()));
             for (EntityPropJSONModel entityPropJSONModel : entityPropJSONModelList) {
                 String propertyName = entityPropJSONModel.getPropertyName();
@@ -112,6 +114,8 @@ public class EntityAdminRegistration {
                 EntityPropModel entityPropModel = new EntityPropModel(propertyName, propertyValue);
                 entityPropModelList.add(entityPropModel);
             }
+            // Add a creation timestamp - mandatory
+            entityPropModelList.add(new EntityPropModel("created_at", DateTime.getTimeStamp()));
 
             userModel.setUserPropModelList(entityPropModelList);
 
@@ -136,14 +140,14 @@ public class EntityAdminRegistration {
         String otherNames = userModel.getPropertyValue("other_names");
         String phoneNumber = userModel.getPropertyValue("current_phone_number");
         String username = userModel.getPropertyValue("current_email");
-        String formPassword = userModel.getPropertyValue("current_password");
-        String confirmFormPassword = userModel.getPropertyValue("confirm_password");
+        String password = userModel.getPropertyValue("current_password");
+        //String confirmFormPassword = userModel.getPropertyValue("confirm_password");
         String role = "ENTITY_ADMIN";
-        String password = passwordEncoder.encode(formPassword);
+        String passwordCipher = passwordEncoder.encode(password);
 
-        boolean passwordsMatch = formPassword.equals(confirmFormPassword);
+        //boolean passwordsMatch = formPassword.equals(confirmFormPassword);
 
-        if (passwordsMatch) {
+        if (!passwordCipher.isEmpty()) {
 
             AppUser appUser = new AppUser(
                     firstName,
@@ -151,7 +155,7 @@ public class EntityAdminRegistration {
                     otherNames,
                     phoneNumber,
                     username,
-                    password,
+                    passwordCipher,
                     role
             );
 
@@ -178,6 +182,25 @@ public class EntityAdminRegistration {
         );
 
         return "user_profile";
+    }
+
+
+    @PostMapping("/change_password")
+    public String changePassword(){
+        return "profile";
+    }
+
+    @PostMapping("/update_user_profile")
+    public String updateUserProfile(
+            @ModelAttribute("updateUserProfileForm")
+            UserModel userModel,
+            Model model
+    ){
+        // rebuild the user model
+        // update the user model based on the provided properties
+        // user model properties directly map to columns in the user table in the UM schema in the DB
+        // to check whether certain properties exist as means of verification, use the table of columns
+        return "home";
     }
 
 

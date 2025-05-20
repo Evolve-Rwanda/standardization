@@ -65,10 +65,10 @@
 			<td align="center">
 					<input type="hidden" class="property_name" value="gender" />
 					<label>
-						<input type="radio" class="property_value" name="gender" value="Male" /> Male
+						<input type="radio" class="property_value radio_button" name="gender" value="Male" /> Male
 					</label>
 					<label>
-						<input type="radio" class="property_value" name="gender" value="Female" /> Female
+						<input type="radio" class="property_value radio_button" name="gender" value="Female" /> Female
 					</label>
 			</td>
 		</tr>
@@ -207,37 +207,74 @@
 	</table>
 	</form>
 	<script type="application/javascript">
+
 		var submitButton = document.getElementById('submit_user_profile_button');
+
 		submitButton.addEventListener("click", () => {
-			var propNameElements = document.getElementsByClassName("property_name");
-			var propValueElements = document.getElementsByClassName("property_value");
-			var submission = [];
+
+			const propNameElements = document.getElementsByClassName("property_name");
+			const propValueElements = document.getElementsByClassName("property_value");
+			const radioButtonElements = document.getElementsByClassName("radio_button");
+			const checkboxButtonElements = document.getElementsByClassName("checkbox_button");
+			const radioButtonNames = [];
+			const checkboxButtonNames = [];
+
+			// radio button submissions
+			const radioSubmissionList = [];
+			let x = 0;
+			for(let r=0; r<radioButtonElements.length; r++) {
+				if (radioButtonElements[r].checked) {
+					radioSubmissionList[x] = {
+						property_name: radioButtonElements[r].name,
+						property_value: radioButtonElements[r].value
+					};
+					radioButtonNames[x] = radioSubmissionList[x].property_name;
+					x++;
+				}
+			}
+
+			// radio button submissions
+			const checkSubmissionList = [];
+			let y = 0;
+			for(let c=0; c<checkboxButtonElements.length; c++) {
+				if (checkboxButtonElements[r].checked) {
+					checkSubmissionList[y] = {
+						property_name: checkboxButtonElements[c].name,
+						property_value: checkboxButtonElements[c].value
+					};
+					checkboxButtonNames[y] = checkSubmissionList[y].property_name;
+					y++;
+				}
+			}
+
+			const submission = [];
+			let t = 0;
 			for(let i=0; i<propNameElements.length; i++){
-				const typeAttributeValue = propValueElements[i].getAttribute('type');
-				const nameAttribute = propValueElements[i].getAttribute('name');
-				var propName = propNameElements[i].value;
-				console.log(propName + '_id');
-				var elementValue = typeAttributeValue !== "radio" ? document.getElementById(propName + '_id').value : "";
-				var propValue = elementValue;
-				console.log(propValue);
-				const tagName = propValueElements[i].nodeName;
-				if(typeAttributeValue === "radio"){
-					console.log(nameAttribute);
-					const radioButtons = document.getElementsByName(nameAttribute);
-					let checkedValue;
-					for (let j = 0; j < radioButtons.length; j++) {
-						if (radioButtons[j].checked) {
-							checkedValue = radioButtons[j].value;
-							propValue = checkedValue;
-							break;
-						}
-				}
-				}
-				submission[i] = {
+				const propName = propNameElements[i].value;
+				if (radioButtonNames.includes(propName) || checkboxButtonNames.includes(propName))
+					continue;
+				var propValue = document.getElementById(propName + '_id').value;
+				submission[t] = {
 					property_name: propName,
 					property_value: propValue
 				};
+				t++;
 			}
+
+			for(let r=0; r<radioSubmissionList.length; r++){
+					submission[t] = {
+						property_name: radioSubmissionList[r].property_name,
+						property_value: radioSubmissionList[r].property_value
+					};
+					t++;
+				}
+			for(let c=0; c<checkSubmissionList.length; c++){
+					submission[t] = {
+						property_name: checkSubmissionList[c].property_name,
+						property_value: checkSubmissionList[c].property_value
+					};
+					t++;
+				}
 			fetch('/create_user_profile',
 				{
 					method: 'POST',

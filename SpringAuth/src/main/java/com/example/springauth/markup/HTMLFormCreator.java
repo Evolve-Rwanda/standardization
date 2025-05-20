@@ -144,37 +144,72 @@ public class HTMLFormCreator {
     private String getFormSubmissionJavascript() {
         StringBuilder javascriptBuilder = new StringBuilder();
         javascriptBuilder.append("\n\t<script type=\"application/javascript\">")
-                .append("\n\t\tvar submitButton = document.getElementById('").append("submit_user_profile_button").append("');")
-                .append("\n\t\tsubmitButton.addEventListener(\"click\", () => {")
-                .append("\n\t\t\tvar propNameElements = document.getElementsByClassName(\"property_name\");")
-                .append("\n\t\t\tvar propValueElements = document.getElementsByClassName(\"property_value\");")
-                .append("\n\t\t\tvar submission = [];")
+                .append("\n\n\t\tvar submitButton = document.getElementById('").append("submit_user_profile_button").append("');")
+                .append("\n\n\t\tsubmitButton.addEventListener(\"click\", () => {\n")
+                .append("\n\t\t\tconst propNameElements = document.getElementsByClassName(\"property_name\");")
+                .append("\n\t\t\tconst propValueElements = document.getElementsByClassName(\"property_value\");")
+                .append("\n\t\t\tconst radioButtonElements = document.getElementsByClassName(\"radio_button\");")
+                .append("\n\t\t\tconst checkboxButtonElements = document.getElementsByClassName(\"checkbox_button\");")
+                .append("\n\t\t\tconst radioButtonNames = [];")
+                .append("\n\t\t\tconst checkboxButtonNames = [];\n")
+                .append("\n\t\t\t// radio button submissions")
+                .append("\n\t\t\tconst radioSubmissionList = [];")
+                .append("\n\t\t\tlet x = 0;")
+                .append("\n\t\t\tfor(let r=0; r<radioButtonElements.length; r++) {")
+                .append("\n\t\t\t\tif (radioButtonElements[r].checked) {")
+                .append("\n\t\t\t\t\tradioSubmissionList[x] = {")
+                .append("\n\t\t\t\t\t\tproperty_name: radioButtonElements[r].name,")
+                .append("\n\t\t\t\t\t\tproperty_value: radioButtonElements[r].value")
+                .append("\n\t\t\t\t\t};")
+                .append("\n\t\t\t\t\tradioButtonNames[x] = radioSubmissionList[x].property_name;")
+                .append("\n\t\t\t\t\tx++;")
+                .append("\n\t\t\t\t}")
+                .append("\n\t\t\t}\n")
+
+                .append("\n\t\t\t// radio button submissions")
+                .append("\n\t\t\tconst checkSubmissionList = [];")
+                .append("\n\t\t\tlet y = 0;")
+                .append("\n\t\t\tfor(let c=0; c<checkboxButtonElements.length; c++) {")
+                .append("\n\t\t\t\tif (checkboxButtonElements[r].checked) {")
+                .append("\n\t\t\t\t\tcheckSubmissionList[y] = {")
+                .append("\n\t\t\t\t\t\tproperty_name: checkboxButtonElements[c].name,")
+                .append("\n\t\t\t\t\t\tproperty_value: checkboxButtonElements[c].value")
+                .append("\n\t\t\t\t\t};")
+                .append("\n\t\t\t\t\tcheckboxButtonNames[y] = checkSubmissionList[y].property_name;")
+                .append("\n\t\t\t\t\ty++;")
+                .append("\n\t\t\t\t}")
+                .append("\n\t\t\t}\n")
+
+                .append("\n\t\t\tconst submission = [];")
+                .append("\n\t\t\tlet t = 0;")
                 .append("\n\t\t\tfor(let i=0; i<propNameElements.length; i++){")
-                .append("\n\t\t\t\tconst typeAttributeValue = propValueElements[i].getAttribute('type');")
-                .append("\n\t\t\t\tconst nameAttribute = propValueElements[i].getAttribute('name');")
-                .append("\n\t\t\t\tvar propName = propNameElements[i].value;")
-                .append("\n\t\t\t\tconsole.log(propName + '_id');")
-                .append("\n\t\t\t\tvar elementValue = typeAttributeValue !== \"radio\" ? document.getElementById(propName + '_id').value : \"\";")
-                .append("\n\t\t\t\tvar propValue = elementValue;")
-                .append("\n\t\t\t\tconsole.log(propValue);")
-                .append("\n\t\t\t\tconst tagName = propValueElements[i].nodeName;" +
-                        "\n\t\t\t\tif(typeAttributeValue === \"radio\"){" +
-                        "\n\t\t\t\t\tconsole.log(nameAttribute);" +
-                        "\n\t\t\t\t\tconst radioButtons = document.getElementsByName(nameAttribute);" +
-                        "\n\t\t\t\t\tlet checkedValue;" +
-                        "\n\t\t\t\t\tfor (let j = 0; j < radioButtons.length; j++) {" +
-                        "\n\t\t\t\t\t\tif (radioButtons[j].checked) {" +
-                        "\n\t\t\t\t\t\t\tcheckedValue = radioButtons[j].value;" +
-                        "\n\t\t\t\t\t\t\tpropValue = checkedValue;" +
-                        "\n\t\t\t\t\t\t\tbreak;" +
-                        "\n\t\t\t\t\t\t}" +
-                        "\n\t\t\t\t}" +
-                        "\n\t\t\t\t}")
-                .append("\n\t\t\t\tsubmission[i] = {")
+                .append("\n\t\t\t\tconst propName = propNameElements[i].value;")
+                .append("\n\t\t\t\tif (radioButtonNames.includes(propName) || checkboxButtonNames.includes(propName))")
+                .append("\n\t\t\t\t\tcontinue;")
+                .append("\n\t\t\t\tvar propValue = document.getElementById(propName + '_id').value;")
+                .append("\n\t\t\t\tsubmission[t] = {")
                 .append("\n\t\t\t\t\tproperty_name: propName,")
                 .append("\n\t\t\t\t\tproperty_value: propValue")
                 .append("\n\t\t\t\t};")
-                .append("\n\t\t\t}")
+                .append("\n\t\t\t\tt++;")
+                .append("\n\t\t\t}\n")
+
+                .append("\n\t\t\tfor(let r=0; r<radioSubmissionList.length; r++){")
+                .append("\n\t\t\t\t\tsubmission[t] = {")
+                .append("\n\t\t\t\t\t\tproperty_name: radioSubmissionList[r].property_name,")
+                .append("\n\t\t\t\t\t\tproperty_value: radioSubmissionList[r].property_value")
+                .append("\n\t\t\t\t\t};")
+                .append("\n\t\t\t\t\tt++;")
+                .append("\n\t\t\t\t}")
+
+                .append("\n\t\t\tfor(let c=0; c<checkSubmissionList.length; c++){")
+                .append("\n\t\t\t\t\tsubmission[t] = {")
+                .append("\n\t\t\t\t\t\tproperty_name: checkSubmissionList[c].property_name,")
+                .append("\n\t\t\t\t\t\tproperty_value: checkSubmissionList[c].property_value")
+                .append("\n\t\t\t\t\t};")
+                .append("\n\t\t\t\t\tt++;")
+                .append("\n\t\t\t\t}")
+
                 .append("\n\t\t\tfetch('/").append(this.formActionAttribValue).append("',")
                 .append("\n\t\t\t\t{")
                 .append("\n\t\t\t\t\tmethod: 'POST',")
@@ -270,11 +305,14 @@ public class HTMLFormCreator {
         String name = this.extractColumnName(cmem);
         String id = this.generateLabelForAttribValue(name);
 
-        String thymleafField = String.format("class=\"%s\" value=\"%s\"", "property_name", name);
+        String thymleafField = String.format(
+                "class=\"%s\" value=\"%s\"",
+                "property_name", name
+        );
 
         String propertyNameTag = String.format(
-                "\n\t\t\t\t\t<input type=\"%s\" %s />", "hidden",
-                thymleafField
+                "\n\t\t\t\t\t<input type=\"%s\" %s />",
+                "hidden", thymleafField
         );
 
         StringBuilder radioBuilder = new StringBuilder();
@@ -283,7 +321,8 @@ public class HTMLFormCreator {
             String label = columnValueOptionModel.getOptionalValue();
             String thymleafValue = String.format(
                     "class=\"%s\" name=\"%s\" value=\"%s\"",
-                    "property_value", name, label);
+                    "property_value radio_button", name, label
+            );
             String inputTag = String.format(
                     "\n\t\t\t\t\t\t<input type=\"radio\" %s /> ",
                     thymleafValue);

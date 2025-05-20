@@ -8,8 +8,6 @@ import com.example.springauth.dialects.postgres.*;
 import com.example.springauth.documentation.DatabaseDocumentation;
 import com.example.springauth.markup.HTMLFormCreator;
 import com.example.springauth.models.app.*;
-import com.example.springauth.models.json.EntityPropJSONModel;
-import com.example.springauth.models.json.RolePrivilegeJSONModel;
 import com.example.springauth.models.utility.*;
 import com.example.springauth.relationships.Relationship;
 import com.example.springauth.relationships.RelationshipResolver;
@@ -17,28 +15,19 @@ import com.example.springauth.schemas.Schema;
 
 import com.example.springauth.schemas.SchemaNameGiver;
 import com.example.springauth.specialtables.*;
-import com.example.springauth.tables.PrivilegeTable;
-import com.example.springauth.tables.RoleTable;
 import com.example.springauth.tables.Table;
 import com.example.springauth.tables.TableNameGiver;
 import com.example.springauth.utilities.CustomFileWriter;
 import com.example.springauth.utilities.DateTime;
-import com.example.springauth.utilities.PrivilegeIDGenerator;
-import com.example.springauth.utilities.RoleIDGenerator;
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 
@@ -272,245 +261,6 @@ public class DatabaseController {
         return "home";
     }
 
-    @PostMapping(value ="/create_user_profile_2", consumes = "application/json")
-    public String createUserProfile(
-            @RequestBody
-            String entityPropModelJSONArray,
-            Model model
-    ) {
-        System.out.println("User property list displayed here");
-        System.out.println(entityPropModelJSONArray);
-        List<EntityPropModel> entityPropModelList = new ArrayList<>();
-        ObjectMapper objectMapper = new ObjectMapper();
-        UserModel userModel = new UserModel();
-
-        try{
-
-            List<EntityPropJSONModel> entityPropJSONModelList = objectMapper.readValue(
-                    entityPropModelJSONArray,
-                    new TypeReference<List<EntityPropJSONModel>>() {}
-            );
-
-            for (EntityPropJSONModel entityPropJSONModel : entityPropJSONModelList) {
-                String propertyName = entityPropJSONModel.getPropertyName();
-                String propertyValue = entityPropJSONModel.getPropertyValue();
-                EntityPropModel entityPropModel = new EntityPropModel(propertyName, propertyValue);
-                entityPropModelList.add(entityPropModel);
-            }
-
-            userModel.setUserPropModelList(entityPropModelList);
-
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if(!userModel.getUserPropModelList().isEmpty()){
-            if (sqlDialect.equalsIgnoreCase("POSTGRES")) {
-                String userTableName = TableNameGiver.getUserTableName();
-                var insertionObj = new PostgresDialectInsertion(queryExecutor, userManagementSchema, userTableName);
-                UserModel returnedUserModel = insertionObj.insertUser(userModel);
-                model.addAttribute(
-                        "user_profile_submission",
-                        "successfully created a user profile"
-                );
-            }
-        }
-        attributeSetup(model);
-        return "user_profile";
-    }
-
-    @GetMapping("/create_user_profile_2")
-    public String createUserProfile(
-            @ModelAttribute("updateUserProfileForm")
-            UserModel userModel,
-            Model model
-    ){
-        this.attributeSetup(model);
-        return "user_profile";
-    }
-
-    @PostMapping("/change_password")
-    public String changePassword(){
-        return "profile";
-    }
-
-    @PostMapping("/update_user_profile")
-    public String updateUserProfile(
-            @ModelAttribute("updateUserProfileForm")
-            UserModel userModel,
-            Model model
-    ){
-        // rebuild the user model
-        // update the user model based on the provided properties
-        // user model properties directly map to columns in the user table in the UM schema in the DB
-        // to check whether certain properties exist as means of verification, use the table of columns
-        return "home";
-    }
-
-    @GetMapping("/create_user_role")
-    public String createUserProfile(Model model) {
-        attributeSetup(model);
-        return "role";
-    }
-
-    @PostMapping("/create_user_role")
-    public String createUserProfile(
-            @ModelAttribute("roleForm")
-            RoleModel roleModel,
-            Model model
-    ) {
-        String id = RoleIDGenerator.generateRoleID();
-        String code = roleModel.getCode();
-        String name = roleModel.getName();
-        String description = roleModel.getDescription();
-        String createdBy = "SUPER_ADMIN";
-        String status = roleModel.getStatus();
-        String createdAt = DateTime.getTimeStamp();
-        String lastUpdatedAt = "";
-        String deletedAt = "";
-        RoleModel newRoleModel = new RoleModel(id, code, name, description, createdBy, status, createdAt, lastUpdatedAt, deletedAt);
-
-        RoleTable roleTable = new RoleTable();
-        roleTable.setSchema(userManagementSchema);
-        roleTable.setQueryExecutor(queryExecutor);
-        roleTable.setSqlDialect(sqlDialect);
-        RoleModel insertedRole = roleTable.insertRole(newRoleModel);
-        model.addAttribute("role", "successfully added role: " + insertedRole.getName());
-        attributeSetup(model);
-        return "role";
-    }
-
-    @GetMapping("/create_user_privilege")
-    public String createUserPrivilege(Model model) {
-        attributeSetup(model);
-        return "privilege";
-    }
-
-    @PostMapping("/create_user_privilege")
-    public String createUserPrivilege(
-            @ModelAttribute("privilegeForm")
-            PrivilegeModel privilegeModel,
-            Model model
-    ) {
-        String id = PrivilegeIDGenerator.generatePrivilegeID();
-        String code = privilegeModel.getCode();
-        String name = privilegeModel.getName();
-        String description = privilegeModel.getDescription();
-        String approvalMethod = privilegeModel.getApprovalMethod();
-        String createdBy = "SUPER_ADMIN";
-        String status = privilegeModel.getStatus();
-        String createdAt = DateTime.getTimeStamp();
-        String lastUpdatedAt = "";
-        String deletedAt = "";
-        PrivilegeModel newPrivilegeModel = new PrivilegeModel(id, code, name, description, approvalMethod, createdBy, status, createdAt, lastUpdatedAt, deletedAt);
-
-        PrivilegeTable privilegeTable = new PrivilegeTable();
-        privilegeTable.setSchema(userManagementSchema);
-        privilegeTable.setQueryExecutor(queryExecutor);
-        privilegeTable.setSqlDialect(sqlDialect);
-        PrivilegeModel insertedRole = privilegeTable.insertPrivilege(newPrivilegeModel);
-        model.addAttribute("privilege", "successfully added a privilege: " + insertedRole.getName());
-        attributeSetup(model);
-        return "privilege";
-    }
-
-    @GetMapping("/create_role_privilege_mappings")
-    public String createRolePrivilegeMapping(Model model) {
-        List<RolePrivilegeMapModel> rolePrivilegeMapModelList = new ArrayList<>();
-        PrivilegeTable privilegeTable = new PrivilegeTable();
-        privilegeTable.setSchema(userManagementSchema);
-        privilegeTable.setQueryExecutor(queryExecutor);
-        privilegeTable.setSqlDialect(sqlDialect);
-        List<PrivilegeModel> privilegeModelList = null;
-        try {
-            privilegeModelList = privilegeTable.selectPrivileges();
-            model.addAttribute("privilege_list", privilegeModelList);
-        }catch (SQLException e){
-            // log errors and exceptions
-            System.out.println(e.getMessage());
-        }finally {
-            model.addAttribute("privilege_list", new ArrayList<PrivilegeModel>());
-        }
-        RoleTable roleTable = new RoleTable();
-        roleTable.setSchema(userManagementSchema);
-        roleTable.setQueryExecutor(queryExecutor);
-        roleTable.setSqlDialect(sqlDialect);
-        List<RoleModel> roleModelList = null;
-        try {
-            roleModelList = roleTable.selectRoles();
-            model.addAttribute("role_list", roleModelList);
-        }catch (SQLException e){
-            // log errors and exceptions
-            System.out.println(e.getMessage());
-        }finally {
-            if((roleModelList != null && !roleModelList.isEmpty())
-                    && (privilegeModelList != null && !privilegeModelList.isEmpty())
-            ){
-                for (RoleModel roleModel : roleModelList) {
-                    for (PrivilegeModel privilegeModel : privilegeModelList) {
-                        RolePrivilegeMapModel rolePrivilegeMapModel1 = new RolePrivilegeMapModel(roleModel, privilegeModel, "");
-                        rolePrivilegeMapModelList.add(rolePrivilegeMapModel1);
-                    }
-                }
-                model.addAttribute("role_privilege_list", rolePrivilegeMapModelList);
-            }
-        }
-        attributeSetup(model);
-        return "role_privilege";
-    }
-
-    // To be moved to a controller class for roles alone
-    @PostMapping(value = "/create_role_privilege_mappings", consumes = "application/json")
-    public String createRolePrivilegeMapping(
-            @RequestBody String rolePrivilegeJSONArray,
-            Model model
-    ) {
-        List<RolePrivilegeMapModel> rolePrivilegeMapModelList = new ArrayList<>();
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        try {
-
-            List<RolePrivilegeJSONModel> decodedRolePrivilegeList = objectMapper.readValue(rolePrivilegeJSONArray, new TypeReference<List<RolePrivilegeJSONModel>>() {});
-
-            for(RolePrivilegeJSONModel rolePrivilege : decodedRolePrivilegeList){
-
-                boolean isMapped =  rolePrivilege.getStatus().equalsIgnoreCase("true");
-                if(!isMapped)
-                    continue;
-                RoleModel roleModel = new RoleModel();
-                roleModel.setId(rolePrivilege.getRoleId());
-                PrivilegeModel privilegeModel = new PrivilegeModel();
-                privilegeModel.setId(rolePrivilege.getPrivilegeId());
-                String createdAt = DateTime.getTimeStamp();
-                var rolePrivilegeMapModel = new RolePrivilegeMapModel(roleModel, privilegeModel, createdAt);
-                rolePrivilegeMapModelList.add(rolePrivilegeMapModel);
-            }
-            if (sqlDialect.equalsIgnoreCase("POSTGRES")) {
-                String rolePrivilegeMappingTableName = TableNameGiver.getRolePrivilegeMapTableName();
-                var insertionObj = new PostgresDialectInsertion(queryExecutor, userManagementSchema, rolePrivilegeMappingTableName);
-                List<RolePrivilegeMapModel> returnedRolePrivilegeMapModelList = insertionObj.insertRolePrivilegeMappings(rolePrivilegeMapModelList);
-                model.addAttribute(
-                        "role_model_submission",
-                        String.format("successfully created %d role privilege mappings", returnedRolePrivilegeMapModelList.size())
-                );
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        attributeSetup(model);
-        return "role_privilege";
-    }
-
-    @PostMapping(value = "/user_role_mapping", consumes = "application/json")
-    public String createUserRoleMapping(
-            @RequestBody String userRoleMap,
-            Model model
-    ) {
-        System.out.println("user role mappings created" + userRoleMap);
-        attributeSetup(model);
-        return "user_role";
-    }
-
     @GetMapping("/initialize_logging")
     public String initializeLogging(Model model) {
         model.addAttribute("loggingInitializationMessage", "You have successfully initialized logging.");
@@ -550,8 +300,6 @@ public class DatabaseController {
         List<ColumnValueOptionModel> columnValueOptionModelList = databaseDocumentation.getColumnValueOptionModelList();
         List<ColumnMarkupElementModel> columnMarkupElementModelList = databaseDocumentation.getColumnMarkupElementModelList();
 
-        var selectionObj = new PostgresDialectSelection(queryExecutor, userManagementSchema);
-
         model.addAttribute("documentation_schema", databaseDocumentationSchema.getName());
         model.addAttribute("app_schema_list", schemaList);
         model.addAttribute("all_schema_list", schemaNameList);
@@ -568,8 +316,6 @@ public class DatabaseController {
         model.addAttribute("columnValueOptionsForm", new ColumnValueOptionModel());
         model.addAttribute("columnInputElementMarkupForm", new ColumnMarkupElementModel());
 
-        model.addAttribute("roleForm", new RoleModel());
-        model.addAttribute("privilegeForm", new PrivilegeModel());
         model.addAttribute("rolePrivilegeForm", "");
 
 

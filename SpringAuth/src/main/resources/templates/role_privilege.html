@@ -3,35 +3,6 @@
 <head>
   <title>User privileges</title>
   <link rel="stylesheet"  th:href="@{css/forms.css}" />
-
-  <script type="application/javascript">
-    var submitButton = document.getElementById("submit_role_privileges");
-    submitButton.addEventListener("click", () => {
-      var roleIdElements = document.getElementsByClassName("roles");
-      var privilegeIdElements = document.getElementsByClassName("privileges");
-      var statusElements = document.getElementsByClassName("statuses");
-      var submissionString = [];
-      for(let i=0; i<roleIdElements.length; i++){
-        var roleId = roleIdElements[i].value;
-        var privilegeId = privilegeIdElements[i].value;
-        var status = statusElements[i].checked;
-        if(status !== true)
-          continue;
-        submissionString[i] = {
-          role_id: roleId,
-          privilege_id: privilegeId,
-          status: status
-        };
-      }
-      fetch('/create_role_privilege_mappings',
-              {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(submissionString)
-              }
-      );
-    });
-  </script>
 </head>
 <body style="margin: 0; padding: 0;">
 
@@ -95,5 +66,42 @@
   </table>
 
 </form>
+
+
+<script type="application/javascript">
+
+  var submitButton = document.getElementById("submit_role_privileges");
+
+  submitButton.addEventListener("click", () => {
+
+    const roleIdElements = document.getElementsByClassName("roles");
+    const privilegeIdElements = document.getElementsByClassName("privileges");
+    const statusElements = document.getElementsByClassName("statuses");
+
+    var submissionString = [];
+
+    for(let i=0; i<roleIdElements.length; i++){
+      var roleId = roleIdElements[i].value;
+      var privilegeId = privilegeIdElements[i].value;
+      var status = statusElements[i].checked;
+      if(status !== true)
+        continue;
+      submissionString[i] = {
+        role_id: roleId,
+        privilege_id: privilegeId,
+        status: status
+      };
+    }
+    fetch('/create_role_privilege_mappings',
+            {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify(submissionString)
+            }
+    );
+  });
+</script>
+
+
 </body>
 </html>

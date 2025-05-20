@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 
 @Controller
-public class AdminRegistration {
+public class AdminController {
 
     @Autowired
     PasswordEncoder passwordEncoder;
