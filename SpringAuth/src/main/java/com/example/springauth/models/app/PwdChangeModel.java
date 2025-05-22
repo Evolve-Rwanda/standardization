@@ -1,0 +1,66 @@
+package com.example.springauth.models.app;
+
+
+
+public class PwdChangeModel {
+
+
+    private String username;
+    private String currentPassword;
+    private String newPassword;
+    private String confirmedNewPassword;
+
+
+    public PwdChangeModel() {
+    }
+
+    public PwdChangeModel(String username, String currentPassword, String newPassword, String confirmedNewPassword) {
+        this.username = username;
+        this.currentPassword = currentPassword;
+        this.newPassword = newPassword;
+        this.confirmedNewPassword = confirmedNewPassword;
+    }
+
+    @Override
+    public String toString() {
+        return "PwdChangeJSONModel{" +
+                "username='" + username + '\'' +
+                ", currentPassword='" + currentPassword + '\'' +
+                ", newPassword='" + newPassword + '\'' +
+                ", confirmNewPassword='" + confirmedNewPassword + '\'' +
+                '}';
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getCurrentPassword() {
+        return currentPassword;
+    }
+
+    public void setCurrentPassword(String currentPassword) {
+        this.currentPassword = currentPassword;
+    }
+
+    public String getNewPassword() {
+        return newPassword;
+    }
+
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
+    }
+
+    public String getConfirmNewPassword() {
+        return confirmedNewPassword;
+    }
+
+    public void setConfirmNewPassword(String confirmNewPassword) {
+        this.confirmedNewPassword = confirmNewPassword;
+    }
+
+}

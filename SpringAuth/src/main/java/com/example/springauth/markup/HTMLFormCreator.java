@@ -15,14 +15,17 @@ public class HTMLFormCreator {
 
     private final String formActionAttribValue;
     private final List<EntityPropModel> entityPropModelList;
+    private final boolean isUpdateForm;
 
 
     public HTMLFormCreator(
             String formActionAttribValue,
-            List<EntityPropModel> entityPropModelList
+            List<EntityPropModel> entityPropModelList,
+            boolean isUpdateForm
     ) {
         this.formActionAttribValue = formActionAttribValue;
         this.entityPropModelList = entityPropModelList;
+        this.isUpdateForm = isUpdateForm;
     }
 
     public String create() {
@@ -107,7 +110,7 @@ public class HTMLFormCreator {
                         continue;
                     }
                     // create a single text, number, date, datetime, file input tag
-                    String inputElementString = this.createInputTag(cmem);
+                    String inputElementString = isUpdateForm ? this.createInputTag(cmem): this.createUpdateInputTag(cmem);
                     String tableRows = this.createLabelInputElementRowPair(cmem, inputElementString);
                     tableBuilder.append(tableRows);
                     continue;
@@ -254,6 +257,10 @@ public class HTMLFormCreator {
         return "\n\t\t\t\t\t<input type=\"button\" class=\"add_button\" id=\"submit_user_profile_button\" value=\"Submit\" /><br />";
     }
 
+    private String getUpdateFormSubmissionButton(){
+        return "\n\t\t\t\t\t<input type=\"button\" class=\"add_button\" id=\"submit_user_profile_button\" value=\"Update\" /><br />";
+    }
+
     private String createInputTag(ColumnMarkupElementModel cmem) {
         String type = cmem.getTypeAttributeValue();
         String name = this.extractColumnName(cmem);
@@ -271,6 +278,26 @@ public class HTMLFormCreator {
                   .append(propertyNameTag)
                   .append(propertyValueTag)
                   .append("\n\t\t\t\t</label>");
+        return tagBuilder.toString();
+    }
+
+    private String createUpdateInputTag(ColumnMarkupElementModel cmem) {
+        String type = cmem.getTypeAttributeValue();
+        String name = this.extractColumnName(cmem);
+        String id = this.generateLabelForAttribValue(name);
+
+        StringBuilder tagBuilder = new StringBuilder();
+
+        String thymleafField = String.format("class=\"%s\" value=\"%s\"", "property_name", name);
+        String thymleafValue = String.format("class=\"%s\" name=\"%s\"", "property_value", name);
+        String propertyNameTag = String.format("\n\t\t\t\t\t<input type=\"%s\" %s />", "hidden", thymleafField);
+        String propertyValueTag = String.format(
+                "\n\t\t\t\t\t<input type=\"%s\" %s id=\"%s\" th:value=\"${userUpdateMap.get('%s')}\" />",
+                type, thymleafValue, id, name);
+        tagBuilder.append("\n\t\t\t\t<label>")
+                .append(propertyNameTag)
+                .append(propertyValueTag)
+                .append("\n\t\t\t\t</label>");
         return tagBuilder.toString();
     }
 
@@ -334,6 +361,46 @@ public class HTMLFormCreator {
         return radioBuilder.toString();
     }
 
+    private String createUpdateRadioButtons(
+            ColumnMarkupElementModel cmem,
+            List<ColumnValueOptionModel> columnValueOptionModelList
+    ) {
+        String type = cmem.getTypeAttributeValue();
+        String name = this.extractColumnName(cmem);
+        String id = this.generateLabelForAttribValue(name);
+
+        String thymleafField = String.format(
+                "class=\"%s\" value=\"%s\"",
+                "property_name", name
+        );
+
+        String propertyNameTag = String.format(
+                "\n\t\t\t\t\t<input type=\"%s\" %s />",
+                "hidden", thymleafField
+        );
+
+        StringBuilder radioBuilder = new StringBuilder();
+        radioBuilder.append(propertyNameTag);
+        for (ColumnValueOptionModel columnValueOptionModel : columnValueOptionModelList) {
+            String label = columnValueOptionModel.getOptionalValue();
+            String thymleafValue = String.format(
+                    "class=\"%s\" name=\"%s\" value=\"%s\"",
+                    "property_value radio_button", name, label
+            );
+            String checkedCondition = String.format( // checked options shall be in a list
+                    "th:attr=\"checked=${updateUserMap.get('%s').contains(%s) ? 'checked' : 'checked'}\"",
+                    name, label);
+            String inputTag = String.format(
+                    "\n\t\t\t\t\t\t<input type=\"radio\" %s %s /> ",
+                    thymleafValue, checkedCondition);
+            radioBuilder.append("\n\t\t\t\t\t<label>")
+                    .append(inputTag)
+                    .append(label)
+                    .append("\n\t\t\t\t\t</label>");
+        }
+        return radioBuilder.toString();
+    }
+
     private String createSelectionDropdown(
             ColumnMarkupElementModel cmem,
             List<ColumnValueOptionModel> columnValueOptionModelList
@@ -369,6 +436,13 @@ public class HTMLFormCreator {
         return selectionBuilder.toString();
     }
 
+    private String createUpdateSelectionDropdown(
+            ColumnMarkupElementModel cmem,
+            List<ColumnValueOptionModel> columnValueOptionModelList
+    ) {
+        return null;
+    }
+
     private String createACheckbox(ColumnValueOptionModel columnValueOptionModel) {
         StringBuilder checkboxBuilder = new StringBuilder();
         String[] columnFQN = columnValueOptionModel.getColumnId().split("\\.");
@@ -383,6 +457,27 @@ public class HTMLFormCreator {
                        .append(checkboxTag)
                        .append(label)
                        .append("\n\t\t\t\t</label>");
+        return checkboxBuilder.toString();
+    }
+
+    private String createAnUpdateCheckbox(ColumnValueOptionModel columnValueOptionModel) {
+        StringBuilder checkboxBuilder = new StringBuilder();
+        String[] columnFQN = columnValueOptionModel.getColumnId().split("\\.");
+        String name = columnFQN[columnFQN.length - 1];
+        String label = columnFQN[columnFQN.length - 1].replace("_", " ");
+        String optionString = columnValueOptionModel.getOptionalValue();
+
+        String nameAttribAndValue = String.format("name=\"%s\"", optionString);
+        String checkedCondition = String.format( // checked options shall be in a list
+                "th:attr=\"checked=${updateUserMap.get('%s').contains(%s) ? 'checked' : 'checked'}\"",
+                name, optionString);
+        String checkboxTag = String.format(
+                "\n\t\t\t\t\t<input type=\"checkbox\" %s %s />",
+                nameAttribAndValue, checkedCondition);
+        checkboxBuilder.append("\n\t\t\t\t<label>")
+                .append(checkboxTag)
+                .append(label)
+                .append("\n\t\t\t\t</label>");
         return checkboxBuilder.toString();
     }
 

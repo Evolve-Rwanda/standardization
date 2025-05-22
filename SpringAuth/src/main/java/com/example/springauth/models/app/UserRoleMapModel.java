@@ -15,6 +15,15 @@ public class UserRoleMapModel {
         this.createdAt = createdAt;
     }
 
+    @Override
+    public String toString() {
+        return "UserRoleMapModel{" +
+                "userId='" + userId + '\'' +
+                ", roleId='" + roleId + '\'' +
+                ", createdAt='" + createdAt + '\'' +
+                '}';
+    }
+
     public String getUserId() {
         return userId;
     }

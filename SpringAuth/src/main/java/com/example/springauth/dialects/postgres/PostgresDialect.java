@@ -11,6 +11,7 @@ import com.example.springauth.tables.Table;
 import com.example.springauth.schemas.Schema;
 import com.example.springauth.relationships.Relationship;
 import com.example.springauth.columns.Column;
+import com.example.springauth.tables.TableNameGiver;
 import com.example.springauth.utilities.DateTime;
 
 import java.sql.ResultSet;
@@ -515,7 +516,8 @@ public class PostgresDialect extends SQLDialect {
         return schemaName != null && !schemaName.isEmpty() ? (schemaName + "." + tableName) : tableName;
     }
 
-    public List<Table> getTableList(String searchTable){
+    public List<Table> getTableList(){
+        String searchTable = SpecialTableNameGiver.getTableOfTablesName();
         List<Schema> schemaList =  this.getDatabaseSchemaList();
         List<Table> tableList = new ArrayList<>();
         String schemaName = schema != null ? schema.getName() : "";

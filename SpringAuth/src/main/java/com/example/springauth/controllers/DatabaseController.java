@@ -291,7 +291,6 @@ public class DatabaseController {
     private void attributeSetup(Model model) {
         /* Deliverable - 1/2. Obtain database documentation */
         DatabaseDocumentation databaseDocumentation = new DatabaseDocumentation(sqlDialect, queryExecutor, databaseDocumentationSchema);
-        databaseDocumentation.generateDatabaseDocumentation();
         List<String> schemaNameList = databaseDocumentation.getSchemaNameList();
         List<Schema> schemaList = databaseDocumentation.getSchemaList();
         Map<String, List<String>> schemaNameTableNameListMap = databaseDocumentation.getSchemaNameTableNameMap();
@@ -330,7 +329,7 @@ public class DatabaseController {
         model.addAttribute("userPropModelList", new EntityPropModel());
         model.addAttribute("userPropModelList1", userPropModelList1);
 
-        String userFormMarkup = this.generateThymeleafViewMarkup("create_user_profile", userPropModelList);
+        String userFormMarkup = this.generateThymeleafViewMarkup("create_user_profile", userPropModelList, false);
         model.addAttribute("createUserForm", userFormMarkup);
         String resourcePath = "src/main/resources/templates/";
         this.generateFile(resourcePath + "user_profile.html", userFormMarkup);
@@ -415,8 +414,12 @@ public class DatabaseController {
         return entityPropModelList;
     }
 
-    private String generateThymeleafViewMarkup(String formAction, List<EntityPropModel> entityPropModelList){
-        HTMLFormCreator htmlFormCreator = new HTMLFormCreator(formAction, entityPropModelList);
+    private String generateThymeleafViewMarkup(
+            String formAction,
+            List<EntityPropModel> entityPropModelList,
+            boolean isUpdateForm
+    ){
+        HTMLFormCreator htmlFormCreator = new HTMLFormCreator(formAction, entityPropModelList, isUpdateForm);
         return htmlFormCreator.create();
     }
 
@@ -447,7 +450,7 @@ public class DatabaseController {
         List<Table> tableList = new ArrayList<>();
         if (sqlDialect.equalsIgnoreCase("POSTGRES")) {
             PostgresDialect postgresDialect = new PostgresDialect(queryExecutor, searchTable, databaseDocumentationSchema);
-            tableList = postgresDialect.getTableList(searchTable);
+            tableList = postgresDialect.getTableList();
         }
         return tableList;
     }

@@ -43,4 +43,12 @@ public class AppUserService implements UserDetailsService {
     public AppUser createUser(AppUser appUser){
         return appUserRepository.save(appUser);
     }
+
+
+    @Transactional
+    public void updateUserPassword(String username, String newPassword){
+        Optional<AppUser> appSetupUser = appUserRepository.findByUsername(username);
+        appSetupUser.ifPresent(appUser -> appUser.setPassword(newPassword));
+        appSetupUser.ifPresent(appUser -> appUserRepository.save(appUser));
+    }
 }

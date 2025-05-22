@@ -1,10 +1,103 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Title</title>
+  <title>User roles</title>
+  <link rel="stylesheet"  th:href="@{css/forms.css}" />
 </head>
-<body>
+<body style="margin: 0; padding: 0;">
+
+<form th:action="@{/user_role_mapping}" th:object="${userRoleForm}" method="post">
+
+  <table cellspacing="5" cellpadding="0" border="0" width="60%" align="center">
+    <tr style="font-size: medium; font-weight: bold;">
+      <td valign="middle" align="center">
+        User
+      </td>
+      <td valign="middle" align="center">
+        Assign role
+      </td>
+    </tr>
+    <th:block th:each="userPropModel: ${user_list}">
+      <tr style="font-size: smaller;">
+        <td>
+          <label th:text="${
+                    userPropModel.getFirstName() + ' ' +
+                    userPropModel.getLastName() + ' (' +
+                    userPropModel.getEmail() + ')'
+                 }"
+                 th:title="${userPropModel.getOtherNames() + ' Tel: ' + userPropModel.getPhoneNumber() }">
+          </label>
+        </td>
+        <td></td>
+      </tr>
+      <th:block th:each="roleModel: ${role_list}">
+        <tr>
+          <td></td>
+          <td valign="middle" align="center">
+            <label>
+              <input type="hidden" class="users" name="user_id" th:value="${userPropModel.getId()}" />
+              <input type="hidden" class="roles" name="role_id" th:value="${roleModel.getId()}" />
+              <input type="checkbox" class="statuses" name="id" th:value="${userPropModel.getId() + '===' + roleModel.getId()}" />
+              <label th:text="${roleModel.getName()}" th:title="${roleModel.getDescription()}"></label>
+            </label>
+          </td>
+        </tr>
+      </th:block>
+      <tr>
+        <td colspan="2"><hr style="background: #777777; height: 3px;" /></td>
+      </tr>
+    </th:block>
+    <tr>
+      <td colspan="2"><br /></td>
+    </tr>
+    <tr>
+      <td align="center" colspan="2">
+        <input type="button" class="add_button" value="Submit" id="submit_user_roles" /><br />
+      </td>
+    </tr>
+    <tr>
+      <td colspan="4"><br /></td>
+    </tr>
+  </table>
+
+</form>
+
+
+<script type="application/javascript">
+
+  var submitButton = document.getElementById("submit_user_roles");
+
+  submitButton.addEventListener("click", () => {
+
+    const userIdElements = document.getElementsByClassName("users");
+    const roleIdElements = document.getElementsByClassName("roles");
+    const statusElements = document.getElementsByClassName("statuses");
+
+    var submissionString = [];
+
+    for(let i=0; i<statusElements.length; i++){
+
+      const userRole = statusElements[i].value.split("===");
+      const userId = userRole[0];
+      const roleId = userRole[1];
+      const status = statusElements[i].checked;
+
+      submissionString[i] = {
+        user_id: userId,
+        role_id: roleId,
+        status: status
+      };
+    }
+    fetch('/user_role_mapping',
+            {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify(submissionString)
+            }
+    );
+  });
+</script>
+
 
 </body>
 </html>

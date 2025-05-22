@@ -1,7 +1,6 @@
 package com.example.springauth.tables;
 
 import com.example.springauth.columns.Column;
-import com.example.springauth.dialects.postgres.PostgresDialect;
 import com.example.springauth.dialects.postgres.PostgresDialectInsertion;
 import com.example.springauth.dialects.postgres.PostgresDialectSelection;
 import com.example.springauth.models.app.RoleModel;

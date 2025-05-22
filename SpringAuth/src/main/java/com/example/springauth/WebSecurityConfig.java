@@ -40,9 +40,10 @@ public class WebSecurityConfig {
     @Bean
     protected AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(appUserDetailsService());
         provider.setPasswordEncoder(passwordEncoder());
-        UserDetailsService userDetailsService = appUserDetailsService();
-        provider.setUserDetailsService(userDetailsService);
+        // find a way to disable credentials erasure
+        //provider.setEraseCredentialsAfterAuthentication(false); // cannot resolve methods
         return provider;
     }
 
@@ -72,5 +73,6 @@ public class WebSecurityConfig {
                 .logout((logout) -> logout.permitAll());
         return http.build();
     }
+
 
 }

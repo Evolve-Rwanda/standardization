@@ -10,12 +10,14 @@ public class TableNameGiver {
     private static final String involvedEntityTableName = "involved_entity";
     private static final String roleTableName = "role";
     private static final String privilegeTableName = "privilege";
-    /* @DerivedTable */
-    private static final String rolePrivilegeMapTableName = "role_privilege_map";
     private static final String contactTableName = "contact";
     private static final String contactTypeTableName = "contact_type";
     private static final String authenticationHistoryTableName = "authentication_history";
     private static final String authenticationMetadataTableName = "authentication_metadata";
+    // Derived tables
+    private static final String rolePrivilegeMapTableName = "role_privilege_map";
+    private static final String userRoleMapTableName = "user_role_map";
+
 
     public static String getUserTableName(){
         return userTableName;
@@ -55,6 +57,10 @@ public class TableNameGiver {
 
     public static String getGetAuthenticationMetadataTableName(){
         return authenticationMetadataTableName;
+    }
+
+    public static String getUserRoleMapTableName(){
+        return userRoleMapTableName;
     }
 
 }

@@ -34,7 +34,7 @@ public class PostgresDialectSelection {
         String roleTableName = TableNameGiver.getRoleTableName();
         String tableFQN = tableSchema != null ? String.format("%s.%s", tableSchema.getName(), roleTableName) : roleTableName;
         String query = String.format("SELECT * FROM %s;", tableFQN);
-        System.out.println(query);
+
         ResultWrapper resultWrapper = queryExecutor.executeQuery(query);
         ResultSet resultSet = resultWrapper.getResultSet();
 
@@ -93,13 +93,12 @@ public class PostgresDialectSelection {
         String userTableName = TableNameGiver.getUserTableName();
         String tableFQN = (tableSchema != null) ? String.format("%s.%s", tableSchema.getName(), userTableName) : userTableName;
         String query = String.format("SELECT id FROM %s;", tableFQN);
-
         ResultWrapper resultWrapper = queryExecutor.executeQuery(query);
         ResultSet resultSet = resultWrapper.getResultSet();
 
         while (resultSet.next()) {
             String id = resultSet.getString("id");
-            UserModel userModel = selectUser(id);
+            UserModel userModel = this.selectUser(id);
             userModelList.add(userModel);
         }
         return userModelList;
@@ -112,15 +111,18 @@ public class PostgresDialectSelection {
         String tableFQN = (tableSchema != null) ? String.format("%s.%s", tableSchema.getName(), userTableName) : userTableName;
         String query = String.format("SELECT * FROM %s WHERE id = '%s';", tableFQN, userId);
 
+        GeneralEntityPropSelector generalEntityPropSelector = new GeneralEntityPropSelector(userTableName);
         ResultWrapper resultWrapper = queryExecutor.executeQuery(query);
         ResultSet resultSet = resultWrapper.getResultSet();
 
-        List<EntityPropModel> entityPropModelList = new ArrayList<>();
-
+        List<EntityPropModel> entityPropModelList = generalEntityPropSelector.getEntityPropModelList();
         while (resultSet.next()) {
-
             for(EntityPropModel entityPropModel : entityPropModelList){
                 // maybe add a type property to the entity prop model to avoid type errors
+                // this should eventually allow things like
+                // resultSet.getLong(entityPropModel.getName())
+                // resultSet.getInt(entityPropModel.getName())
+                // for now this works quite well. All fields are stored string varchar format.
                 String value = resultSet.getString(entityPropModel.getName());
                 entityPropModel.setValue(value);
             }

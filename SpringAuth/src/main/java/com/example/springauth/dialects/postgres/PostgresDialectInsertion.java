@@ -101,6 +101,15 @@ public class PostgresDialectInsertion {
         return rolePrivilegeMapModel;
     }
 
+    public List<UserRoleMapModel> insertUserRoleMappings(List<UserRoleMapModel> userRoleMapModels){
+        List<UserRoleMapModel> userRoleMapModelList = new ArrayList<>();
+        for(UserRoleMapModel userRoleMapModel : userRoleMapModels){
+            UserRoleMapModel returnedUserRoleMapModel = this.insertUserRoleMap(userRoleMapModel);
+            userRoleMapModelList.add(returnedUserRoleMapModel);
+        }
+        return userRoleMapModelList;
+    }
+
     public UserRoleMapModel insertUserRoleMap(UserRoleMapModel userRoleMapModel){
         String setPathQuery = this.getSchemaPathQuery();
         String insertQuery = this.getUserRoleMapInsertionQuery(userRoleMapModel);

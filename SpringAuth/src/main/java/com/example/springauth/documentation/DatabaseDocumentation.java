@@ -34,6 +34,7 @@ public class DatabaseDocumentation {
         this.sqlDialect = sqlDialect;
         this.queryExecutor = queryExecutor;
         this.documentationSchema = documentationSchema;
+        this.generateDatabaseDocumentation();
     }
 
     public Schema getDocumentationSchema() {
@@ -91,7 +92,7 @@ public class DatabaseDocumentation {
 
         // select all tables in the database
         String tableOfTables = SpecialTableNameGiver.getTableOfTablesName();
-        this.tableList = getTableList(tableOfTables);
+        this.tableList = this.getTableList(tableOfTables);
         this.relationshipList = this.getTableRelationships(SpecialTableNameGiver.getTableOfRelationshipsName());
 
         // Select all registered column option values in the database for all registered applicable columns
@@ -161,7 +162,7 @@ public class DatabaseDocumentation {
         List<Table> tableList = new ArrayList<>();
         if (sqlDialect.equalsIgnoreCase("POSTGRES")) {
             PostgresDialect postgresDialect = new PostgresDialect(queryExecutor, searchTable, documentationSchema);
-            tableList = postgresDialect.getTableList(searchTable);
+            tableList = postgresDialect.getTableList();
         }
         return tableList;
     }
