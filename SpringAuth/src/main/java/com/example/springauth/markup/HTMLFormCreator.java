@@ -37,13 +37,12 @@ public class HTMLFormCreator {
         StringBuilder formBuilder = new StringBuilder();
 
         // create a form opening tag
-        String thObject = "${createUserForm}";
+        String thObject = isUpdateForm ? "${updateUserForm}" : "${createUserForm}";
         String formOpeningTag = String.format(
                 "\n\t<form th:action=\"@{/%s}\" method=\"post\" th:object=\"%s\" enctype=\"multipart/form-data\">\n",
                 this.formActionAttribValue, thObject
         );
         formBuilder.append(formOpeningTag);
-
         StringBuilder tableBuilder = new StringBuilder();
 
         for (EntityPropModel entityPropModel : entityPropModelList) {
@@ -65,14 +64,18 @@ public class HTMLFormCreator {
 
                 if (typeAttributeValue.equalsIgnoreCase("radio")) {
                     // create a radio button group with radio buttons using optional values
-                    String radioButtonsElementString = createRadioButtons(cmem, columnValueOptionModelList);
+                    String radioButtonsElementString = !isUpdateForm ?
+                                                       this.createRadioButtons(cmem, columnValueOptionModelList) :
+                                                       this.createUpdateRadioButtons(cmem, columnValueOptionModelList);
                     String tableRows = createLabelInputElementRowPair(cmem, radioButtonsElementString);
                     tableBuilder.append(tableRows);
                     continue;
                 }
                 if (typeAttributeValue.equalsIgnoreCase("checkbox")) {
                     // create a single checkbox, cannot have more than a single option
-                    String checkboxElementString = createACheckbox(columnValueOptionModelList.getFirst());
+                    String checkboxElementString = !isUpdateForm ?
+                                                   this.createACheckbox(columnValueOptionModelList.getFirst()) :
+                                                   this.createAnUpdateCheckbox(columnValueOptionModelList.getFirst());
                     String tableRows = createLabelInputElementRowPair(cmem, checkboxElementString);
                     tableBuilder.append(tableRows);
                     continue;
@@ -80,7 +83,9 @@ public class HTMLFormCreator {
                 // select tag has no "type" attrib, so we instead rely on the tagName to make this check
                 if (tagName.equalsIgnoreCase("select")) {
                     // create a single select dropdown
-                    String selectElementString = createSelectionDropdown(cmem, columnValueOptionModelList);
+                    String selectElementString = !isUpdateForm ?
+                                                 this.createSelectionDropdown(cmem, columnValueOptionModelList) :
+                                                 this.createUpdateSelectionDropdown(cmem, columnValueOptionModelList);
                     String tableRows = createLabelInputElementRowPair(cmem, selectElementString);
                     tableBuilder.append(tableRows);
                     continue;
@@ -90,14 +95,18 @@ public class HTMLFormCreator {
 
                 if (typeAttributeValue.equalsIgnoreCase("checkbox")) {
                     // can create multiple checkboxes
-                    String checkboxElementString = createACheckbox(columnValueOptionModelList.getFirst());
+                    String checkboxElementString = !isUpdateForm ?
+                                                   this.createACheckbox(columnValueOptionModelList.getFirst()) :
+                                                   this.createAnUpdateCheckbox(columnValueOptionModelList.getFirst());
                     String tableRows = createLabelInputElementRowPair(cmem, checkboxElementString);
                     tableBuilder.append(tableRows);
                     continue;
                 }
                 if (typeAttributeValue.equalsIgnoreCase("select")) {
                     // create a single select dropdown, add multiple selection attrib
-                    String selectElementString = createSelectionDropdown(cmem, columnValueOptionModelList);
+                    String selectElementString = !isUpdateForm ?
+                                                 this.createSelectionDropdown(cmem, columnValueOptionModelList) :
+                                                 this.createUpdateSelectionDropdown(cmem, columnValueOptionModelList);
                     String tableRows = createLabelInputElementRowPair(cmem, selectElementString);
                     tableBuilder.append(tableRows);
                     continue;
@@ -110,7 +119,7 @@ public class HTMLFormCreator {
                         continue;
                     }
                     // create a single text, number, date, datetime, file input tag
-                    String inputElementString = isUpdateForm ? this.createInputTag(cmem): this.createUpdateInputTag(cmem);
+                    String inputElementString = !isUpdateForm ? this.createInputTag(cmem): this.createUpdateInputTag(cmem);
                     String tableRows = this.createLabelInputElementRowPair(cmem, inputElementString);
                     tableBuilder.append(tableRows);
                     continue;
@@ -292,7 +301,7 @@ public class HTMLFormCreator {
         String thymleafValue = String.format("class=\"%s\" name=\"%s\"", "property_value", name);
         String propertyNameTag = String.format("\n\t\t\t\t\t<input type=\"%s\" %s />", "hidden", thymleafField);
         String propertyValueTag = String.format(
-                "\n\t\t\t\t\t<input type=\"%s\" %s id=\"%s\" th:value=\"${userUpdateMap.get('%s')}\" />",
+                "\n\t\t\t\t\t<input type=\"%s\" %s id=\"%s\" th:value=\"${user_details.get('%s')}\" />",
                 type, thymleafValue, id, name);
         tagBuilder.append("\n\t\t\t\t<label>")
                 .append(propertyNameTag)
@@ -388,7 +397,7 @@ public class HTMLFormCreator {
                     "property_value radio_button", name, label
             );
             String checkedCondition = String.format( // checked options shall be in a list
-                    "th:attr=\"checked=${updateUserMap.get('%s').contains(%s) ? 'checked' : 'checked'}\"",
+                    "th:attr=\"checked=${user_details.get('%s').contains('%s') ? 'checked' : ''}\"",
                     name, label);
             String inputTag = String.format(
                     "\n\t\t\t\t\t\t<input type=\"radio\" %s %s /> ",
@@ -440,7 +449,37 @@ public class HTMLFormCreator {
             ColumnMarkupElementModel cmem,
             List<ColumnValueOptionModel> columnValueOptionModelList
     ) {
-        return null;
+        String type = cmem.getTypeAttributeValue();
+        String name = this.extractColumnName(cmem);
+        String id = this.generateLabelForAttribValue(name);
+
+        String thymleafField = String.format("class=\"%s\" value=\"%s\"", "property_name", name);
+        String propertyNameTag = String.format(
+                "\n\t\t\t\t<input type=\"%s\" %s />", "hidden",
+                thymleafField
+        );
+        String thymleafValue = String.format("class=\"%s\" name=\"%s\" id=\"%s\"", "property_value", name, id);
+
+        StringBuilder selectionBuilder = new StringBuilder();
+        selectionBuilder.append(propertyNameTag);
+        selectionBuilder.append("\n\t\t\t\t<label>");
+        String selectTag = String.format("\n\t\t\t\t\t<select %s>", thymleafValue);
+        selectionBuilder.append(selectTag)
+                .append("\n\t\t\t\t\t\t<option disabled>select</option>");
+        for (ColumnValueOptionModel columnValueOptionModel : columnValueOptionModelList) {
+            String optionValue = columnValueOptionModel.getOptionalValue();
+            String selectedCondition = String.format( // checked options shall be in a list
+                    "th:attr=\"selected=${user_details.get('%s').contains('%s') ? 'selected' : ''}\"",
+                    name, optionValue);
+            String optionTag = String.format(
+                    "\n\t\t\t\t\t\t<option value=\"%s\" %s>%s</option>",
+                    optionValue, selectedCondition, optionValue
+            );
+            selectionBuilder.append(optionTag);
+        }
+        selectionBuilder.append("\n\t\t\t\t\t</select>")
+                .append("\n\t\t\t\t</label>");
+        return selectionBuilder.toString();
     }
 
     private String createACheckbox(ColumnValueOptionModel columnValueOptionModel) {
@@ -469,7 +508,7 @@ public class HTMLFormCreator {
 
         String nameAttribAndValue = String.format("name=\"%s\"", optionString);
         String checkedCondition = String.format( // checked options shall be in a list
-                "th:attr=\"checked=${updateUserMap.get('%s').contains(%s) ? 'checked' : 'checked'}\"",
+                "th:attr=\"checked=${user_details.get('%s').contains('%s') ? 'checked' : ''}\"",
                 name, optionString);
         String checkboxTag = String.format(
                 "\n\t\t\t\t\t<input type=\"checkbox\" %s %s />",

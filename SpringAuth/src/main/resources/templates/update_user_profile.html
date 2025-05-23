@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+	<title>User profile</title>
+	<link rel="stylesheet"  th:href="@{css/forms.css}" />
+</head>
+<body style="margin: 0; padding: 0;">
+	<form th:action="@{/update_user_profile}" method="post" th:object="${updateUserForm}" enctype="multipart/form-data">
+
+	<table cellspacing="0" cellpadding="0" border="0" width="40%" align="center">
+		<tr>
+			<td>
+				<label class="field_label" for="first_name_id" style="cursor: pointer;">First name</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="first_name" />
+					<input type="text" class="property_value" name="first_name" id="first_name_id" th:value="${user_details.get('first_name')}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td>
+				<label class="field_label" for="last_name_id" style="cursor: pointer;">Last name</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="last_name" />
+					<input type="text" class="property_value" name="last_name" id="last_name_id" th:value="${user_details.get('last_name')}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td>
+				<label class="field_label" for="other_names_id" style="cursor: pointer;">Other names</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="other_names" />
+					<input type="text" class="property_value" name="other_names" id="other_names_id" th:value="${user_details.get('other_names')}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td>
+				<label class="field_label" for="gender_id" style="cursor: pointer;">Gender</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+					<input type="hidden" class="property_name" value="gender" />
+					<label>
+						<input type="radio" class="property_value radio_button" name="gender" value="Male" th:attr="checked=${user_details.get('gender').contains('Male') ? 'checked' : ''}" /> Male
+					</label>
+					<label>
+						<input type="radio" class="property_value radio_button" name="gender" value="Female" th:attr="checked=${user_details.get('gender').contains('Female') ? 'checked' : ''}" /> Female
+					</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td>
+				<label class="field_label" for="date_of_birth_id" style="cursor: pointer;">Date of birth</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="date_of_birth" />
+					<input type="date" class="property_value" name="date_of_birth" id="date_of_birth_id" th:value="${user_details.get('date_of_birth')}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td>
+				<label class="field_label" for="id_type_id" style="cursor: pointer;">Id type</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<input type="hidden" class="property_name" value="id_type" />
+				<label>
+					<select class="property_value" name="id_type" id="id_type_id">
+						<option disabled>select</option>
+						<option value="National ID" th:attr="selected=${user_details.get('id_type').contains('National ID') ? 'selected' : ''}">National ID</option>
+						<option value="Passport" th:attr="selected=${user_details.get('id_type').contains('Passport') ? 'selected' : ''}">Passport</option>
+					</select>
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td>
+				<label class="field_label" for="id_number_id" style="cursor: pointer;">Id number</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="id_number" />
+					<input type="text" class="property_value" name="id_number" id="id_number_id" th:value="${user_details.get('id_number')}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td>
+				<label class="field_label" for="current_phone_number_id" style="cursor: pointer;">Current phone number</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="current_phone_number" />
+					<input type="text" class="property_value" name="current_phone_number" id="current_phone_number_id" th:value="${user_details.get('current_phone_number')}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td>
+				<label class="field_label" for="current_photo_id" style="cursor: pointer;">Current photo</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="current_photo" />
+					<input type="file" class="property_value" name="current_photo" id="current_photo_id" style="display: none;" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td>
+				<label class="field_label" for="current_email_id" style="cursor: pointer;">Current email</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="current_email" />
+					<input type="email" class="property_value" name="current_email" id="current_email_id" th:value="${user_details.get('current_email')}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td>
+				<label class="field_label" for="current_password_id" style="cursor: pointer;">Current password</label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+				<label>
+					<input type="hidden" class="property_name" value="current_password" />
+					<input type="password" class="property_value" name="current_password" id="current_password_id" th:value="${user_details.get('current_password')}" />
+				</label>
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+		<tr>
+			<td>
+				<label class="field_label" for="" style="cursor: pointer;"></label>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">
+					<input type="button" class="add_button" id="submit_user_profile_button" value="Submit" /><br />
+			</td>
+		</tr>
+		<tr>
+			<td><br /></td>
+		</tr>
+	</table>
+	</form>
+	<script type="application/javascript">
+
+		var submitButton = document.getElementById('submit_user_profile_button');
+
+		submitButton.addEventListener("click", () => {
+
+			const propNameElements = document.getElementsByClassName("property_name");
+			const propValueElements = document.getElementsByClassName("property_value");
+			const radioButtonElements = document.getElementsByClassName("radio_button");
+			const checkboxButtonElements = document.getElementsByClassName("checkbox_button");
+			const radioButtonNames = [];
+			const checkboxButtonNames = [];
+
+			// radio button submissions
+			const radioSubmissionList = [];
+			let x = 0;
+			for(let r=0; r<radioButtonElements.length; r++) {
+				if (radioButtonElements[r].checked) {
+					radioSubmissionList[x] = {
+						property_name: radioButtonElements[r].name,
+						property_value: radioButtonElements[r].value
+					};
+					radioButtonNames[x] = radioSubmissionList[x].property_name;
+					x++;
+				}
+			}
+
+			// radio button submissions
+			const checkSubmissionList = [];
+			let y = 0;
+			for(let c=0; c<checkboxButtonElements.length; c++) {
+				if (checkboxButtonElements[r].checked) {
+					checkSubmissionList[y] = {
+						property_name: checkboxButtonElements[c].name,
+						property_value: checkboxButtonElements[c].value
+					};
+					checkboxButtonNames[y] = checkSubmissionList[y].property_name;
+					y++;
+				}
+			}
+
+			const submission = [];
+			let t = 0;
+			for(let i=0; i<propNameElements.length; i++){
+				const propName = propNameElements[i].value;
+				if (radioButtonNames.includes(propName) || checkboxButtonNames.includes(propName))
+					continue;
+				var propValue = document.getElementById(propName + '_id').value;
+				submission[t] = {
+					property_name: propName,
+					property_value: propValue
+				};
+				t++;
+			}
+
+			for(let r=0; r<radioSubmissionList.length; r++){
+					submission[t] = {
+						property_name: radioSubmissionList[r].property_name,
+						property_value: radioSubmissionList[r].property_value
+					};
+					t++;
+				}
+			for(let c=0; c<checkSubmissionList.length; c++){
+					submission[t] = {
+						property_name: checkSubmissionList[c].property_name,
+						property_value: checkSubmissionList[c].property_value
+					};
+					t++;
+				}
+			fetch('/update_user_profile',
+				{
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify(submission)
+				}
+			);
+		});
+	</script>
+</body>
+</html>

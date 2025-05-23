@@ -187,7 +187,11 @@ public class DatabaseController {
     }
 
     @PostMapping("add_column_value_options")
-    public String addColumnOptionalValue(@ModelAttribute("columnValueOptionsForm") ColumnValueOptionModel columnValueOptionModel, Model model) {
+    public String addColumnOptionalValue(
+            @ModelAttribute("columnValueOptionsForm")
+            ColumnValueOptionModel columnValueOptionModel,
+            Model model
+    ) {
         var tableOfColumnValueOptions = new TableOfColumnValueOptions(queryExecutor, sqlDialect, databaseDocumentationSchema);
         String columnId = columnValueOptionModel.getColumnId();
         String optionalValue = columnValueOptionModel.getOptionalValue();
@@ -201,8 +205,10 @@ public class DatabaseController {
 
     @PostMapping("add_column_input_markup_element")
     public String addColumnInputMarkupElement(
-            @ModelAttribute("columnInputElementMarkupForm")ColumnMarkupElementModel columnMarkupElementModel,
-            Model model) {
+            @ModelAttribute("columnInputElementMarkupForm")
+            ColumnMarkupElementModel columnMarkupElementModel,
+            Model model
+    ) {
         var tableOfColumnInputMarkupElements = new TableOfColumnInputMarkupElements(queryExecutor, sqlDialect, databaseDocumentationSchema);
         String columnId = columnMarkupElementModel.getColumnId();
         String[] tagAndTypeAttrib = columnMarkupElementModel.getTagName().split("-");
@@ -330,9 +336,11 @@ public class DatabaseController {
         model.addAttribute("userPropModelList1", userPropModelList1);
 
         String userFormMarkup = this.generateThymeleafViewMarkup("create_user_profile", userPropModelList, false);
-        model.addAttribute("createUserForm", userFormMarkup);
+        String updateFormMarkup = this.generateThymeleafViewMarkup("update_user_profile", userPropModelList, true);
+
         String resourcePath = "src/main/resources/templates/";
         this.generateFile(resourcePath + "user_profile.html", userFormMarkup);
+        this.generateFile(resourcePath + "update_user_profile.html", updateFormMarkup);
 
         model.addAttribute("rolePrivilegeForm", resourcePath);
 

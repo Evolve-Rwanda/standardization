@@ -132,5 +132,35 @@ public class PostgresDialectSelection {
         return userModel;
     }
 
+    public UserModel selectUserByUsername(String username) throws SQLException{
+
+        String userTableName = TableNameGiver.getUserTableName();
+        String tableFQN = (tableSchema != null) ? String.format("%s.%s", tableSchema.getName(), userTableName) : userTableName;
+        String query = String.format("SELECT * FROM %s WHERE current_username = '%s';", tableFQN, username);
+
+        GeneralEntityPropSelector generalEntityPropSelector = new GeneralEntityPropSelector(userTableName);
+        ResultWrapper resultWrapper = queryExecutor.executeQuery(query);
+        ResultSet resultSet = resultWrapper != null ? resultWrapper.getResultSet() : null;
+        if (resultSet == null) {
+            return null;
+        }
+
+        List<EntityPropModel> entityPropModelList = generalEntityPropSelector.getEntityPropModelList();
+        while (resultSet.next()) {
+            for(EntityPropModel entityPropModel : entityPropModelList){
+                // maybe add a type property to the entity prop model to avoid type errors
+                // this should eventually allow things like
+                // resultSet.getLong(entityPropModel.getName())
+                // resultSet.getInt(entityPropModel.getName())
+                // for now this works quite well. All fields are stored string varchar format.
+                String value = resultSet.getString(entityPropModel.getName());
+                entityPropModel.setValue(value);
+            }
+        }
+        UserModel userModel = new UserModel();
+        userModel.setUserPropModelList(entityPropModelList);
+        return userModel;
+    }
+
 
 }

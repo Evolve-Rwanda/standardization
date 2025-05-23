@@ -25,15 +25,16 @@ public class UserModel {
 
     public void setUserPropModelList(List<EntityPropModel> entityPropModelList) {
         for (EntityPropModel entityPropModel : entityPropModelList) {
-            nameValueMap.put(
-                    entityPropModel.getName(),
-                    entityPropModel.getValue()
-            );
+            nameValueMap.put(entityPropModel.getName(), entityPropModel.getValue());
         }
         this.entityPropModelList = entityPropModelList;
     }
 
     public String getPropertyValue(String name) {
         return nameValueMap.get(name);
+    }
+
+    public void setPropertyValue(String name, String value) {
+        nameValueMap.put(name, value);
     }
 }
