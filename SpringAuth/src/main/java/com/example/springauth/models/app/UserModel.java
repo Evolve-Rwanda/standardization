@@ -35,6 +35,14 @@ public class UserModel {
     }
 
     public void setPropertyValue(String name, String value) {
+        for (EntityPropModel entityPropModel : this.entityPropModelList) {
+            if (entityPropModel.getName().equalsIgnoreCase(name)) {
+                // keep the prop list and map equally updated
+                // this approach is slow for long prop lists, perhaps use a hashset instead of a list
+                entityPropModel.setValue(value);
+                break;
+            }
+        }
         nameValueMap.put(name, value);
     }
 }

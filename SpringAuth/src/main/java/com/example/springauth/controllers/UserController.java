@@ -10,7 +10,6 @@ import com.example.springauth.models.app.EntityPropModel;
 import com.example.springauth.models.app.UserModel;
 import com.example.springauth.models.app.UserPropModelList;
 import com.example.springauth.models.jpa.AppUser;
-import com.example.springauth.models.json.EntityPropJSONModel;
 import com.example.springauth.models.utility.ColumnMarkupElementModel;
 import com.example.springauth.models.utility.ColumnValueOptionModel;
 import com.example.springauth.repositories.AppUserRepository;
@@ -20,10 +19,7 @@ import com.example.springauth.services.AppUserService;
 import com.example.springauth.tables.Table;
 import com.example.springauth.tables.TableNameGiver;
 import com.example.springauth.utilities.CustomFileWriter;
-import com.example.springauth.utilities.DateTime;
-import com.example.springauth.utilities.UserIDGenerator;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.springauth.utilities.decoders.json.UserModelDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -96,7 +92,7 @@ public class UserController {
             Model model
     ) {
 
-        UserModel userModel = this.decodeUserModel(entityPropModelJSONArray);
+        UserModel userModel = (new UserModelDecoder(entityPropModelJSONArray)).decode();
 
         if(!userModel.getUserPropModelList().isEmpty()){
             if (sqlDialect.equalsIgnoreCase("POSTGRES")) {
@@ -160,28 +156,31 @@ public class UserController {
             Model model
     ){
         UserModel currentUserModel = this.getCurrentUserModel();
-        UserModel userModel = this.decodeUserModel(entityPropModelJSONArray);
+        boolean isModelEmpty = currentUserModel.getPropertyValue("id").isEmpty();
+        String currentUserId = currentUserModel.getPropertyValue("id");
+        
+        UserModel userModel = (new UserModelDecoder(entityPropModelJSONArray)).decode();
+        UserModel updateUserModel = null;
 
         if(!userModel.getUserPropModelList().isEmpty()){
             if (sqlDialect.equalsIgnoreCase("POSTGRES")) {
-                if (currentUserModel == null) {
+                if (isModelEmpty) {
                     String userTableName = TableNameGiver.getUserTableName();
                     var insertionObj = new PostgresDialectInsertion(queryExecutor, userManagementSchema, userTableName);
-                    UserModel returnedUserModel = insertionObj.insertUser(userModel);
-                    model.addAttribute(
-                            "user_profile_submission",
-                            "successfully created a user profile" +
-                                    returnedUserModel.getPropertyValue("current_email")
-                    );
+                    updateUserModel = insertionObj.insertUser(userModel);
                 }else{
-                    String currentUserId = currentUserModel.getPropertyValue("id");
                     String currentCreatedAt = currentUserModel.getPropertyValue("created_at");
                     // Restore the id and creation date generated with the assumption that the user may not exist.
                     userModel.setPropertyValue("id", currentUserId);
                     userModel.setPropertyValue("created_at", currentCreatedAt);
                     PostgresUpdate update = new PostgresUpdate(queryExecutor, userManagementSchema);
-                    //update.update(userModel);
+                    updateUserModel = update.updateUser(userModel);
                 }
+                model.addAttribute(
+                        "user_update_submission",
+                        "successfully updated profile" +
+                                updateUserModel.getPropertyValue("current_email")
+                );
             }
         }
         // rebuild the user model
@@ -209,7 +208,8 @@ public class UserController {
             PostgresDialectSelection selection = new PostgresDialectSelection(queryExecutor, userManagementSchema);
             try {
                 UserModel userModel = selection.selectUserByUsername(sessionUsername);
-                if(userModel != null){
+                boolean isModelEmpty = userModel.getPropertyValue("id").isEmpty();
+                if(!isModelEmpty){
                     List<EntityPropModel> entityPropModelList = userModel.getUserPropModelList();
                     if (entityPropModelList != null && !entityPropModelList.isEmpty()) {
                         for (EntityPropModel entityPropModel : entityPropModelList) {
@@ -217,7 +217,7 @@ public class UserController {
                         }
                     }
                 } else{
-                    // check if the super admin or users in the app_user table that
+                    // check if the super admin or user is in the app_user table that
                     AppUser appUser = this.getAppUser(sessionUsername);
                     if (appUser != null) {
                         propNameValueMap = this.setKnownProperties(appUser);
@@ -351,6 +351,7 @@ public class UserController {
     private List<String> getExcludedFormFields(){
         List<String> excludedFormFields = new ArrayList<>();
         excludedFormFields.add("id");
+        excludedFormFields.add("current_password");
         excludedFormFields.add("authentication_hash");
         excludedFormFields.add("created_at");
         excludedFormFields.add("last_updated_at");
@@ -387,45 +388,11 @@ public class UserController {
         propertyValueMap.put("current_password", appUser.getPassword());
         propertyValueMap.put("first_name", appUser.getFirstName());
         propertyValueMap.put("last_name", appUser.getLastName());
-        propertyValueMap.put("other_names", appUser.getUsername());
+        propertyValueMap.put("other_names", appUser.getOtherNames());
         propertyValueMap.put("current_phone_number", appUser.getPhoneNumber());
         return propertyValueMap;
     }
 
-    // create classes under utilities for json decoders in a decoders sub-package
-    public UserModel decodeUserModel(String jsonEncodedEntityPropsArrayString) {
-
-        List<EntityPropModel> entityPropModelList = new ArrayList<>();
-        // Object mapper object to parse the JSON into property-name property-value pairs
-        ObjectMapper objectMapper = new ObjectMapper();
-        UserModel userModel = new UserModel();
-
-        try{
-
-            List<EntityPropJSONModel> entityPropJSONModelList = objectMapper.readValue(
-                    jsonEncodedEntityPropsArrayString,
-                    new TypeReference<>() {}
-            );
-
-            // Generate a user ID (pk) - mandatory, not needed since we are updating
-            entityPropModelList.add(new EntityPropModel("id", UserIDGenerator.generateUserID()));
-            for (EntityPropJSONModel entityPropJSONModel : entityPropJSONModelList) {
-                String propertyName = entityPropJSONModel.getPropertyName();
-                String propertyValue = entityPropJSONModel.getPropertyValue();
-                EntityPropModel entityPropModel = new EntityPropModel(propertyName, propertyValue);
-                entityPropModelList.add(entityPropModel);
-            }
-            // Add a creation timestamp - mandatory
-            entityPropModelList.add(new EntityPropModel("created_at", DateTime.getTimeStamp()));
-
-            userModel.setUserPropModelList(entityPropModelList);
-
-        }catch (Exception e) {
-            // log error
-            System.out.println("Error creating a user profile: " + e.getMessage());
-        }
-        return userModel;
-    }
 
     private AppUser createAppUser(UserModel userModel) {
         String firstName = userModel.getPropertyValue("first_name");

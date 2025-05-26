@@ -136,8 +136,7 @@ public class PostgresDialectSelection {
 
         String userTableName = TableNameGiver.getUserTableName();
         String tableFQN = (tableSchema != null) ? String.format("%s.%s", tableSchema.getName(), userTableName) : userTableName;
-        String query = String.format("SELECT * FROM %s WHERE current_username = '%s';", tableFQN, username);
-
+        String query = String.format("SELECT * FROM %s WHERE current_email = '%s';", tableFQN, username);
         GeneralEntityPropSelector generalEntityPropSelector = new GeneralEntityPropSelector(userTableName);
         ResultWrapper resultWrapper = queryExecutor.executeQuery(query);
         ResultSet resultSet = resultWrapper != null ? resultWrapper.getResultSet() : null;
@@ -155,6 +154,9 @@ public class PostgresDialectSelection {
                 // for now this works quite well. All fields are stored string varchar format.
                 String value = resultSet.getString(entityPropModel.getName());
                 entityPropModel.setValue(value);
+
+                if(entityPropModel.getName().equalsIgnoreCase("id"))
+                    System.out.println("Retrieved User id: " + entityPropModel.getValue());
             }
         }
         UserModel userModel = new UserModel();

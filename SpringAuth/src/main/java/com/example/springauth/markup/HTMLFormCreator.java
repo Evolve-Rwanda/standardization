@@ -127,7 +127,9 @@ public class HTMLFormCreator {
             }
         }
         // add a form submission tag
-        String tableRows = createLabelInputElementRowPair(null, getFormSubmissionButton());
+        String tableRows = !isUpdateForm ?
+                this.createLabelInputElementRowPair(null, this.getFormSubmissionButton()) :
+                this.createLabelInputElementRowPair(null, this.getUpdateFormSubmissionButton());
         tableBuilder.append(tableRows);
         formBuilder.append(this.createFormTable(tableBuilder.toString()));
         // create a form closing tag
@@ -396,14 +398,15 @@ public class HTMLFormCreator {
                     "class=\"%s\" name=\"%s\" value=\"%s\"",
                     "property_value radio_button", name, label
             );
-            String checkedCondition = String.format( // checked options shall be in a list
-                    "th:attr=\"checked=${user_details.get('%s').contains('%s') ? 'checked' : ''}\"",
-                    name, label);
-            String inputTag = String.format(
-                    "\n\t\t\t\t\t\t<input type=\"radio\" %s %s /> ",
-                    thymleafValue, checkedCondition);
+            // checked options shall be in a list or concatenated string
+            // the string can be checked for the option as a substring using the latest java api's contains method
             radioBuilder.append("\n\t\t\t\t\t<label>")
-                    .append(inputTag)
+                    .append(String.format("\n\t\t\t\t\t\t<th:block th:if=\"${user_details.get('%s').contains('%s')}\">", name, label))
+                    .append(String.format("\n\t\t\t\t\t\t\t<input type=\"radio\" %s checked /> ", thymleafValue))
+                    .append("\n\t\t\t\t\t\t</th:block>")
+                    .append(String.format("\n\t\t\t\t\t\t<th:block th:unless=\"${user_details.get('%s').contains('%s')}\">", name, label))
+                    .append(String.format("\n\t\t\t\t\t\t\t<input type=\"radio\" %s /> ", thymleafValue))
+                    .append("\n\t\t\t\t\t\t</th:block>")
                     .append(label)
                     .append("\n\t\t\t\t\t</label>");
         }
@@ -471,11 +474,13 @@ public class HTMLFormCreator {
             String selectedCondition = String.format( // checked options shall be in a list
                     "th:attr=\"selected=${user_details.get('%s').contains('%s') ? 'selected' : ''}\"",
                     name, optionValue);
-            String optionTag = String.format(
-                    "\n\t\t\t\t\t\t<option value=\"%s\" %s>%s</option>",
-                    optionValue, selectedCondition, optionValue
-            );
-            selectionBuilder.append(optionTag);
+            //String optionTag = String.format("\n\t\t\t\t\t\t\t<option value=\"%s\" %s>%s</option>", optionValue, selectedCondition, optionValue);
+            selectionBuilder.append(String.format("\n\t\t\t\t\t\t<th:block th:if=\"${user_details.get('%s').contains('%s')}\">", name, optionValue))
+                            .append(String.format("\n\t\t\t\t\t\t\t<option value=\"%s\" selected>%s</option>", optionValue, optionValue))
+                            .append("\n\t\t\t\t\t\t</th:block>")
+                            .append(String.format("\n\t\t\t\t\t\t<th:block th:unless=\"${user_details.get('%s').contains('%s')}\">", name, optionValue))
+                            .append(String.format("\n\t\t\t\t\t\t\t<option value=\"%s\">%s</option>", optionValue, optionValue))
+                            .append("\n\t\t\t\t\t\t</th:block>");
         }
         selectionBuilder.append("\n\t\t\t\t\t</select>")
                 .append("\n\t\t\t\t</label>");
