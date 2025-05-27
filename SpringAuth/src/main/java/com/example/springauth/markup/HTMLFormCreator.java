@@ -471,10 +471,6 @@ public class HTMLFormCreator {
                 .append("\n\t\t\t\t\t\t<option disabled>select</option>");
         for (ColumnValueOptionModel columnValueOptionModel : columnValueOptionModelList) {
             String optionValue = columnValueOptionModel.getOptionalValue();
-            String selectedCondition = String.format( // checked options shall be in a list
-                    "th:attr=\"selected=${user_details.get('%s').contains('%s') ? 'selected' : ''}\"",
-                    name, optionValue);
-            //String optionTag = String.format("\n\t\t\t\t\t\t\t<option value=\"%s\" %s>%s</option>", optionValue, selectedCondition, optionValue);
             selectionBuilder.append(String.format("\n\t\t\t\t\t\t<th:block th:if=\"${user_details.get('%s').contains('%s')}\">", name, optionValue))
                             .append(String.format("\n\t\t\t\t\t\t\t<option value=\"%s\" selected>%s</option>", optionValue, optionValue))
                             .append("\n\t\t\t\t\t\t</th:block>")
@@ -510,18 +506,44 @@ public class HTMLFormCreator {
         String name = columnFQN[columnFQN.length - 1];
         String label = columnFQN[columnFQN.length - 1].replace("_", " ");
         String optionString = columnValueOptionModel.getOptionalValue();
-
-        String nameAttribAndValue = String.format("name=\"%s\"", optionString);
-        String checkedCondition = String.format( // checked options shall be in a list
-                "th:attr=\"checked=${user_details.get('%s').contains('%s') ? 'checked' : ''}\"",
-                name, optionString);
-        String checkboxTag = String.format(
-                "\n\t\t\t\t\t<input type=\"checkbox\" %s %s />",
-                nameAttribAndValue, checkedCondition);
-        checkboxBuilder.append("\n\t\t\t\t<label>")
-                .append(checkboxTag)
+        // checked options shall be in a list or string
+        // both the list and string have the contains method in the latest java api's
+        // for strings, the contains method checks for a substring,
+        // and so options should be concatenated in this case
+        checkboxBuilder
+                .append(
+                        String.format(
+                                "\n\t\t\t\t<th:block th:if=\"${user_details.get('%s').contains('%s')\">",
+                                name, optionString
+                        )
+                )
+                .append("\n\t\t\t\t\t<label>")
+                .append(
+                        String.format(
+                                "\n\t\t\t\t\t\t<input type=\"checkbox\" name=\"%s\" checked />",
+                                optionString
+                        )
+                )
                 .append(label)
-                .append("\n\t\t\t\t</label>");
+                .append("\n\t\t\t\t\t<label>")
+                .append("\n\t\t\t\t</th:block>");
+        checkboxBuilder
+                .append(
+                        String.format(
+                                "\n\t\t\t\t<th:block th:unless=\"${user_details.get('%s').contains('%s')\">",
+                                name, optionString
+                        )
+                )
+                .append("\n\t\t\t\t\t<label>")
+                .append(
+                        String.format(
+                                "\n\t\t\t\t\t\t<input type=\"checkbox\" name=\"%s\" />",
+                                optionString
+                        )
+                )
+                .append(label)
+                .append("\n\t\t\t\t\t<label>")
+                .append("\n\t\t\t\t</th:block>");
         return checkboxBuilder.toString();
     }
 

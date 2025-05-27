@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload</title>
+    <link rel="stylesheet"  th:href="@{css/forms.css}" />
+</head>
+<body>
+
+<form method="post" th:action="@{/upload}" enctype="multipart/form-data">
+    <table style="margin-left: auto; margin-right: auto; width: auto;">
+        <tr>
+            <td style="text-align: center; vertical-align: middle">
+                <h5>Update profile picture</h5>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align: center; vertical-align: middle">
+                <p th:text="${message}" th:if="${message ne null}" class="alert alert-primary"></p>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align: center; vertical-align: middle">
+                <label for="upload-img-el" style="cursor: pointer;">Select image</label>
+                <br /><br />
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align: center; vertical-align: middle">
+                <input type="file" name="image" accept="image/*" id="upload-img-el" style="display: none;">
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align: center; vertical-align: middle">
+                <button type="submit" class="add_button">Upload</button>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align: center; vertical-align: middle">
+                <span th:if="${msg != null}" th:text="${msg}"></span>
+            </td>
+        </tr>
+    </table>
+</form>
+
+</body>
+</html>

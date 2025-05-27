@@ -12,5 +12,4 @@ public class SpringAuthApplication {
         standardizationManager.initializeStandardAuthModule();
         SpringApplication.run(SpringAuthApplication.class, args);
     }
-
 }
