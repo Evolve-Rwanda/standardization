@@ -1,4 +1,4 @@
-package com.example.springauth.logging;
+package com.example.springauth.logging.loggers;
 
 import java.util.Objects;
 

@@ -1,5 +1,7 @@
-package com.example.springauth.logging;
+package com.example.springauth.logging.loggers;
 
+
+import com.example.springauth.logging.targets.LoggerTarget;
 
 public abstract class AbstractLogger {
 
@@ -15,7 +17,7 @@ public abstract class AbstractLogger {
     // This implementation works for all loggers without necessarily
     // overriding it in any subclass. Override it for any special
     // considerations
-    public void log(LoggerLevel loggerLevel, String message, Target target){
+    public void log(LoggerLevel loggerLevel, String message, LoggerTarget target){
         if (this.loggerLevel == loggerLevel){
             //log(msg, target) // overloaded version
         }
@@ -25,6 +27,6 @@ public abstract class AbstractLogger {
     }
 
     // Must be overridden by all logger children/subclasses
-    protected abstract void log(String message, Target target);
+    protected abstract void log(String message, LoggerTarget target);
 
 }

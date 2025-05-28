@@ -1,6 +1,6 @@
-package com.example.springauth.logging;
+package com.example.springauth.logging.loggers;
 
-public class LoggerLevels {
+public class Level {
 
     public static int INFO = 1;
     public static int ERROR = 2;

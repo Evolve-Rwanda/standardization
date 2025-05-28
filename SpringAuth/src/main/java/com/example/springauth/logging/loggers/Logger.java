@@ -1,11 +1,14 @@
-package com.example.springauth.logging;
+package com.example.springauth.logging.loggers;
 
+
+import com.example.springauth.logging.targets.LoggerTarget;
 
 public class Logger {
 
 
     private static Logger logger;
     private static AbstractLogger chainOfLogger;
+    private static LoggerTarget loggerTarget;
 
 
     private Logger(){
@@ -17,32 +20,33 @@ public class Logger {
             // Getting the very first logger object on the chain of loggers
             // In this case, this object is the info logger
             chainOfLogger = LogManager.chainLoggers();
+            loggerTarget = LogManager.addObservers();
         }
         return logger;
     }
 
     public void info(String message){
-        this.createLog(new LoggerLevel(LoggerLevels.INFO), message);
+        this.log(new LoggerLevel(Level.INFO), message);
     }
 
     public void error(String message){
-      this.createLog(new LoggerLevel(LoggerLevels.ERROR), message);
+      this.log(new LoggerLevel(Level.ERROR), message);
     }
 
     public void debug(String message){
-        this.createLog(new LoggerLevel(LoggerLevels.DEBUG), message);
+        this.log(new LoggerLevel(Level.DEBUG), message);
     }
 
     public void warning(String message){
-        this.createLog(new LoggerLevel(LoggerLevels.WARNING), message);
+        this.log(new LoggerLevel(Level.WARNING), message);
     }
 
     public void verbose(String message){
-        this.createLog(new LoggerLevel(LoggerLevels.VERBOSE), message);
+        this.log(new LoggerLevel(Level.VERBOSE), message);
     }
 
-    private void createLog(LoggerLevel loggerLevel, String message){
-        chainOfLogger.log(loggerLevel, message, null);
+    private void log(LoggerLevel loggerLevel, String message){
+        chainOfLogger.log(loggerLevel, message, loggerTarget);
     }
 
 }
