@@ -1,7 +1,7 @@
 package com.example.springauth.models.app;
 
-
 import java.util.Objects;
+
 
 
 public class PrivilegeModel {

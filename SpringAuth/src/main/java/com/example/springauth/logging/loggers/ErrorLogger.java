@@ -5,10 +5,6 @@ import com.example.springauth.logging.targets.LoggerTarget;
 
 public class ErrorLogger extends AbstractLogger{
 
-
-    protected LoggerLevel loggerLevel;
-
-
     public ErrorLogger(LoggerLevel loggerLevel){
         this.loggerLevel = loggerLevel;
     }
@@ -16,7 +12,6 @@ public class ErrorLogger extends AbstractLogger{
     @Override
     protected void log(String message, LoggerTarget target) {
         target.notifyAllObservers((new LoggerLevel(Level.ERROR)), message);
-        return;
     }
 
 }

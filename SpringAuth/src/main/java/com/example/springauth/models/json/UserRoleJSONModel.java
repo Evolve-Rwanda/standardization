@@ -14,7 +14,8 @@ public class UserRoleJSONModel {
     private String status;
 
     public UserRoleJSONModel() {
-        // constructor required by the json reader to work
+        // Important!
+        // This constructor is required by the json reader to work
     }
 
     public UserRoleJSONModel(String userId, String roleId, String status) {

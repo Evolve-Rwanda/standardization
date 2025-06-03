@@ -5,9 +5,6 @@ import com.example.springauth.logging.targets.LoggerTarget;
 public class VerboseLogger extends AbstractLogger{
 
 
-    protected LoggerLevel loggerLevel;
-
-
     public VerboseLogger(LoggerLevel loggerLevel){
         this.loggerLevel = loggerLevel;
     }
@@ -15,7 +12,6 @@ public class VerboseLogger extends AbstractLogger{
     @Override
     protected void log(String message, LoggerTarget target) {
         target.notifyAllObservers((new LoggerLevel(Level.VERBOSE)), message);
-        return;
     }
 
 }

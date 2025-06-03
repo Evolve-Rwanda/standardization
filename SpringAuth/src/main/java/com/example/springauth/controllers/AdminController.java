@@ -5,12 +5,15 @@ import com.example.springauth.dialects.postgres.ConnectionSettings;
 import com.example.springauth.dialects.postgres.PostgresUpdate;
 import com.example.springauth.dialects.postgres.QueryExecutor;
 import com.example.springauth.dialects.postgres.SchemaSettings;
+import com.example.springauth.logging.loggers.Logger;
+import com.example.springauth.logging.message.Message;
 import com.example.springauth.models.app.AdminModel;
 import com.example.springauth.models.jpa.AppUser;
 import com.example.springauth.models.json.PwdChangeJSONModel;
 import com.example.springauth.schemas.Schema;
 import com.example.springauth.schemas.SchemaNameGiver;
 import com.example.springauth.services.AppUserService;
+import com.example.springauth.utilities.ActionUtility;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,6 +36,7 @@ public class AdminController {
     @Autowired
     AppUserService appUserService;
 
+    Logger logger = Logger.getLogger();
 
     String sqlDialect = "POSTGRES";
     QueryExecutor queryExecutor = ConnectionSettings.getConnectionSettings().getQueryExecutor();
@@ -97,6 +101,9 @@ public class AdminController {
                 "adminRegistrationForm",
                 new AdminModel()
         );
+        String action =  ActionUtility.SUPER_ADMIN_REG;
+        String contents = action + " " + username;
+        logger.info((new Message(username, action, contents)).toJSON());
 
         return "admin_registration";
     }

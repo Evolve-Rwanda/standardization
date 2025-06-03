@@ -24,23 +24,21 @@ public class LoggerTarget {
             loggerLevelListMap.put(loggerLevel, new ArrayList<>());
         }
         loggerLevelListMap.get(loggerLevel).add(observer);
-        return;
     }
 
     public void removeObserver(ILogObserver observer){
         for (List<ILogObserver> iLogObserverList: this.loggerLevelListMap.values()) {
             iLogObserverList.remove(observer);
         }
-        return;
     }
 
     public void notifyAllObservers(LoggerLevel loggerLevel, String message){
         if (loggerLevelListMap.containsKey(loggerLevel)) {
             for (ILogObserver iLogObserver: loggerLevelListMap.get(loggerLevel)) {
+                iLogObserver.setLevel(loggerLevel.getLevel());
                 iLogObserver.log(message);
             }
         }
-        return;
     }
 
 }

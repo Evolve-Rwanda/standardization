@@ -1,4 +1,8 @@
-package com.example.springauth.logging;
+package com.example.springauth.logging.message;
+
+import com.example.springauth.utilities.DateTime;
+import com.example.springauth.utilities.UUIDGenerator;
+
 
 
 public class Message {
@@ -10,6 +14,16 @@ public class Message {
     private String user;
     private String action;
     private String contents;
+
+
+    public Message(String user, String action, String contents){
+        this.id = UUIDGenerator.generateUUID();
+        this.timestamp = DateTime.getTimeStamp();
+        this.user = user;
+        this.action = action;
+        this.contents = contents;
+    }
+
 
     public Message(String id, String timestamp, String type, String user, String action, String contents) {
         this.action = action;
@@ -30,7 +44,7 @@ public class Message {
 
     public String toJSON() {
         return String.format(
-            "{id:\"%s\"', timestamp:\"%s\", type:\"%s\", user:\"%s\", action:\"%s\", contents:\"%s\"}",
+            "{\"id\":\"%s\", \"timestamp\":\"%s\", \"type\":\"%s\", \"user\":\"%s\", \"action\":\"%s\", \"contents\":\"%s\"}",
             id, timestamp, type, user, action, contents
         );
     }
@@ -81,5 +95,11 @@ public class Message {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public static boolean isJSONEncoded(String message) {
+        return message.contains("{") && message.contains(":")
+               &&
+               message.contains("\"") && message.contains("}");
     }
 }
