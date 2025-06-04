@@ -12,7 +12,7 @@ public class PreBidMeeting {
     @Column(length = 50)
     private String id;
 
-    @Column(columnDefinition = "DATETIME")
+    @Column(columnDefinition = "TIMESTAMP")
     private String dateAndTime;
 
     @Column(length = 50)

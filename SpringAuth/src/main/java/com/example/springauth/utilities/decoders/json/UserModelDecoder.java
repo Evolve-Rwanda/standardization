@@ -4,7 +4,7 @@ import com.example.springauth.models.app.EntityPropModel;
 import com.example.springauth.models.app.UserModel;
 import com.example.springauth.models.json.EntityPropJSONModel;
 import com.example.springauth.utilities.DateTime;
-import com.example.springauth.utilities.UserIDGenerator;
+import com.example.springauth.utilities.UserIdGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -51,7 +51,7 @@ public class UserModelDecoder {
             }
             // Add a creation timestamp - mandatory
             if (!hasIdPropertyAndValue)
-                entityPropModelList.add(new EntityPropModel("id", UserIDGenerator.generateUserID()));
+                entityPropModelList.add(new EntityPropModel("id", UserIdGenerator.generateUserID()));
             if (!hasCreatedAt)
                 entityPropModelList.add(new EntityPropModel("created_at", DateTime.getTimeStamp()));
 

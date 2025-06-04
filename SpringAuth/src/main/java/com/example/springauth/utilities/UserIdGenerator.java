@@ -2,7 +2,7 @@ package com.example.springauth.utilities;
 
 import java.util.Random;
 
-public class UserIDGenerator {
+public class UserIdGenerator {
     public static String generateUserID() {
         return String.format(
                 "USER_%s_%s",

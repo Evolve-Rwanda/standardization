@@ -8,7 +8,7 @@ import com.example.springauth.schemas.Schema;
 import com.example.springauth.schemas.SchemaNameGiver;
 import com.example.springauth.tables.RoleTable;
 import com.example.springauth.utilities.DateTime;
-import com.example.springauth.utilities.RoleIDGenerator;
+import com.example.springauth.utilities.RoleIdGenerator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +36,7 @@ public class RoleController {
             RoleModel roleModel,
             Model model
     ) {
-        String id = RoleIDGenerator.generateRoleID();
+        String id = RoleIdGenerator.generateRoleID();
         String code = roleModel.getCode();
         String name = roleModel.getName();
         String description = roleModel.getDescription();

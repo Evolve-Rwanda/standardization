@@ -8,7 +8,7 @@ import com.example.springauth.schemas.Schema;
 import com.example.springauth.schemas.SchemaNameGiver;
 import com.example.springauth.tables.PrivilegeTable;
 import com.example.springauth.utilities.DateTime;
-import com.example.springauth.utilities.PrivilegeIDGenerator;
+import com.example.springauth.utilities.PrivilegeIdGenerator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +40,7 @@ public class PrivilegeController {
             PrivilegeModel privilegeModel,
             Model model
     ) {
-        String id = PrivilegeIDGenerator.generatePrivilegeID();
+        String id = PrivilegeIdGenerator.generatePrivilegeID();
         String code = privilegeModel.getCode();
         String name = privilegeModel.getName();
         String description = privilegeModel.getDescription();

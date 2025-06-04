@@ -1,8 +1,11 @@
 package com.example.springauth.models.jpa;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
+
+@Entity
 public class ContractingAuthorityBranch {
 
     @Id
@@ -62,6 +65,5 @@ public class ContractingAuthorityBranch {
 
     @Column(length = 100)
     private String representativePosition;
-
 
 }

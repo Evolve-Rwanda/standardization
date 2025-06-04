@@ -2,7 +2,7 @@ package com.example.springauth.utilities;
 
 import java.util.Random;
 
-public class RoleIDGenerator {
+public class RoleIdGenerator {
 
     public static String generateRoleID() {
         return String.format(

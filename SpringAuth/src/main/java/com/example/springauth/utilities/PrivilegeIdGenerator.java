@@ -2,7 +2,7 @@ package com.example.springauth.utilities;
 
 import java.util.Random;
 
-public class PrivilegeIDGenerator {
+public class PrivilegeIdGenerator {
 
     public static String generatePrivilegeID() {
         return String.format(

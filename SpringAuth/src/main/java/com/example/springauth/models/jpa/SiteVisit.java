@@ -24,6 +24,4 @@ public class SiteVisit {
     private String purposeOfTheVisit;
 
     // connected to the visit attendee entity, *:*
-
-
 }

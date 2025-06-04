@@ -1,13 +1,9 @@
 package com.example.springauth.logging.targets;
 
-import com.example.springauth.authentication.AuthenticationUtility;
 import com.example.springauth.logging.loggers.Level;
 import com.example.springauth.logging.message.Message;
 import com.example.springauth.models.jpa.Log;
-import com.example.springauth.models.json.LogMessageJSONModel;
 import com.example.springauth.services.LogService;
-import com.example.springauth.utilities.DateTime;
-import com.example.springauth.utilities.UUIDGenerator;
 import com.example.springauth.utilities.decoders.json.LogMessageModelDecoder;
 
 
@@ -34,6 +30,7 @@ public class DatabaseLogger implements ILogObserver {
         Log log = new Log();
 
         if (isJSONEncoded) {
+            // the only time and condition we log any level to the database
             var logMessageJSONModel = (new LogMessageModelDecoder(message)).decode();
             log.setId(logMessageJSONModel.getId());
             log.setTimestamp(logMessageJSONModel.getTimestamp());
@@ -41,15 +38,7 @@ public class DatabaseLogger implements ILogObserver {
             log.setUserId(logMessageJSONModel.getUser());
             log.setAction(logMessageJSONModel.getAction());
             log.setContents(logMessageJSONModel.getContents());
-        } else {
-            String action = " ";
-            log.setId(UUIDGenerator.generateUUID());
-            log.setTimestamp(DateTime.getTimeStamp());
-            log.setType(Level.getName(this.level));
-            log.setUserId(AuthenticationUtility.getCurrentUsername());
-            log.setAction(action);
-            log.setContents(message);
+            this.logService.createLog(log);
         }
-        this.logService.createLog(log);
     }
 }
