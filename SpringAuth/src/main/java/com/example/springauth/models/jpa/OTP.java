@@ -24,7 +24,7 @@ public class OTP {
     private String status; // used, unused
 
     @Column(length = 100)
-    //@Convert(converter = StringEncryptorDecrypter.class)
+    @Convert(converter = StringEncryptorDecrypter.class)
     private String code;
 
     private int timeout;

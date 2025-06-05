@@ -34,6 +34,7 @@ public class OTPController {
         OTP otp = otpService.saveOTP(new OTP(id, destinationType, timeSent, status, code, timeout));
         // send back an id to the otp, not the actual otp
         // The user is expected to enter the received otp
+        logger.debug("The generated otp is: " + code);
         return String.format(
                 "{\"id\":\"%s\", \"code\":\"%s\"}",
                 otp.getId(), "null"
@@ -48,10 +49,13 @@ public class OTPController {
             return "false";
         String sendingDateTimeString = otp.getTimeSent().toString();
         int savedCode = Integer.parseInt(otp.getCode());
-        int confirmation = Integer.parseInt(code);
+        int confirmation = Integer.parseInt(code.trim());
         int timeOutDuration = otp.getTimeout();
         long elapsedSeconds = DateTime.getDurationInSeconds(sendingDateTimeString, currentDateTimeString);
         boolean isValid = ((long)timeOutDuration >= elapsedSeconds) && (savedCode == confirmation);
+        logger.debug("The saved otp is: " + savedCode);
+        logger.verbose("The elapsed duration is: " + elapsedSeconds + " and the timeout duration is: " + timeOutDuration);
+        logger.verbose("The saved code is: " + savedCode + " and the confirming code is: " + confirmation);
         // add a database targeted log
         return isValid ? "true" : "false";
     }

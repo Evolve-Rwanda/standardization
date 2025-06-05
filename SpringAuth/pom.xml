@@ -76,11 +76,25 @@
             <artifactId>jakarta.persistence-api</artifactId>
         </dependency>
 
-        <!-- Symmetric encryption -->
+        <!-- Symmetric encryption for entity fields -->
         <dependency>
             <groupId>com.github.ulisesbocchio</groupId>
             <artifactId>jasypt-spring-boot-starter</artifactId>
             <version>3.0.5</version>
+        </dependency>
+
+        <!-- Spring boot mail dependency -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+            <version>3.1.5</version>
+        </dependency>
+
+        <!-- One of many sms sender dependency (has a vulnerability and should be checked out) -->
+        <dependency>
+            <groupId>com.twilio.sdk</groupId>
+            <artifactId>twilio</artifactId>
+            <version>9.4.0</version>
         </dependency>
 
 
