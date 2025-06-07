@@ -97,6 +97,13 @@
             <version>9.4.0</version>
         </dependency>
 
+        <!-- For pindo io -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.12.0</version> <!-- Use the latest version -->
+        </dependency>
+
 
     </dependencies>
 

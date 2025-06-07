@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class SMSService {
 
-    /*
+
+    @Value("${twilio.service_sid}")
+    private String serviceSid;
+
     @Value("${twilio.account_sid}")
     private String accountSid;
 
@@ -19,6 +22,7 @@ public class SMSService {
     @Value("${twilio.phone_number}")
     private String twilioPhoneNumber;
 
+
     public void sendSMS(String toPhoneNumber, String messageBody) {
         Twilio.init(accountSid, authToken);
         Message message = Message.creator(
@@ -26,7 +30,6 @@ public class SMSService {
                 new PhoneNumber(twilioPhoneNumber),
                 messageBody
         ).create();
-        System.out.println("SMS sent successfully! Message SID: " + message.getSid());
+        System.out.println("SMS sent successfully! Message SID: " + message.getStatus().toString());
     }
-    */
 }
