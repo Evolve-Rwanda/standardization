@@ -6,6 +6,7 @@ import com.twilio.rest.verify.v2.service.VerificationCreator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+
 @Service
 public class OTPSenderService {
 
@@ -17,7 +18,6 @@ public class OTPSenderService {
 
     @Value("${twilio.service_sid}")
     private String serviceSid;
-
 
     public void sendOtp(String phoneNumber) {
         Twilio.init(accountSid, authToken);

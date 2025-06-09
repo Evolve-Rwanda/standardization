@@ -23,22 +23,30 @@ public class OTPController {
     Logger logger = Logger.getLogger();
 
 
-    @GetMapping("/otp")
-    public String generateOTP(){
+    @GetMapping("/generate_otp")
+    public String generateOTP(@RequestParam("destination_type") String destinationType){
         String id = OTPIdGenerator.generateOTPId();
         String timeSent = DateTime.getTimeStampWithoutTimeZone();
         String status = Configuration.VALID_OTP;
         String code = OTPGenerator.generateOTP() + "";
         int timeout = Configuration.OTP_TIMEOUT_IN_SECONDS;
-        String destinationType = "Mobile";
         OTP otp = otpService.saveOTP(new OTP(id, destinationType, timeSent, status, code, timeout));
         // send back an id to the otp, not the actual otp
         // The user is expected to enter the received otp
-        logger.debug("The generated otp is: " + code);
-        return String.format(
-                "{\"id\":\"%s\", \"code\":\"%s\"}",
-                otp.getId(), "null"
-        );
+        // logger.debug("The generated otp is: " + code);
+        return String.format("{\"id\":\"%s\", \"code\":\"%s\"}", otp.getId(), "null");
+    }
+
+    @GetMapping("/generate_long_otp")
+    public String generateLongOTP(@RequestParam("destination_type") String destinationType){
+        String id = OTPIdGenerator.generateOTPId();
+        String timeSent = DateTime.getTimeStampWithoutTimeZone();
+        String status = Configuration.VALID_OTP;
+        String code = OTPGenerator.generateOTP() + "";
+        int timeout = Configuration.OTP_TIMEOUT_IN_SECONDS;
+        OTP otp = otpService.saveOTP(new OTP(id, destinationType, timeSent, status, code, timeout));
+        // logger.debug("The generated otp is: " + code);
+        return String.format("{\"id\":\"%s\", \"code\":\"%s\"}", otp.getId(), "null");
     }
 
     @GetMapping("verify_otp")
@@ -53,9 +61,9 @@ public class OTPController {
         int timeOutDuration = otp.getTimeout();
         long elapsedSeconds = DateTime.getDurationInSeconds(sendingDateTimeString, currentDateTimeString);
         boolean isValid = ((long)timeOutDuration >= elapsedSeconds) && (savedCode == confirmation);
-        logger.debug("The saved otp is: " + savedCode);
-        logger.verbose("The elapsed duration is: " + elapsedSeconds + " and the timeout duration is: " + timeOutDuration);
-        logger.verbose("The saved code is: " + savedCode + " and the confirming code is: " + confirmation);
+        // logger.debug("The saved otp is: " + savedCode);
+        // logger.verbose("The elapsed duration is: " + elapsedSeconds + " and the timeout duration is: " + timeOutDuration);
+        // logger.verbose("The saved code is: " + savedCode + " and the confirming code is: " + confirmation);
         // add a database targeted log
         return isValid ? "true" : "false";
     }

@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
+import java.time.LocalDateTime;
+
 
 @Entity
 public class Email {
@@ -17,6 +19,12 @@ public class Email {
 
     @Column(length = 50)
     private String destination;
+
+    @Column(columnDefinition = "TEXT")
+    private String CC;
+
+    @Column(columnDefinition = "TEXT")
+    private String BCC;
 
     @Column(length = 50)
     private String replyTo;
@@ -33,10 +41,20 @@ public class Email {
     @Column(length = 10)
     private String priority;
 
+    private LocalDateTime dateTimeSent;
+
     // except the id, type - all the other fields can be encrypted
 
 
     public Email() {
+    }
+
+    public String getBCC() {
+        return BCC;
+    }
+
+    public void setBCC(String BCC) {
+        this.BCC = BCC;
     }
 
     public String getBody() {
@@ -45,6 +63,14 @@ public class Email {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public String getCC() {
+        return CC;
+    }
+
+    public void setCC(String CC) {
+        this.CC = CC;
     }
 
     public String getDestination() {
@@ -101,5 +127,13 @@ public class Email {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public LocalDateTime getDateTimeSent() {
+        return dateTimeSent;
+    }
+
+    public void setDateTimeSent(LocalDateTime dateTimeSent) {
+        this.dateTimeSent = dateTimeSent;
     }
 }
