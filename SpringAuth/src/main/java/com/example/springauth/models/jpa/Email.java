@@ -45,8 +45,26 @@ public class Email {
 
     // except the id, type - all the other fields can be encrypted
 
-
     public Email() {
+    }
+
+    public Email(
+            String id, String source, String destination,
+            String CC, String BCC, String replyTo,
+            String subject, String body, String type,
+            String priority, LocalDateTime dateTimeSent
+    ) {
+        this.id = id;
+        this.source = source;
+        this.destination = destination;
+        this.CC = CC;
+        this.BCC = BCC;
+        this.replyTo = replyTo;
+        this.subject = subject;
+        this.type = type;
+        this.body = body;
+        this.priority = priority;
+        this.dateTimeSent = dateTimeSent;
     }
 
     public String getBCC() {

@@ -24,10 +24,10 @@ public class SpringAuthApplication {
         logger.setLogService(logService);
 
         logger.info(Logger.INFO_INIT);
-        logger.error(Logger.ERROR_INIT);
-        logger.warning(Logger.WARNING_INIT);
         logger.debug(Logger.DEBUG_INIT);
         logger.verbose(Logger.VERBOSE_INIT);
+        logger.warning(Logger.WARNING_INIT);
+        logger.error(Logger.ERROR_INIT);
         logger.info("This is a simple log.");
     }
 }

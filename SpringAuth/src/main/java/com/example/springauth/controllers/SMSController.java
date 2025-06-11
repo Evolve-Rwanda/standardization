@@ -255,7 +255,7 @@ public class SMSController {
     }
 
     @NotNull
-    private static String getRecipientJSONArray(List<PindoRecipientModel> recipientList) {
+    private String getRecipientJSONArray(List<PindoRecipientModel> recipientList) {
         StringBuilder recipientJSONArrayBuilder = new StringBuilder();
         recipientJSONArrayBuilder.append("[");
         int i=1;
